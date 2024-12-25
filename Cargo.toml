@@ -2,6 +2,11 @@
 name = "Minepatch"
 version = "0.1.0"
 edition = "2021"
+authors = ["Tim Anhalt (BitTim)"]
+description = "A utility to easily create, manage and apply patches for Minecraft modpacks"
+readme = "README.md"
+repository = "https://github.com/BitTim/Minepatch"
+license = "GPL-3"
 
 [dependencies]
 clap = { version = "4.5.23", features = ["derive"] }

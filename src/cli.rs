@@ -4,15 +4,17 @@
  * Project:    Minepatch
  * License:    GPLv3
  *
- * File:       args.rs
+ * File:       cli.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   25.12.24, 02:08
+ * Modified:   25.12.24, 02:43
  */
+
+pub mod instance;
 
 use clap::{Parser, Subcommand};
 
 #[derive(Parser)]
-#[command(author, version, long_about = None)]
+#[command(author, version, about, long_about = None)]
 #[command(propagate_version = true)]
 pub struct Cli {
     #[command(subcommand)]
@@ -21,6 +23,9 @@ pub struct Cli {
 
 #[derive(Subcommand)]
 pub enum Commands {
-    /// Testing
-    Test,
+    /// Manage relevant Minecraft instances
+    Instance {
+        #[command(subcommand)]
+        instance_commands: instance::Commands,
+    },
 }
