@@ -6,23 +6,13 @@
  *
  * File:       main.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   23.12.24, 20:39
+ * Modified:   25.12.24, 01:55
  */
+mod args;
 
-use std::env;
+use args::Cli;
+use clap::Parser;
 
 fn main() {
-    let raw_args: Vec<String> = env::args().collect();
-
-    match parse_args(&raw_args) {
-        Ok((cmd, args)) => println!("Command: {} | Args: {:?}", cmd, args),
-        Err(e) => println!("{}", e),
-    }
-}
-
-fn parse_args(raw_args: &[String]) -> Result<(&String, &[String]), &'static str> {
-    let cmd = raw_args.get(1).ok_or("No command specified")?;
-    let args = raw_args.get(2..).unwrap_or_default();
-
-    Ok((cmd, args))
+    let _cli = Cli::parse();
 }
