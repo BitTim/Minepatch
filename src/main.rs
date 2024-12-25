@@ -9,11 +9,11 @@
  * Modified:   25.12.24, 03:04
  */
 
-mod cli;
+use minepatch::*;
 
-use crate::cli::{instance, Commands};
 use clap::Parser;
 use cli::Cli;
+use cli::{instance, Commands};
 
 fn main() {
     let cli = Cli::parse();
@@ -21,7 +21,10 @@ fn main() {
     match &cli.command {
         Commands::Instance { instance_commands } => match instance_commands {
             instance::Commands::List => {
-                println!("PLACEHOLDER Imagine a list of instances here")
+                if let Err(error) = core::instance::list() {
+                    println!("{}", error);
+                    std::process::exit(1);
+                }
             }
             instance::Commands::Link { id, path } => {
                 println!(
