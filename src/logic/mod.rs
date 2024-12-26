@@ -4,9 +4,9 @@
  * Project:    Minepatch
  * License:    GPLv3
  *
- * File:       core.rs
+ * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   25.12.24, 17:04
+ * Modified:   25.12.24, 22:55
  */
 pub mod file;
 pub mod instance;

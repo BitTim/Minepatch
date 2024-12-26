@@ -4,11 +4,8 @@
  * Project:    Minepatch
  * License:    GPLv3
  *
- * File:       lib.rs
+ * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
  * Modified:   26.12.24, 16:30
  */
-
-pub mod cli;
-pub mod data;
-pub mod logic;
+pub mod instance;

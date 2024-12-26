@@ -6,7 +6,7 @@
  *
  * File:       main.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   26.12.24, 00:09
+ * Modified:   26.12.24, 16:32
  */
 
 use minepatch::*;
@@ -21,7 +21,7 @@ fn main() {
     match &cli.command {
         Commands::Instance { instance_commands } => match instance_commands {
             instance::Commands::List => {
-                if let Err(error) = core::instance::list() {
+                if let Err(error) = logic::instance::list() {
                     println!("{}", error);
                     std::process::exit(0);
                 }
