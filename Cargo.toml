@@ -8,11 +8,8 @@ readme = "README.md"
 repository = "https://github.com/BitTim/Minepatch"
 license = "GPL-3"
 
-[env]
-CARGO_PKG_QUALIFIER = "dev"
-CARGO_PKG_ORGANIZATION = "BitTim"
-
 [dependencies]
 clap = { version = "4.5.23", features = ["derive"] }
 directories = "5.0.1"
 csv = "1.3.1"
+tabled = "0.17.0"

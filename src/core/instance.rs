@@ -6,29 +6,52 @@
  *
  * File:       instance.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   25.12.24, 17:05
+ * Modified:   26.12.24, 02:58
  */
 use crate::core::file;
+use std::path::{Path, PathBuf};
 use std::{fs, io};
+use tabled::builder::Builder;
+use tabled::settings::Style;
 
 const INSTANCES_FILE_NAME: &str = "instances.csv";
 
-pub fn list() -> io::Result<()> {
-    let data_path = file::get_data_path().unwrap();
-    let instances_file_path = data_path.join(&INSTANCES_FILE_NAME);
+fn get_instance_file_path() -> io::Result<PathBuf> {
+    let dir = file::get_data_path()?;
+    fs::create_dir_all(&dir)?;
 
-    let file = if fs::exists(&instances_file_path)? {
-        fs::File::open(&instances_file_path)?
-    } else {
-        fs::File::create(&instances_file_path)?
-    };
+    Ok(dir.join(&INSTANCES_FILE_NAME))
+}
 
-    let mut csv_reader = csv::Reader::from_reader(file);
+fn _write_csv(file_path: &Path, records: Vec<Vec<String>>) -> io::Result<()> {
+    let mut csv_writer = csv::Writer::from_path(&file_path)?;
 
-    for result in csv_reader.records() {
-        let record = result?;
-        println!("{:?}", record);
+    csv_writer.write_record(&["id", "path"])?;
+    for record in records {
+        csv_writer.write_record(record)?
     }
 
+    csv_writer.flush()?;
+    Ok(())
+}
+
+pub fn list() -> io::Result<()> {
+    let file_path = get_instance_file_path()?;
+    if fs::exists(&file_path)? == false {
+        return Ok(());
+    };
+
+    let mut table_builder = Builder::default();
+    let mut csv_reader = csv::Reader::from_path(&file_path)?;
+
+    table_builder.push_record(csv_reader.headers()?);
+    for record in csv_reader.records() {
+        table_builder.push_record(&record?);
+    }
+
+    println!(
+        "{}",
+        table_builder.build().with(Style::rounded()).to_string()
+    );
     Ok(())
 }

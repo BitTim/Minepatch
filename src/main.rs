@@ -6,7 +6,7 @@
  *
  * File:       main.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   25.12.24, 03:04
+ * Modified:   26.12.24, 00:09
  */
 
 use minepatch::*;
@@ -23,7 +23,7 @@ fn main() {
             instance::Commands::List => {
                 if let Err(error) = core::instance::list() {
                     println!("{}", error);
-                    std::process::exit(1);
+                    std::process::exit(0);
                 }
             }
             instance::Commands::Link { id, path } => {
