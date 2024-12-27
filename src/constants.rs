@@ -4,10 +4,9 @@
  * Project:    Minepatch
  * License:    GPLv3
  *
- * File:       mod.rs
+ * File:       constants.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   27.12.24, 14:36
+ * Modified:   27.12.24, 18:13
  */
 
-pub mod error;
-pub mod file;
+pub const INSTANCES_FILE_NAME: &str = "instances.csv";

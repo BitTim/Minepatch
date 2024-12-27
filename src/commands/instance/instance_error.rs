@@ -6,9 +6,9 @@
  *
  * File:       instance_error.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   27.12.24, 16:08
+ * Modified:   27.12.24, 18:13
  */
-use crate::util::error::ErrorType;
+use crate::common::error::ErrorType;
 
 #[derive(Debug)]
 pub enum InstanceError {

@@ -6,7 +6,7 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   27.12.24, 14:44
+ * Modified:   27.12.24, 18:16
  */
 use colored::Colorize;
 use serde::{Deserialize, Serialize};
@@ -16,7 +16,9 @@ use tabled::Tabled;
 
 pub mod instance_cli;
 pub mod instance_error;
-pub mod instance_logic;
+mod instance_file;
+pub mod instance_main;
+mod instance_util;
 
 #[derive(Debug, Tabled)]
 #[tabled(rename_all = "PascalCase")]
@@ -55,8 +57,8 @@ impl Instance {
             name: self.name.clone(),
             path: self.path.display().to_string(),
             valid: match valid {
-                true => "✔".green().to_string(),
-                false => "✘".red().to_string(),
+                true => "✓ Yes".green().to_string(),
+                false => "✗  No".red().to_string(),
             },
         }
     }

@@ -6,9 +6,9 @@
  *
  * File:       error.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   27.12.24, 14:36
+ * Modified:   27.12.24, 18:13
  */
-use crate::util::error::ErrorType;
+use crate::common::error::ErrorType;
 
 #[derive(Debug)]
 pub enum FileError {

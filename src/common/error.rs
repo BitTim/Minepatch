@@ -6,7 +6,7 @@
  *
  * File:       error.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   27.12.24, 16:32
+ * Modified:   27.12.24, 18:09
  */
 
 use colored::Colorize;
@@ -17,26 +17,35 @@ pub trait ErrorType: Debug {
     fn message(&self) -> &str;
     fn hint(&self) -> &str;
 
-    fn with_context(self, context: Option<String>) -> Box<Error>
+    fn builder(self) -> Error
     where
         Self: Sized + 'static,
     {
-        Error::new(Box::new(self), context)
+        Error::new(Box::new(self))
     }
 }
 
 #[derive(Debug)]
 pub struct Error {
     error_type: Box<dyn ErrorType>,
-    context: Option<String>,
+    contexts: Vec<String>,
 }
 
 impl Error {
-    fn new(error_type: Box<dyn ErrorType>, context: Option<String>) -> Box<Self> {
-        Box::new(Self {
+    fn new(error_type: Box<dyn ErrorType>) -> Self {
+        Self {
             error_type,
-            context,
-        })
+            contexts: vec![],
+        }
+    }
+
+    pub(crate) fn context(mut self, context: String) -> Self {
+        self.contexts.push(context);
+        self
+    }
+
+    pub(crate) fn build(self) -> Box<Self> {
+        Box::new(self)
     }
 }
 
@@ -50,8 +59,9 @@ impl Display for Error {
             "error: ".red().bold(),
             self.error_type.message()
         )?;
-        if let Some(context) = &self.context {
-            write!(f, "\t{}\n\n", context.yellow())?;
+
+        for context in &self.contexts {
+            write!(f, "\t{}\n", context.yellow())?;
         }
         write!(f, "{}", self.error_type.hint())?;
 

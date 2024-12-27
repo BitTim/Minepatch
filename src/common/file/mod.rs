@@ -6,11 +6,11 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   27.12.24, 16:32
+ * Modified:   27.12.24, 18:13
  */
 
-use crate::util::error::ErrorType;
-use crate::util::file::error::FileError;
+use crate::common::error::ErrorType;
+use crate::common::file::error::FileError;
 use directories::ProjectDirs;
 use std::path::{Path, PathBuf};
 use std::{env, io};
@@ -30,14 +30,11 @@ pub(crate) fn get_data_path() -> io::Result<PathBuf> {
 }
 
 pub(crate) fn get_filename(path: &Path) -> Result<&str, Box<dyn std::error::Error>> {
-    let context = Some(format!(
-        "Path: '{}'",
-        path.to_path_buf().display().to_string()
-    ));
+    let context = format!("Path: '{}'", path.to_path_buf().display().to_string());
 
     Ok(path
         .file_name()
-        .ok_or(FileError::PathNoFileName.with_context(context.clone()))?
+        .ok_or(FileError::PathNoFileName.builder().context(context.clone()))?
         .to_str()
-        .ok_or(FileError::PathInvalidUTF8.with_context(context.clone()))?)
+        .ok_or(FileError::PathInvalidUTF8.builder().context(context))?)
 }
