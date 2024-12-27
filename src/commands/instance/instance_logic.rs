@@ -6,11 +6,11 @@
  *
  * File:       instance_logic.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   27.12.24, 16:20
+ * Modified:   27.12.24, 16:32
  */
 use crate::commands::instance::instance_error::InstanceError;
 use crate::commands::instance::{Instance, InstanceDisplay};
-use crate::util::error;
+use crate::util::error::ErrorType;
 use crate::util::file::error::FileError;
 use crate::util::file::{get_data_path, get_filename};
 use csv::{Reader, Writer};
@@ -62,10 +62,7 @@ fn write_all(instances: Vec<Instance>) -> io::Result<()> {
 
 fn check_free(instances: &[Instance], name: &str) -> Result<(), Box<dyn Error>> {
     match instances.iter().any(|instance| instance.name == name) {
-        true => Err(error::Error::new(
-            Box::new(InstanceError::NameTaken),
-            Some(format!("Name: '{}'", name)),
-        )),
+        true => Err(InstanceError::NameTaken.with_context(Some(format!("Name: '{}'", name)))),
         false => Ok(()),
     }
 }
@@ -73,10 +70,7 @@ fn check_free(instances: &[Instance], name: &str) -> Result<(), Box<dyn Error>> 
 fn check_exists(instances: &[Instance], name: &str) -> Result<(), Box<dyn Error>> {
     match instances.iter().any(|instance| instance.name == name) {
         true => Ok(()),
-        false => Err(error::Error::new(
-            Box::new(InstanceError::NameNotFound),
-            Some(format!("Name: '{}'", name)),
-        )),
+        false => Err(InstanceError::NameNotFound.with_context(Some(format!("Name: '{}'", name)))),
     }
 }
 
@@ -87,10 +81,7 @@ fn find_instance<'a>(
     instances
         .iter()
         .find(|instance| instance.get_name() == name)
-        .ok_or(error::Error::new(
-            Box::new(InstanceError::NameTaken),
-            Some(format!("Name: '{}'", name)),
-        ))
+        .ok_or(InstanceError::NameNotFound.with_context(Some(format!("Name: '{}'", name))))
 }
 
 fn find_instance_mut<'a>(
@@ -100,10 +91,7 @@ fn find_instance_mut<'a>(
     instances
         .iter_mut()
         .find(|instance| instance.get_name() == name)
-        .ok_or(error::Error::new(
-            Box::new(InstanceError::NameNotFound),
-            Some(format!("Name: '{}'", name)),
-        ))
+        .ok_or(InstanceError::NameNotFound.with_context(Some(format!("Name: '{}'", name))))
 }
 
 pub fn list() -> io::Result<()> {
@@ -130,10 +118,9 @@ pub fn list() -> io::Result<()> {
 
 pub fn link(path: &Path, name: &Option<String>) -> Result<(), Box<dyn Error>> {
     if fs::exists(&path)? == false {
-        return Err(error::Error::new(
-            Box::new(FileError::PathNotFound),
-            Some(format!("Path: '{}'", path.display())),
-        ));
+        return Err(
+            FileError::PathNotFound.with_context(Some(format!("Path: '{}'", path.display())))
+        );
     }
 
     let actual_name = match name {
@@ -163,10 +150,8 @@ pub fn rename(name: &str, new_name: &Option<String>) -> Result<(), Box<dyn Error
     .to_string();
 
     if name == actual_new_name {
-        return Err(error::Error::new(
-            Box::new(InstanceError::NameNotChanged),
-            Some(format!("Name: '{}'", actual_new_name)),
-        ));
+        return Err(InstanceError::NameNotChanged
+            .with_context(Some(format!("Name: '{}'", actual_new_name))));
     }
 
     check_free(&instances, &*actual_new_name)?;

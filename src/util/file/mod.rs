@@ -6,10 +6,10 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   27.12.24, 16:20
+ * Modified:   27.12.24, 16:32
  */
 
-use crate::util::error::Error;
+use crate::util::error::ErrorType;
 use crate::util::file::error::FileError;
 use directories::ProjectDirs;
 use std::path::{Path, PathBuf};
@@ -37,10 +37,7 @@ pub(crate) fn get_filename(path: &Path) -> Result<&str, Box<dyn std::error::Erro
 
     Ok(path
         .file_name()
-        .ok_or(Error::new(
-            Box::new(FileError::PathNoFileName),
-            context.clone(),
-        ))?
+        .ok_or(FileError::PathNoFileName.with_context(context.clone()))?
         .to_str()
-        .ok_or(Error::new(Box::new(FileError::PathInvalidUTF8), context))?)
+        .ok_or(FileError::PathInvalidUTF8.with_context(context.clone()))?)
 }

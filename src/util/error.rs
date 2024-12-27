@@ -6,7 +6,7 @@
  *
  * File:       error.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   27.12.24, 16:20
+ * Modified:   27.12.24, 16:32
  */
 
 use colored::Colorize;
@@ -16,6 +16,13 @@ use std::fmt::{Debug, Display, Formatter};
 pub trait ErrorType: Debug {
     fn message(&self) -> &str;
     fn hint(&self) -> &str;
+
+    fn with_context(self, context: Option<String>) -> Box<Error>
+    where
+        Self: Sized + 'static,
+    {
+        Error::new(Box::new(self), context)
+    }
 }
 
 #[derive(Debug)]
@@ -25,7 +32,7 @@ pub struct Error {
 }
 
 impl Error {
-    pub(crate) fn new(error_type: Box<dyn ErrorType>, context: Option<String>) -> Box<Self> {
+    fn new(error_type: Box<dyn ErrorType>, context: Option<String>) -> Box<Self> {
         Box::new(Self {
             error_type,
             context,
