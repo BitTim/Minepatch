@@ -6,7 +6,7 @@
  *
  * File:       instance.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   26.12.24, 18:36
+ * Modified:   26.12.24, 20:52
  */
 use colored::Colorize;
 use serde::{Deserialize, Serialize};
@@ -29,6 +29,14 @@ pub(crate) struct InstanceDisplay {
 }
 
 impl Instance {
+    pub(crate) fn new(name: String, path: PathBuf) -> Self {
+        Self { name, path }
+    }
+
+    pub(crate) fn get_name(&self) -> String {
+        self.name.to_string()
+    }
+
     pub(crate) fn to_display(&self) -> InstanceDisplay {
         let valid = if let Ok(value) = fs::exists(&self.path) {
             value

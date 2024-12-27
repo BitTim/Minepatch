@@ -6,12 +6,16 @@
  *
  * File:       instance.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   26.12.24, 18:36
+ * Modified:   27.12.24, 02:39
  */
 use crate::data::instance::{Instance, InstanceDisplay};
+use crate::error;
+use crate::error::instance::InstanceError;
+use crate::error::path::PathError;
 use crate::logic::file;
-use csv::Reader;
-use std::path::PathBuf;
+use csv::{Reader, Writer};
+use std::error::Error;
+use std::path::{Path, PathBuf};
 use std::{fs, io};
 use tabled::settings::object::{Columns, Rows};
 use tabled::settings::width::MinWidth;
@@ -34,14 +38,26 @@ fn init_file() -> io::Result<PathBuf> {
 
 fn read_instances() -> io::Result<Vec<Instance>> {
     let path = init_file()?;
-    let mut csv_reader = Reader::from_path(&path)?;
+    let mut reader = Reader::from_path(&path)?;
 
     let mut instances: Vec<Instance> = vec![];
-    for result in csv_reader.deserialize() {
+    for result in reader.deserialize() {
         instances.push(result?);
     }
 
     Ok(instances)
+}
+
+fn write_instances(instances: Vec<Instance>) -> io::Result<()> {
+    let path = init_file()?;
+    let mut writer = Writer::from_path(&path)?;
+
+    instances
+        .iter()
+        .try_for_each(|instance| writer.serialize(instance))?;
+
+    writer.flush()?;
+    Ok(())
 }
 
 pub fn list() -> io::Result<()> {
@@ -63,5 +79,34 @@ pub fn list() -> io::Result<()> {
         .to_string();
 
     println!("{}", table);
+    Ok(())
+}
+
+pub fn link(name: &Option<String>, path: &Path) -> Result<(), Box<dyn Error>> {
+    if fs::exists(&path)? == false {
+        return Err(error::Error::new(
+            Box::new(PathError::PathNotFound),
+            Some(path.display().to_string()),
+        ));
+    }
+
+    let actual_name = match name {
+        Some(name) => name,
+        None => file::get_filename(&path)?,
+    };
+
+    let mut instances = read_instances()?;
+    if let Some(_) = instances
+        .iter()
+        .find(|instance| instance.get_name() == actual_name)
+    {
+        return Err(error::Error::new(
+            Box::new(InstanceError::NameTaken),
+            Some(actual_name.to_string()),
+        ));
+    }
+
+    instances.push(Instance::new(actual_name.to_string(), path.to_path_buf()));
+    write_instances(instances)?;
     Ok(())
 }

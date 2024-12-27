@@ -6,7 +6,7 @@
  *
  * File:       instance.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   25.12.24, 03:04
+ * Modified:   26.12.24, 19:33
  */
 
 use clap::Subcommand;
@@ -17,32 +17,31 @@ pub enum Commands {
     /// List all linked instances
     List,
 
-    /// Link an instance and assign a unique identifier
+    /// Link an instance and assign a unique name
     Link {
-        /// A unique identifier that will be assigned to the instance
+        /// Use this flag to assign a unique name. Defaults to the directory name.
         #[arg(short, long)]
-        id: String,
+        name: Option<String>,
 
         /// The path to the root folder of the instance
-        #[arg(short, long)]
         path: PathBuf,
     },
 
-    /// Change the unique identifier of an already linked instance
+    /// Change the unique name of an already linked instance
     Relink {
-        /// The current identifier of the instance
+        /// The current name of the instance
         #[arg(short, long)]
-        old_id: String,
+        old_name: String,
 
-        /// The new identifier for the instance
+        /// The new name for the instance
         #[arg(short, long)]
-        new_id: String,
+        new_name: String,
     },
 
     /// Unlink an instance
     Unlink {
-        /// The identifier of the instance
+        /// The name of the instance
         #[arg(short, long)]
-        id: String,
+        name: String,
     },
 }
