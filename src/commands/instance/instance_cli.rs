@@ -4,44 +4,42 @@
  * Project:    Minepatch
  * License:    GPLv3
  *
- * File:       instance.rs
+ * File:       instance_cli.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   26.12.24, 19:33
+ * Modified:   27.12.24, 15:25
  */
 
 use clap::Subcommand;
 use std::path::PathBuf;
 
-#[derive(Subcommand)]
-pub enum Commands {
+#[derive(Debug, Subcommand)]
+pub enum InstanceCommands {
     /// List all linked instances
     List,
 
     /// Link an instance and assign a unique name
     Link {
+        /// The path to the root folder of the instance
+        path: PathBuf,
+
         /// Use this flag to assign a unique name. Defaults to the directory name.
         #[arg(short, long)]
         name: Option<String>,
-
-        /// The path to the root folder of the instance
-        path: PathBuf,
     },
 
     /// Change the unique name of an already linked instance
-    Relink {
+    Rename {
         /// The current name of the instance
-        #[arg(short, long)]
-        old_name: String,
+        name: String,
 
-        /// The new name for the instance
+        /// Use this flag to assign a unique name. Defaults to the directory name.
         #[arg(short, long)]
-        new_name: String,
+        new_name: Option<String>,
     },
 
     /// Unlink an instance
     Unlink {
         /// The name of the instance
-        #[arg(short, long)]
         name: String,
     },
 }

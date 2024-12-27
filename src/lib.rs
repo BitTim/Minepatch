@@ -6,11 +6,8 @@
  *
  * File:       lib.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   27.12.24, 01:54
+ * Modified:   27.12.24, 14:46
  */
-extern crate core;
 
-pub mod cli;
-pub mod data;
-pub mod error;
-pub mod logic;
+pub mod commands;
+pub mod util;

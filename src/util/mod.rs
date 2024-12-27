@@ -6,7 +6,8 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   25.12.24, 22:55
+ * Modified:   27.12.24, 14:36
  */
+
+pub mod error;
 pub mod file;
-pub mod instance;

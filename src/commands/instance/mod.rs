@@ -4,9 +4,9 @@
  * Project:    Minepatch
  * License:    GPLv3
  *
- * File:       instance.rs
+ * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   26.12.24, 20:52
+ * Modified:   27.12.24, 14:44
  */
 use colored::Colorize;
 use serde::{Deserialize, Serialize};
@@ -14,11 +14,9 @@ use std::fs;
 use std::path::PathBuf;
 use tabled::Tabled;
 
-#[derive(Debug, Serialize, Deserialize)]
-pub(crate) struct Instance {
-    name: String,
-    path: PathBuf,
-}
+pub mod instance_cli;
+pub mod instance_error;
+pub mod instance_logic;
 
 #[derive(Debug, Tabled)]
 #[tabled(rename_all = "PascalCase")]
@@ -28,6 +26,12 @@ pub(crate) struct InstanceDisplay {
     valid: String,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+pub(crate) struct Instance {
+    name: String,
+    path: PathBuf,
+}
+
 impl Instance {
     pub(crate) fn new(name: String, path: PathBuf) -> Self {
         Self { name, path }
@@ -35,6 +39,9 @@ impl Instance {
 
     pub(crate) fn get_name(&self) -> String {
         self.name.to_string()
+    }
+    pub(crate) fn set_name(&mut self, name: String) {
+        self.name = name
     }
 
     pub(crate) fn to_display(&self) -> InstanceDisplay {

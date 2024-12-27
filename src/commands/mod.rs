@@ -4,16 +4,16 @@
  * Project:    Minepatch
  * License:    GPLv3
  *
- * File:       cli.rs
+ * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   25.12.24, 02:43
+ * Modified:   27.12.24, 16:20
  */
+use crate::commands::instance::instance_cli;
+use clap::{Parser, Subcommand};
 
 pub mod instance;
 
-use clap::{Parser, Subcommand};
-
-#[derive(Parser)]
+#[derive(Debug, Parser)]
 #[command(author, version, about, long_about = None)]
 #[command(propagate_version = true)]
 pub struct Cli {
@@ -21,11 +21,11 @@ pub struct Cli {
     pub command: Commands,
 }
 
-#[derive(Subcommand)]
+#[derive(Debug, Subcommand)]
 pub enum Commands {
     /// Manage relevant Minecraft instances
     Instance {
         #[command(subcommand)]
-        instance_commands: instance::Commands,
+        instance_commands: instance_cli::InstanceCommands,
     },
 }

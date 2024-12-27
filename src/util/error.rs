@@ -4,12 +4,10 @@
  * Project:    Minepatch
  * License:    GPLv3
  *
- * File:       mod.rs
+ * File:       error.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   27.12.24, 02:41
+ * Modified:   27.12.24, 16:20
  */
-pub mod instance;
-pub mod path;
 
 use colored::Colorize;
 use std::error;

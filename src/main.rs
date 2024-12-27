@@ -6,28 +6,23 @@
  *
  * File:       main.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   27.12.24, 02:41
+ * Modified:   27.12.24, 16:20
  */
-use minepatch::*;
 use std::error::Error;
 
 use clap::Parser;
-use cli::Cli;
-use cli::{instance, Commands};
+use minepatch::commands::instance::instance_cli::InstanceCommands;
+use minepatch::commands::instance::instance_logic;
+use minepatch::commands::{Cli, Commands};
 
 fn match_command(command: &Commands) -> Result<(), Box<dyn Error>> {
     match command {
         Commands::Instance { instance_commands } => match instance_commands {
-            instance::Commands::List => logic::instance::list()?,
-            instance::Commands::Link { name, path } => logic::instance::link(name, path)?,
-            instance::Commands::Relink { old_name, new_name } => {
-                println!(
-                    "PLACEHOLDER Changed identifier for \"{}\" to \"{}\"",
-                    old_name, new_name
-                )
-            }
-            instance::Commands::Unlink { name } => {
-                println!("PLACEHOLDER Unlinked instance \"{}\"", name)
+            InstanceCommands::List => instance_logic::list()?,
+            InstanceCommands::Link { path, name } => instance_logic::link(path, name)?,
+            InstanceCommands::Rename { name, new_name } => instance_logic::rename(name, new_name)?,
+            InstanceCommands::Unlink { name } => {
+                println!("PLACEHOLDER Unlinked instance '{}'", name)
             }
         },
     }

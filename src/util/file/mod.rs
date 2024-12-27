@@ -4,16 +4,18 @@
  * Project:    Minepatch
  * License:    GPLv3
  *
- * File:       file.rs
+ * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   27.12.24, 02:41
+ * Modified:   27.12.24, 16:20
  */
-use crate::error;
-use crate::error::path::PathError;
+
+use crate::util::error::Error;
+use crate::util::file::error::FileError;
 use directories::ProjectDirs;
-use std::error::Error;
 use std::path::{Path, PathBuf};
 use std::{env, io};
+
+pub mod error;
 
 const QUALIFIER: &str = "dev";
 const ORGANIZATION: &str = "BitTim";
@@ -27,18 +29,18 @@ pub(crate) fn get_data_path() -> io::Result<PathBuf> {
     }
 }
 
-pub(crate) fn get_filename(path: &Path) -> Result<&str, Box<dyn Error>> {
-    let context = Some(path.to_path_buf().display().to_string());
+pub(crate) fn get_filename(path: &Path) -> Result<&str, Box<dyn std::error::Error>> {
+    let context = Some(format!(
+        "Path: '{}'",
+        path.to_path_buf().display().to_string()
+    ));
 
     Ok(path
         .file_name()
-        .ok_or(error::Error::new(
-            Box::new(PathError::PathNoFileName),
+        .ok_or(Error::new(
+            Box::new(FileError::PathNoFileName),
             context.clone(),
         ))?
         .to_str()
-        .ok_or(error::Error::new(
-            Box::new(PathError::PathInvalidUTF8),
-            context,
-        ))?)
+        .ok_or(Error::new(Box::new(FileError::PathInvalidUTF8), context))?)
 }
