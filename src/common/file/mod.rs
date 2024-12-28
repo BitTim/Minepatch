@@ -6,7 +6,7 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   27.12.24, 18:13
+ * Modified:   27.12.24, 18:34
  */
 
 use crate::common::error::ErrorType;
@@ -34,7 +34,7 @@ pub(crate) fn get_filename(path: &Path) -> Result<&str, Box<dyn std::error::Erro
 
     Ok(path
         .file_name()
-        .ok_or(FileError::PathNoFileName.builder().context(context.clone()))?
+        .ok_or(FileError::PathNoFileName.builder().context(&context))?
         .to_str()
-        .ok_or(FileError::PathInvalidUTF8.builder().context(context))?)
+        .ok_or(FileError::PathInvalidUTF8.builder().context(&context))?)
 }

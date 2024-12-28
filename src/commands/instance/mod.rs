@@ -6,12 +6,12 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   27.12.24, 18:16
+ * Modified:   27.12.24, 18:31
  */
 use colored::Colorize;
 use serde::{Deserialize, Serialize};
 use std::fs;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use tabled::Tabled;
 
 pub mod instance_cli;
@@ -35,15 +35,18 @@ pub(crate) struct Instance {
 }
 
 impl Instance {
-    pub(crate) fn new(name: String, path: PathBuf) -> Self {
-        Self { name, path }
+    pub(crate) fn new(name: &str, path: &Path) -> Self {
+        Self {
+            name: name.to_string(),
+            path: path.to_path_buf(),
+        }
     }
 
-    pub(crate) fn get_name(&self) -> String {
-        self.name.to_string()
+    pub(crate) fn get_name(&self) -> &str {
+        &self.name
     }
-    pub(crate) fn set_name(&mut self, name: String) {
-        self.name = name
+    pub(crate) fn set_name(&mut self, name: &str) {
+        self.name = name.to_string()
     }
 
     pub(crate) fn to_display(&self) -> InstanceDisplay {

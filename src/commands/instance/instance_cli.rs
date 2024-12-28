@@ -6,7 +6,7 @@
  *
  * File:       instance_cli.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   27.12.24, 15:25
+ * Modified:   28.12.24, 01:58
  */
 
 use clap::Subcommand;
@@ -40,6 +40,15 @@ pub enum InstanceCommands {
     /// Unlink an instance
     Unlink {
         /// The name of the instance
-        name: String,
+        #[arg(required_unless_present = "all")]
+        name: Option<String>,
+
+        /// Use this flag instead of [NAME] to unlink all linked instances (This action cannot be reversed)
+        #[arg(long, conflicts_with = "name")]
+        all: bool,
+
+        /// Use this flag to skip the confirmation prompt
+        #[arg(short, long)]
+        yes: bool,
     },
 }

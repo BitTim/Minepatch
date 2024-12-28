@@ -6,7 +6,7 @@
  *
  * File:       error.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   27.12.24, 18:09
+ * Modified:   27.12.24, 18:32
  */
 
 use colored::Colorize;
@@ -39,8 +39,8 @@ impl Error {
         }
     }
 
-    pub(crate) fn context(mut self, context: String) -> Self {
-        self.contexts.push(context);
+    pub(crate) fn context(mut self, context: &str) -> Self {
+        self.contexts.push(context.to_string());
         self
     }
 

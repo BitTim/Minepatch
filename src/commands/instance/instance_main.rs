@@ -6,13 +6,14 @@
  *
  * File:       instance_main.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   27.12.24, 18:17
+ * Modified:   28.12.24, 01:56
  */
 use crate::commands::instance::instance_error::InstanceError;
 use crate::commands::instance::{instance_file, instance_util, Instance, InstanceDisplay};
 use crate::common::error::ErrorType;
 use crate::common::file::error::FileError;
 use crate::common::file::get_filename;
+use colored::Colorize;
 use std::error::Error;
 use std::path::Path;
 use std::{fs, io};
@@ -47,7 +48,7 @@ pub fn link(path: &Path, name: &Option<String>) -> Result<(), Box<dyn Error>> {
     if fs::exists(&path)? == false {
         return Err(FileError::PathNotFound
             .builder()
-            .context(format!("Path: '{}'", path.display()))
+            .context(&format!("Path: '{}'", path.display()))
             .build());
     }
 
@@ -59,32 +60,80 @@ pub fn link(path: &Path, name: &Option<String>) -> Result<(), Box<dyn Error>> {
     let mut instances = instance_file::read_all()?;
     instance_util::check_instance(&instances, actual_name, false)?;
 
-    instances.push(Instance::new(actual_name.to_string(), path.to_path_buf()));
+    instances.push(Instance::new(actual_name, path));
     instance_file::write_all(instances)?;
+
+    println!(
+        "{}Linked instance\n\t{}\n\t{}",
+        "success: ".green().bold(),
+        format!("Name: '{}'", actual_name).cyan(),
+        format!("Path: '{}'", path.display()).cyan()
+    );
     Ok(())
 }
 
 pub fn rename(name: &str, new_name: &Option<String>) -> Result<(), Box<dyn Error>> {
     let mut instances = instance_file::read_all()?;
-    let instance = instance_util::check_instance(&instances, name, true)?.unwrap();
+    let instance = instance_util::check_instance(&instances, name, true)?
+        .unwrap()
+        .1;
 
     let actual_new_name = match new_name {
         Some(name) => name,
-        None => get_filename(&instance.path)?,
-    }
-    .to_string();
+        None => &get_filename(&instance.path)?.to_string(),
+    };
 
     if name == actual_new_name {
         return Err(InstanceError::NameNotChanged
             .builder()
-            .context(format!("Name: '{}'", name))
-            .context(format!("New Name '{}", actual_new_name))
+            .context(&format!("Name: '{}'", name))
+            .context(&format!("New Name '{}", actual_new_name))
             .build());
     }
 
     instance_util::check_instance(&instances, &actual_new_name, false)?;
     let instance = instance_util::find_instance_mut(&mut instances, name)?;
     instance.set_name(actual_new_name);
+
+    instance_file::write_all(instances)?;
+
+    println!(
+        "{}Renamed instance\n\t{}\n\t{}",
+        "success: ".green().bold(),
+        format!("Old name: '{}'", name).cyan(),
+        format!("New name: '{}'", actual_new_name).cyan()
+    );
+    Ok(())
+}
+
+pub fn unlink(name: &Option<String>, all: &bool, yes: &bool) -> Result<(), Box<dyn Error>> {
+    let mut instances = instance_file::read_all()?;
+
+    let names: Vec<String> = if *all {
+        instances
+            .iter()
+            .map(|instance| instance.name.to_string())
+            .collect()
+    } else {
+        match name {
+            Some(name) => vec![name.to_string()],
+            None => return Err(InstanceError::NameNotFound.builder().build()),
+        }
+    };
+
+    for name in names {
+        let (index, instance) = instance_util::check_instance(&instances, &name, true)?.unwrap();
+        if !yes && !instance_util::confirm_unlink(instance)? {
+            continue;
+        }
+        instances.remove(index);
+
+        println!(
+            "{}Unlinked instance\n\t{}",
+            "success: ".green().bold(),
+            format!("Name: '{}'", name).cyan(),
+        );
+    }
 
     instance_file::write_all(instances)?;
     Ok(())

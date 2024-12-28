@@ -6,7 +6,7 @@
  *
  * File:       main.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   27.12.24, 18:13
+ * Modified:   28.12.24, 01:59
  */
 use std::error::Error;
 
@@ -21,9 +21,7 @@ fn match_command(command: &Commands) -> Result<(), Box<dyn Error>> {
             InstanceCommands::List => instance_main::list()?,
             InstanceCommands::Link { path, name } => instance_main::link(path, name)?,
             InstanceCommands::Rename { name, new_name } => instance_main::rename(name, new_name)?,
-            InstanceCommands::Unlink { name } => {
-                println!("PLACEHOLDER Unlinked instance '{}'", name)
-            }
+            InstanceCommands::Unlink { name, all, yes } => instance_main::unlink(name, all, yes)?,
         },
     }
 
