@@ -6,16 +6,17 @@
  *
  * File:       main.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   28.12.24, 02:06
+ * Modified:   28.12.24, 13:18
  */
 use clap::Parser;
 use minepatch::commands::instance::instance_cli::InstanceCommands;
 use minepatch::commands::instance::instance_main;
-use minepatch::commands::{Cli, Commands};
+use minepatch::commands::{update, Cli, Commands};
 use minepatch::common::error;
 
 fn match_command(command: &Commands) -> error::Result<()> {
     match command {
+        Commands::Update => update::update()?,
         Commands::Instance { instance_commands } => match instance_commands {
             InstanceCommands::List => instance_main::list()?,
             InstanceCommands::Link { path, name } => instance_main::link(path, name)?,

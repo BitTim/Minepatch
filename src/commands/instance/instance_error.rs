@@ -6,7 +6,7 @@
  *
  * File:       instance_error.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   27.12.24, 18:13
+ * Modified:   28.12.24, 13:53
  */
 use crate::common::error::ErrorType;
 
@@ -18,15 +18,16 @@ pub enum InstanceError {
 }
 
 impl ErrorType for InstanceError {
-    fn message(&self) -> &str {
+    fn message(&self) -> String {
         match self {
             InstanceError::NameNotFound => "No instance found with this name",
             InstanceError::NameTaken => "Name is already used by another instance",
             InstanceError::NameNotChanged => "New name cannot be the same as old name",
         }
+        .to_owned()
     }
 
-    fn hint(&self) -> &str {
+    fn hint(&self) -> String {
         match self {
             InstanceError::NameNotFound => {
                 "Available instances can be viewed with sub command 'instance list'"
@@ -35,5 +36,6 @@ impl ErrorType for InstanceError {
                 "Try specifying a different name with '-n' or '--name'"
             }
         }
+        .to_owned()
     }
 }
