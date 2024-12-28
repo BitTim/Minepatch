@@ -6,20 +6,20 @@
  *
  * File:       instance_util.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   28.12.24, 01:59
+ * Modified:   28.12.24, 02:06
  */
 use crate::commands::instance::instance_error::InstanceError;
 use crate::commands::instance::Instance;
+use crate::common::error;
 use crate::common::error::ErrorType;
 use colored::Colorize;
 use inquire::Confirm;
-use std::error::Error;
 
 pub fn check_instance<'a>(
     instances: &'a [Instance],
     name: &str,
     should_exist: bool,
-) -> Result<Option<(usize, &'a Instance)>, Box<dyn Error>> {
+) -> error::Result<Option<(usize, &'a Instance)>> {
     match instances
         .iter()
         .enumerate()
@@ -41,7 +41,7 @@ pub fn check_instance<'a>(
 pub fn find_instance_mut<'a>(
     instances: &'a mut [Instance],
     name: &str,
-) -> Result<&'a mut Instance, Box<dyn Error>> {
+) -> error::Result<&'a mut Instance> {
     instances
         .iter_mut()
         .find(|instance| instance.get_name() == name)
@@ -53,7 +53,7 @@ pub fn find_instance_mut<'a>(
         )
 }
 
-pub fn confirm_unlink(instance: &Instance) -> Result<bool, Box<dyn Error>> {
+pub fn confirm_unlink(instance: &Instance) -> error::Result<bool> {
     let ans = Confirm::new(&format!(
         "Are you sure you want to unlink '{}'?",
         instance.name

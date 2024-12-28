@@ -6,12 +6,12 @@
  *
  * File:       error.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   27.12.24, 18:32
+ * Modified:   28.12.24, 02:06
  */
 
 use colored::Colorize;
-use std::error;
 use std::fmt::{Debug, Display, Formatter};
+use std::{error, result};
 
 pub trait ErrorType: Debug {
     fn message(&self) -> &str;
@@ -68,3 +68,5 @@ impl Display for Error {
         Ok(())
     }
 }
+
+pub type Result<T> = result::Result<T, Box<dyn error::Error>>;

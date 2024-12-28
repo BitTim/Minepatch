@@ -6,17 +6,18 @@
  *
  * File:       instance_file.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   27.12.24, 18:17
+ * Modified:   28.12.24, 02:06
  */
 
 use crate::commands::instance::Instance;
+use crate::common::error;
 use crate::common::file::get_data_path;
 use crate::constants::INSTANCES_FILE_NAME;
 use csv::{Reader, Writer};
+use std::fs;
 use std::path::PathBuf;
-use std::{fs, io};
 
-fn init_file() -> io::Result<PathBuf> {
+fn init_file() -> error::Result<PathBuf> {
     let dir = get_data_path()?;
     fs::create_dir_all(&dir)?;
 
@@ -28,7 +29,7 @@ fn init_file() -> io::Result<PathBuf> {
     Ok(path)
 }
 
-pub fn read_all() -> io::Result<Vec<Instance>> {
+pub fn read_all() -> error::Result<Vec<Instance>> {
     let path = init_file()?;
     let mut reader = Reader::from_path(&path)?;
 
@@ -40,7 +41,7 @@ pub fn read_all() -> io::Result<Vec<Instance>> {
     Ok(instances)
 }
 
-pub fn write_all(instances: Vec<Instance>) -> io::Result<()> {
+pub fn write_all(instances: Vec<Instance>) -> error::Result<()> {
     let path = init_file()?;
     let mut writer = Writer::from_path(&path)?;
 

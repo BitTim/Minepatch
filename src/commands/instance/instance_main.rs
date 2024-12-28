@@ -6,23 +6,23 @@
  *
  * File:       instance_main.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   28.12.24, 01:56
+ * Modified:   28.12.24, 02:06
  */
 use crate::commands::instance::instance_error::InstanceError;
 use crate::commands::instance::{instance_file, instance_util, Instance, InstanceDisplay};
+use crate::common::error;
 use crate::common::error::ErrorType;
 use crate::common::file::error::FileError;
 use crate::common::file::get_filename;
 use colored::Colorize;
-use std::error::Error;
+use std::fs;
 use std::path::Path;
-use std::{fs, io};
 use tabled::settings::object::{Columns, Rows};
 use tabled::settings::width::MinWidth;
 use tabled::settings::{Alignment, Format, Style};
 use tabled::Table;
 
-pub fn list() -> io::Result<()> {
+pub fn list() -> error::Result<()> {
     let instances = instance_file::read_all()?;
     let instance_displays = instances
         .iter()
@@ -44,7 +44,7 @@ pub fn list() -> io::Result<()> {
     Ok(())
 }
 
-pub fn link(path: &Path, name: &Option<String>) -> Result<(), Box<dyn Error>> {
+pub fn link(path: &Path, name: &Option<String>) -> error::Result<()> {
     if fs::exists(&path)? == false {
         return Err(FileError::PathNotFound
             .builder()
@@ -72,7 +72,7 @@ pub fn link(path: &Path, name: &Option<String>) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-pub fn rename(name: &str, new_name: &Option<String>) -> Result<(), Box<dyn Error>> {
+pub fn rename(name: &str, new_name: &Option<String>) -> error::Result<()> {
     let mut instances = instance_file::read_all()?;
     let instance = instance_util::check_instance(&instances, name, true)?
         .unwrap()
@@ -106,7 +106,7 @@ pub fn rename(name: &str, new_name: &Option<String>) -> Result<(), Box<dyn Error
     Ok(())
 }
 
-pub fn unlink(name: &Option<String>, all: &bool, yes: &bool) -> Result<(), Box<dyn Error>> {
+pub fn unlink(name: &Option<String>, all: &bool, yes: &bool) -> error::Result<()> {
     let mut instances = instance_file::read_all()?;
 
     let names: Vec<String> = if *all {

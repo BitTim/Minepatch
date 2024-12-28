@@ -6,16 +6,15 @@
  *
  * File:       main.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   28.12.24, 01:59
+ * Modified:   28.12.24, 02:06
  */
-use std::error::Error;
-
 use clap::Parser;
 use minepatch::commands::instance::instance_cli::InstanceCommands;
 use minepatch::commands::instance::instance_main;
 use minepatch::commands::{Cli, Commands};
+use minepatch::common::error;
 
-fn match_command(command: &Commands) -> Result<(), Box<dyn Error>> {
+fn match_command(command: &Commands) -> error::Result<()> {
     match command {
         Commands::Instance { instance_commands } => match instance_commands {
             InstanceCommands::List => instance_main::list()?,
