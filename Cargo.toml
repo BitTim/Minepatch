@@ -17,3 +17,4 @@ serde = { version = "1.0.216", features = ["derive"] }
 colored = "2.2.0"
 inquire = "0.7.5"
 self_update = { version = "0.41.0", features = ["rustls"] }
+sha256 = "1.5.0"

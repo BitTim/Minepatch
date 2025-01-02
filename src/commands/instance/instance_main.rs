@@ -1,19 +1,19 @@
 /*
- * Copyright (c) 2024 Tim Anhalt (BitTim)
+ * Copyright (c) 2024-2025 Tim Anhalt (BitTim)
  *
  * Project:    Minepatch
  * License:    GPLv3
  *
  * File:       instance_main.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   28.12.24, 02:06
+ * Modified:   02.01.25, 22:25
  */
 use crate::commands::instance::instance_error::InstanceError;
-use crate::commands::instance::{instance_file, instance_util, Instance, InstanceDisplay};
-use crate::common::error;
+use crate::commands::instance::{instance_util, Instance, InstanceDisplay};
 use crate::common::error::ErrorType;
 use crate::common::file::error::FileError;
-use crate::common::file::get_filename;
+use crate::common::file::filename_from_path;
+use crate::common::{error, file};
 use colored::Colorize;
 use std::fs;
 use std::path::Path;
@@ -23,7 +23,7 @@ use tabled::settings::{Alignment, Format, Style};
 use tabled::Table;
 
 pub fn list() -> error::Result<()> {
-    let instances = instance_file::read_all()?;
+    let instances: Vec<Instance> = file::read_all()?;
     let instance_displays = instances
         .iter()
         .map(|instance| instance.to_display())
@@ -54,14 +54,14 @@ pub fn link(path: &Path, name: &Option<String>) -> error::Result<()> {
 
     let actual_name = match name {
         Some(name) => name,
-        None => get_filename(&path)?,
+        None => filename_from_path(&path)?,
     };
 
-    let mut instances = instance_file::read_all()?;
+    let mut instances = file::read_all()?;
     instance_util::check_instance(&instances, actual_name, false)?;
 
     instances.push(Instance::new(actual_name, path));
-    instance_file::write_all(instances)?;
+    file::write_all(instances)?;
 
     println!(
         "{}Linked instance\n\t{}\n\t{}",
@@ -73,14 +73,14 @@ pub fn link(path: &Path, name: &Option<String>) -> error::Result<()> {
 }
 
 pub fn rename(name: &str, new_name: &Option<String>) -> error::Result<()> {
-    let mut instances = instance_file::read_all()?;
+    let mut instances = file::read_all()?;
     let instance = instance_util::check_instance(&instances, name, true)?
         .unwrap()
         .1;
 
     let actual_new_name = match new_name {
         Some(name) => name,
-        None => &get_filename(&instance.path)?.to_string(),
+        None => &filename_from_path(&instance.path)?.to_string(),
     };
 
     if name == actual_new_name {
@@ -95,7 +95,7 @@ pub fn rename(name: &str, new_name: &Option<String>) -> error::Result<()> {
     let instance = instance_util::find_instance_mut(&mut instances, name)?;
     instance.set_name(actual_new_name);
 
-    instance_file::write_all(instances)?;
+    file::write_all(instances)?;
 
     println!(
         "{}Renamed instance\n\t{}\n\t{}",
@@ -107,12 +107,12 @@ pub fn rename(name: &str, new_name: &Option<String>) -> error::Result<()> {
 }
 
 pub fn unlink(name: &Option<String>, all: &bool, yes: &bool) -> error::Result<()> {
-    let mut instances = instance_file::read_all()?;
+    let mut instances = file::read_all()?;
 
     let names: Vec<String> = if *all {
         instances
             .iter()
-            .map(|instance| instance.name.to_string())
+            .map(|instance: &Instance| instance.name.to_string())
             .collect()
     } else {
         match name {
@@ -135,6 +135,6 @@ pub fn unlink(name: &Option<String>, all: &bool, yes: &bool) -> error::Result<()
         );
     }
 
-    instance_file::write_all(instances)?;
+    file::write_all(instances)?;
     Ok(())
 }

@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2024 Tim Anhalt (BitTim)
+ * Copyright (c) 2024-2025 Tim Anhalt (BitTim)
  *
  * Project:    Minepatch
  * License:    GPLv3
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   27.12.24, 18:31
+ * Modified:   02.01.25, 18:49
  */
 use colored::Colorize;
 use serde::{Deserialize, Serialize};
@@ -16,7 +16,6 @@ use tabled::Tabled;
 
 pub mod instance_cli;
 pub mod instance_error;
-mod instance_file;
 pub mod instance_main;
 mod instance_util;
 

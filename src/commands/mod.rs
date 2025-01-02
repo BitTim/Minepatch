@@ -1,18 +1,20 @@
 /*
- * Copyright (c) 2024 Tim Anhalt (BitTim)
+ * Copyright (c) 2024-2025 Tim Anhalt (BitTim)
  *
  * Project:    Minepatch
  * License:    GPLv3
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   28.12.24, 13:16
+ * Modified:   02.01.25, 22:25
  */
 use crate::commands::instance::instance_cli;
+use crate::commands::vault::vault_cli;
 use clap::{Parser, Subcommand};
 
 pub mod instance;
 pub mod update;
+pub mod vault;
 
 #[derive(Debug, Parser)]
 #[command(author, version, about, long_about = None)]
@@ -31,5 +33,11 @@ pub enum Commands {
     Instance {
         #[command(subcommand)]
         instance_commands: instance_cli::InstanceCommands,
+    },
+
+    /// Manage mod files present in vault
+    Vault {
+        #[command(subcommand)]
+        vault_commands: vault_cli::VaultCommands,
     },
 }
