@@ -6,11 +6,13 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   02.01.25, 22:25
+ * Modified:   03.01.25, 23:20
  */
 use serde::{Deserialize, Serialize};
 
+pub mod meta;
 pub mod vault_cli;
+mod vault_error;
 pub mod vault_main;
 
 #[derive(Debug, Serialize, Deserialize)]
