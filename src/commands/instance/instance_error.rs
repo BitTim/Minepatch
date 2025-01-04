@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2024 Tim Anhalt (BitTim)
+ * Copyright (c) 2024-2025 Tim Anhalt (BitTim)
  *
  * Project:    Minepatch
  * License:    GPLv3
  *
  * File:       instance_error.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   28.12.24, 13:53
+ * Modified:   04.01.25, 18:31
  */
 use crate::common::error::ErrorType;
 

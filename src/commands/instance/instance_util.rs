@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2024 Tim Anhalt (BitTim)
+ * Copyright (c) 2024-2025 Tim Anhalt (BitTim)
  *
  * Project:    Minepatch
  * License:    GPLv3
  *
  * File:       instance_util.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   28.12.24, 02:06
+ * Modified:   04.01.25, 18:31
  */
 use crate::commands::instance::instance_error::InstanceError;
 use crate::commands::instance::Instance;

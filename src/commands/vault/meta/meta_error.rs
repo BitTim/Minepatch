@@ -6,7 +6,7 @@
  *
  * File:       meta_error.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   03.01.25, 19:46
+ * Modified:   04.01.25, 18:31
  */
 use crate::common::error::ErrorType;
 

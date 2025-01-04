@@ -6,9 +6,9 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   03.01.25, 23:55
+ * Modified:   04.01.25, 19:22
  */
-mod fabric_based;
+mod fabric;
 mod forge_based;
 mod meta_error;
 
@@ -33,16 +33,14 @@ pub enum Loader {
     NeoForge,
     Forge,
     Fabric,
-    Quilt,
 }
 
 impl Loader {
     fn name(&self) -> &'static str {
         match self {
-            Loader::Forge => "Forge",
-            Loader::Fabric => "Fabric",
-            Loader::NeoForge => "NeoForge",
-            Loader::Quilt => "Quilt",
+            Loader::Forge => "forge",
+            Loader::Fabric => "fabric",
+            Loader::NeoForge => "neoforge",
         }
     }
 
@@ -51,14 +49,13 @@ impl Loader {
             Loader::Forge => "META-INF/mods.toml",
             Loader::Fabric => "fabric.mod.json",
             Loader::NeoForge => "META-INF/neoforge.mods.toml",
-            Loader::Quilt => "quilt.mod.json",
         }
     }
 
     pub(crate) fn extract_meta(&self, data: &str) -> error::Result<Meta> {
         match self {
             Loader::Forge | Loader::NeoForge => forge_based::extract_meta(data, self.name()),
-            Loader::Fabric | Loader::Quilt => fabric_based::extract_meta(data, self.name()),
+            Loader::Fabric => fabric::extract_meta(data, self.name()),
         }
     }
 }

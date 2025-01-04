@@ -1168,6 +1168,7 @@ dependencies = [
     "inquire",
     "self_update",
     "serde",
+    "serde_json",
     "sha256",
     "strum",
     "strum_macros",
