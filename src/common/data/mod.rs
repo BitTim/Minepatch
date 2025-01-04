@@ -6,7 +6,7 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   02.01.25, 18:53
+ * Modified:   04.01.25, 23:52
  */
 use crate::commands::instance::Instance;
 use crate::commands::vault::Mod;
@@ -19,7 +19,7 @@ pub trait DataType: Debug + Serialize + DeserializeOwned {
 }
 
 impl DataType for Instance {
-    const FILENAME: &'static str = "instances.csv";
+    const FILENAME: &'static str = "instances.json";
 }
 impl DataType for Mod {
     const FILENAME: &'static str = "mods.json";

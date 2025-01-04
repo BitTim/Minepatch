@@ -6,14 +6,17 @@
  *
  * File:       vault_main.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   03.01.25, 23:56
+ * Modified:   04.01.25, 23:55
  */
 use crate::commands::vault::meta::Loader;
 use crate::commands::vault::vault_error::VaultError;
+use crate::commands::vault::vault_util::build_mod_dir_path;
 use crate::commands::vault::Mod;
 use crate::common::error::{CommonError, ErrorType};
 use crate::common::file::error::FileError;
+use crate::common::file::filename_from_path;
 use crate::common::{error, file};
+use colored::Colorize;
 use std::fs;
 use std::fs::File;
 use std::io::Read;
@@ -22,16 +25,7 @@ use strum::IntoEnumIterator;
 use zip::ZipArchive;
 
 pub fn add(path: &Path) -> error::Result<()> {
-    // 1. [x] Get registry
-    // 2. [x] Hash file
-    // 2. [x] Open file from path as zip
-    // 4. [x] Extract metadata
-    // 5. [ ] Move file to proper folder (dictated by metadata)
-    // 6. [ ] Add to registry
-    // 7. [ ] Save registry
-
-    let registry: Vec<Mod> = file::read_all()?;
-    println!("{:?}", registry); // FIXME: Temporary to suppress warning
+    let mut registry: Vec<Mod> = file::read_all()?;
 
     if !fs::exists(path)? {
         return Err(FileError::PathNotFound
@@ -39,6 +33,8 @@ pub fn add(path: &Path) -> error::Result<()> {
             .context(&format!("File: '{}'", path.display()))
             .build());
     }
+
+    let filename = filename_from_path(path)?;
 
     let hash = match sha256::try_digest(path) {
         Ok(value) => value,
@@ -52,35 +48,50 @@ pub fn add(path: &Path) -> error::Result<()> {
     };
 
     let jar_file = File::open(path)?;
-    let mut archive = ZipArchive::new(jar_file)?;
+    let mut archive = ZipArchive::new(&jar_file)?;
 
-    let mut detected = false;
-    for loader in Loader::iter() {
-        let mut meta_file = match archive.by_name(loader.meta_path()).ok() {
-            None => {
-                continue;
-            }
-            Some(file) => file,
-        };
+    let mut loaders = Loader::iter();
+    let result = loop {
+        match loaders.next() {
+            Some(loader) => match archive.by_name(loader.meta_path()) {
+                Ok(file) => break Some((loader, file)),
+                Err(_) => continue,
+            },
+            None => break None,
+        }
+    };
 
-        let mut data = String::new();
-        meta_file.read_to_string(&mut data)?;
-
-        let meta = loader.extract_meta(&*data)?;
-        println!("{:?}", meta);
-
-        detected = true;
-        break;
-    }
-
-    if !detected {
+    if result.is_none() {
         return Err(VaultError::NoLoaderDetected
             .builder()
             .context(&format!("File: '{}'", path.display()))
             .build());
     }
 
-    println!("{}", hash);
+    let (loader, mut meta_file) = result.unwrap();
 
+    let mut data = String::new();
+    meta_file.read_to_string(&mut data)?;
+
+    let meta = loader.extract_meta(&*data)?;
+    let mod_file_path = build_mod_dir_path(&*meta.id, loader.name(), filename)?;
+
+    drop(loader);
+    drop(meta_file);
+    drop(archive);
+    drop(jar_file);
+
+    fs::copy(path, &mod_file_path)?;
+    fs::remove_file(path)?;
+
+    registry.push(Mod::new(&*hash, &mod_file_path, meta));
+    file::write_all(registry)?;
+
+    println!(
+        "{}Registered and moved mod into vault\n\t{}\n\t{}",
+        "success: ".green().bold(),
+        format!("File: '{}'", path.display()).cyan(),
+        format!("Vault File: '{}'", mod_file_path.display()).cyan()
+    );
     Ok(())
 }

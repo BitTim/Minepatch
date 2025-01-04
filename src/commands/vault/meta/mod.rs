@@ -6,7 +6,7 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   04.01.25, 19:22
+ * Modified:   04.01.25, 19:56
  */
 mod fabric;
 mod forge_based;
@@ -18,7 +18,7 @@ use strum_macros::EnumIter;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Meta {
-    id: String,
+    pub(crate) id: String,
     name: String,
     version: String,
     description: String,
@@ -36,7 +36,7 @@ pub enum Loader {
 }
 
 impl Loader {
-    fn name(&self) -> &'static str {
+    pub(crate) fn name(&self) -> &'static str {
         match self {
             Loader::Forge => "forge",
             Loader::Fabric => "fabric",

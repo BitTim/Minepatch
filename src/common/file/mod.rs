@@ -6,14 +6,13 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   02.01.25, 22:25
+ * Modified:   04.01.25, 23:46
  */
 
 use crate::common;
 use crate::common::data::DataType;
 use crate::common::error::ErrorType;
 use crate::common::file::error::FileError;
-use csv::{Reader, Writer};
 use directories::ProjectDirs;
 use std::path::{Path, PathBuf};
 use std::{env, fs, io};
@@ -41,7 +40,7 @@ pub(crate) fn init_data_file(filename: &str) -> common::error::Result<PathBuf> {
     let path = dir.join(filename);
 
     if fs::exists(&path)? == false {
-        fs::File::create(&path)?;
+        fs::write(&path, "[]")?;
     }
 
     Ok(path)
@@ -59,22 +58,16 @@ pub(crate) fn filename_from_path(path: &Path) -> Result<&str, Box<dyn std::error
 
 pub fn read_all<T: DataType>() -> common::error::Result<Vec<T>> {
     let path = init_data_file(T::FILENAME)?;
-    let mut reader = Reader::from_path(&path)?;
-
-    let mut instances: Vec<T> = vec![];
-    for result in reader.deserialize() {
-        instances.push(result?);
-    }
+    let file = fs::OpenOptions::new().read(true).open(path)?;
+    let instances: Vec<T> = serde_json::from_reader(file)?;
 
     Ok(instances)
 }
 
 pub fn write_all<T: DataType>(data: Vec<T>) -> common::error::Result<()> {
     let path = init_data_file(T::FILENAME)?;
-    let mut writer = Writer::from_path(&path)?;
+    let file = fs::OpenOptions::new().write(true).create(true).open(path)?;
 
-    data.iter().try_for_each(|entry| writer.serialize(entry))?;
-
-    writer.flush()?;
+    serde_json::to_writer_pretty(file, &data)?;
     Ok(())
 }
