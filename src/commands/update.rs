@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2024 Tim Anhalt (BitTim)
+ * Copyright (c) 2024-2025 Tim Anhalt (BitTim)
  *
  * Project:    Minepatch
  * License:    GPLv3
  *
  * File:       update.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   28.12.24, 13:59
+ * Modified:   05.01.25, 19:21
  */
 
 use crate::common::error;
@@ -25,14 +25,14 @@ pub fn update() -> error::Result<()> {
         .map_err(|error| {
             CommonError::Wrapper(Box::new(error))
                 .builder()
-                .context("This error was caused by the updater")
+                .context("Cause", "Updater")
                 .build()
         })?
         .update()
         .map_err(|error| {
             CommonError::Wrapper(Box::new(error))
                 .builder()
-                .context("This error was caused by the updater")
+                .context("Cause", "Updater")
                 .build()
         })?;
 

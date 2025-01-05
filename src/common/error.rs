@@ -1,15 +1,15 @@
 /*
- * Copyright (c) 2024 Tim Anhalt (BitTim)
+ * Copyright (c) 2024-2025 Tim Anhalt (BitTim)
  *
  * Project:    Minepatch
  * License:    GPLv3
  *
  * File:       error.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   28.12.24, 13:58
+ * Modified:   05.01.25, 19:21
  */
 
-use colored::Colorize;
+use crate::common::output::status::{State, StatusOutput};
 use std::fmt::{Debug, Display, Formatter};
 use std::{error, result};
 
@@ -21,26 +21,25 @@ pub trait ErrorType: Debug {
     where
         Self: Sized + 'static,
     {
-        Error::new(Box::new(self))
+        Error::from(Box::new(self))
     }
 }
 
 #[derive(Debug)]
 pub struct Error {
-    error_type: Box<dyn ErrorType>,
-    contexts: Vec<String>,
+    status_output: StatusOutput,
 }
 
 impl Error {
-    fn new(error_type: Box<dyn ErrorType>) -> Self {
+    fn from(error_type: Box<dyn ErrorType>) -> Self {
         Self {
-            error_type,
-            contexts: vec![],
+            status_output: StatusOutput::new(State::Error, &*error_type.message())
+                .hint(error_type.hint()),
         }
     }
 
-    pub(crate) fn context(mut self, context: &str) -> Self {
-        self.contexts.push(context.to_owned());
+    pub(crate) fn context(mut self, title: &str, content: &str) -> Self {
+        self.status_output = self.status_output.context(title, content);
         self
     }
 
@@ -53,16 +52,7 @@ impl error::Error for Error {}
 
 impl Display for Error {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}{}", "error: ".red().bold(), self.error_type.message())?;
-
-        for context in &self.contexts {
-            write!(f, "\n\t{}", context.yellow())?;
-        }
-
-        if !self.error_type.hint().is_empty() {
-            write!(f, "\n{}", self.error_type.hint())?;
-        }
-
+        write!(f, "{}", self.status_output)?;
         Ok(())
     }
 }

@@ -6,7 +6,7 @@
  *
  * File:       path_builder.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   04.01.25, 21:09
+ * Modified:   05.01.25, 19:55
  */
 use std::path::{Path, PathBuf};
 
@@ -21,12 +21,12 @@ impl PathBuilder {
         }
     }
 
-    pub(crate) fn push(&mut self, path: &str) -> &mut Self {
+    pub(crate) fn push(mut self, path: &str) -> Self {
         self.path.push(path);
         self
     }
 
-    pub(crate) fn build(&mut self) -> PathBuf {
+    pub(crate) fn build(self) -> PathBuf {
         self.path.to_owned()
     }
 }

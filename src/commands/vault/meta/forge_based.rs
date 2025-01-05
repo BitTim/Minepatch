@@ -6,7 +6,7 @@
  *
  * File:       forge_based.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   03.01.25, 23:53
+ * Modified:   05.01.25, 19:22
  */
 use crate::commands::vault::meta::meta_error::MetaError;
 use crate::commands::vault::meta::Meta;
@@ -19,7 +19,7 @@ pub(crate) fn extract_meta(data: &str, loader: &str) -> error::Result<Meta> {
     let meta = meta_from_root_table(&table, loader).ok_or_else(|| {
         MetaError::MalformedMetaFile
             .builder()
-            .context(&format!("Detected loader: {}", loader))
+            .context("Detected loader", loader)
             .build()
     })?;
     Ok(meta)

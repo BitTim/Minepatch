@@ -6,13 +6,12 @@
  *
  * File:       instance_util.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   04.01.25, 18:31
+ * Modified:   05.01.25, 19:18
  */
 use crate::commands::instance::instance_error::InstanceError;
 use crate::commands::instance::Instance;
 use crate::common::error;
 use crate::common::error::ErrorType;
-use colored::Colorize;
 use inquire::Confirm;
 
 pub fn check_instance<'a>(
@@ -29,11 +28,11 @@ pub fn check_instance<'a>(
         None if !should_exist => Ok(None),
         Some(_) => Err(InstanceError::NameTaken
             .builder()
-            .context(&format!("Name: '{}'", name))
+            .context("Name", name)
             .build()),
         None => Err(InstanceError::NameNotFound
             .builder()
-            .context(&format!("Name: '{}'", name))
+            .context("Name", name)
             .build()),
     }
 }
@@ -48,7 +47,7 @@ pub fn find_instance_mut<'a>(
         .ok_or(
             InstanceError::NameNotFound
                 .builder()
-                .context(&format!("Name: '{}'", name))
+                .context("Name", name)
                 .build(),
         )
 }
@@ -61,14 +60,6 @@ pub fn confirm_unlink(instance: &Instance) -> error::Result<bool> {
     .with_default(false)
     .with_help_message(&format!("Path: '{}'", &instance.path.display().to_string()))
     .prompt()?;
-
-    if !ans {
-        println!(
-            "{}Did not unlink instance\n\t{}",
-            "cancelled: ".yellow().bold(),
-            format!("Name: '{}'", instance.name).green(),
-        );
-    }
 
     Ok(ans)
 }

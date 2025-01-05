@@ -6,10 +6,10 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   04.01.25, 19:52
+ * Modified:   05.01.25, 18:28
  */
 
 pub mod data;
 pub mod error;
 pub mod file;
-pub mod path_builder;
+pub mod output;

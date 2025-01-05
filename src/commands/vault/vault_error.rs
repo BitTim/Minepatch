@@ -6,7 +6,7 @@
  *
  * File:       vault_error.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   03.01.25, 23:21
+ * Modified:   05.01.25, 19:55
  */
 use crate::common::error::ErrorType;
 
@@ -27,7 +27,10 @@ impl ErrorType for VaultError {
 
     fn hint(&self) -> String {
         match self {
-            VaultError::NoLoaderDetected => "Make sure the file you pprovide is a valid mod for one of the supported mod loaders",
-        }.to_owned()
+            VaultError::NoLoaderDetected => {
+                "Make sure the file you provide is a valid mod for one of the supported mod loaders"
+            }
+        }
+        .to_owned()
     }
 }

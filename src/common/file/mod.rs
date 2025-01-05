@@ -6,18 +6,19 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   04.01.25, 23:46
+ * Modified:   05.01.25, 19:24
  */
 
 use crate::common;
 use crate::common::data::DataType;
-use crate::common::error::ErrorType;
+use crate::common::error::{CommonError, ErrorType};
 use crate::common::file::error::FileError;
 use directories::ProjectDirs;
 use std::path::{Path, PathBuf};
 use std::{env, fs, io};
 
 pub mod error;
+pub mod path_builder;
 
 const QUALIFIER: &str = "dev";
 const ORGANIZATION: &str = "BitTim";
@@ -47,13 +48,19 @@ pub(crate) fn init_data_file(filename: &str) -> common::error::Result<PathBuf> {
 }
 
 pub(crate) fn filename_from_path(path: &Path) -> Result<&str, Box<dyn std::error::Error>> {
-    let context = format!("Path: '{}'", path.to_path_buf().display().to_string());
-
     Ok(path
         .file_name()
-        .ok_or(FileError::PathNoFileName.builder().context(&context))?
+        .ok_or(
+            FileError::PathNoFileName
+                .builder()
+                .context("Path", &path.display().to_string()),
+        )?
         .to_str()
-        .ok_or(FileError::PathInvalidUTF8.builder().context(&context))?)
+        .ok_or(
+            FileError::PathInvalidUTF8
+                .builder()
+                .context("Path", &path.display().to_string()),
+        )?)
 }
 
 pub fn read_all<T: DataType>() -> common::error::Result<Vec<T>> {
@@ -70,4 +77,33 @@ pub fn write_all<T: DataType>(data: Vec<T>) -> common::error::Result<()> {
 
     serde_json::to_writer_pretty(file, &data)?;
     Ok(())
+}
+
+pub fn check_exists(path: &Path) -> common::error::Result<()> {
+    if !fs::exists(path)? {
+        Err(FileError::PathNotFound
+            .builder()
+            .context("File", &path.display().to_string())
+            .build())
+    } else {
+        Ok(())
+    }
+}
+
+pub(crate) fn move_file(path: &Path, new_path: &Path) -> common::error::Result<()> {
+    fs::copy(path, new_path)?;
+    fs::remove_file(path)?;
+
+    Ok(())
+}
+
+pub(crate) fn hash_file(path: &Path) -> common::error::Result<String> {
+    match sha256::try_digest(path) {
+        Ok(value) => Ok(value),
+        Err(error) => Err(CommonError::Wrapper(Box::new(error))
+            .builder()
+            .context("Cause", "File hashing")
+            .context("File", &path.display().to_string())
+            .build()),
+    }
 }

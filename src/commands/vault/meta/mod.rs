@@ -6,7 +6,7 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   04.01.25, 19:56
+ * Modified:   05.01.25, 01:06
  */
 mod fabric;
 mod forge_based;
@@ -19,13 +19,13 @@ use strum_macros::EnumIter;
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Meta {
     pub(crate) id: String,
-    name: String,
-    version: String,
-    description: String,
-    authors: Vec<String>,
-    loader: String,
-    loader_version: Option<String>,
-    minecraft_version: Option<String>,
+    pub(crate) name: String,
+    pub(crate) version: String,
+    pub(crate) description: String,
+    pub(crate) authors: Vec<String>,
+    pub(crate) loader: String,
+    pub(crate) loader_version: Option<String>,
+    pub(crate) minecraft_version: Option<String>,
 }
 
 #[derive(EnumIter, Debug)]

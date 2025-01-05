@@ -6,21 +6,20 @@
  *
  * File:       instance_main.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   02.01.25, 22:25
+ * Modified:   05.01.25, 19:18
  */
 use crate::commands::instance::instance_error::InstanceError;
 use crate::commands::instance::{instance_util, Instance, InstanceDisplay};
 use crate::common::error::ErrorType;
 use crate::common::file::error::FileError;
 use crate::common::file::filename_from_path;
+use crate::common::output::status::{State, StatusOutput};
+use crate::common::output::table::TableOutput;
+use crate::common::output::Output;
 use crate::common::{error, file};
-use colored::Colorize;
 use std::fs;
 use std::path::Path;
-use tabled::settings::object::{Columns, Rows};
-use tabled::settings::width::MinWidth;
-use tabled::settings::{Alignment, Format, Style};
-use tabled::Table;
+use tabled::settings::object::Columns;
 
 pub fn list() -> error::Result<()> {
     let instances: Vec<Instance> = file::read_all()?;
@@ -29,18 +28,9 @@ pub fn list() -> error::Result<()> {
         .map(|instance| instance.to_display())
         .collect::<Vec<InstanceDisplay>>();
 
-    let table = Table::new(instance_displays)
-        .with(Style::rounded().remove_horizontals())
-        .modify(
-            Rows::new(0..1),
-            Format::content(|s| format!("\x1b[1m\x1b[4m{}\x1b[22m\x1b[24m", s)),
-        )
-        .modify(Columns::new(0..1), MinWidth::new(16))
-        .modify(Columns::new(1..2), MinWidth::new(32))
-        .modify(Columns::new(2..3), Alignment::center())
-        .to_string();
-
-    println!("{}", table);
+    TableOutput::new(instance_displays)
+        .center(Columns::new(2..3))
+        .print();
     Ok(())
 }
 
@@ -48,7 +38,7 @@ pub fn link(path: &Path, name: &Option<String>) -> error::Result<()> {
     if fs::exists(&path)? == false {
         return Err(FileError::PathNotFound
             .builder()
-            .context(&format!("Path: '{}'", path.display()))
+            .context("Path", &path.display().to_string())
             .build());
     }
 
@@ -63,12 +53,10 @@ pub fn link(path: &Path, name: &Option<String>) -> error::Result<()> {
     instances.push(Instance::new(actual_name, path));
     file::write_all(instances)?;
 
-    println!(
-        "{}Linked instance\n\t{}\n\t{}",
-        "success: ".green().bold(),
-        format!("Name: '{}'", actual_name).cyan(),
-        format!("Path: '{}'", path.display()).cyan()
-    );
+    StatusOutput::new(State::Success, "Linked instance")
+        .context("Name", actual_name)
+        .context("Path", &path.display().to_string())
+        .print();
     Ok(())
 }
 
@@ -86,8 +74,8 @@ pub fn rename(name: &str, new_name: &Option<String>) -> error::Result<()> {
     if name == actual_new_name {
         return Err(InstanceError::NameNotChanged
             .builder()
-            .context(&format!("Name: '{}'", name))
-            .context(&format!("New Name '{}", actual_new_name))
+            .context("Name", name)
+            .context("New Name", actual_new_name)
             .build());
     }
 
@@ -97,12 +85,10 @@ pub fn rename(name: &str, new_name: &Option<String>) -> error::Result<()> {
 
     file::write_all(instances)?;
 
-    println!(
-        "{}Renamed instance\n\t{}\n\t{}",
-        "success: ".green().bold(),
-        format!("Old name: '{}'", name).cyan(),
-        format!("New name: '{}'", actual_new_name).cyan()
-    );
+    StatusOutput::new(State::Success, "Renamed instance")
+        .context("Old name", name)
+        .context("New name", actual_new_name)
+        .print();
     Ok(())
 }
 
@@ -124,15 +110,16 @@ pub fn unlink(name: &Option<String>, all: &bool, yes: &bool) -> error::Result<()
     for name in names {
         let (index, instance) = instance_util::check_instance(&instances, &name, true)?.unwrap();
         if !yes && !instance_util::confirm_unlink(instance)? {
+            StatusOutput::new(State::Abort, "Did not unlink instance")
+                .context("Name", &instance.name)
+                .print();
             continue;
         }
         instances.remove(index);
 
-        println!(
-            "{}Unlinked instance\n\t{}",
-            "success: ".green().bold(),
-            format!("Name: '{}'", name).cyan(),
-        );
+        StatusOutput::new(State::Success, "Unlinked instance")
+            .context("Name", &*name)
+            .print();
     }
 
     file::write_all(instances)?;
