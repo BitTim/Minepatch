@@ -6,7 +6,7 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   05.01.25, 19:24
+ * Modified:   06.01.25, 01:22
  */
 
 use crate::common;
@@ -73,7 +73,11 @@ pub fn read_all<T: DataType>() -> common::error::Result<Vec<T>> {
 
 pub fn write_all<T: DataType>(data: Vec<T>) -> common::error::Result<()> {
     let path = init_data_file(T::FILENAME)?;
-    let file = fs::OpenOptions::new().write(true).create(true).open(path)?;
+    let file = fs::OpenOptions::new()
+        .truncate(true)
+        .write(true)
+        .create(true)
+        .open(path)?;
 
     serde_json::to_writer_pretty(file, &data)?;
     Ok(())
@@ -106,4 +110,25 @@ pub(crate) fn hash_file(path: &Path) -> common::error::Result<String> {
             .context("File", &path.display().to_string())
             .build()),
     }
+}
+
+pub(crate) fn remove_empty_dirs(path: &Path) -> common::error::Result<bool> {
+    if path.is_dir() {
+        let mut is_empty = true;
+        for entry in fs::read_dir(path)? {
+            if let Ok(entry) = entry {
+                let sub_path = entry.path();
+                if !remove_empty_dirs(&sub_path)? {
+                    is_empty = false;
+                }
+            }
+        }
+
+        if is_empty {
+            fs::remove_dir(path)?
+        }
+        return Ok(is_empty);
+    }
+
+    Ok(false)
 }

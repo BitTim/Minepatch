@@ -6,7 +6,7 @@
  *
  * File:       vault_util.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   05.01.25, 19:22
+ * Modified:   06.01.25, 01:23
  */
 use crate::commands::vault::meta::Loader;
 use crate::commands::vault::vault_error::VaultError;
@@ -20,13 +20,21 @@ use std::path::{Path, PathBuf};
 use strum::IntoEnumIterator;
 use zip::ZipArchive;
 
+pub(crate) fn get_base_mod_dir_path() -> error::Result<PathBuf> {
+    let dir = PathBuilder::new(&mut *file::get_data_path()?)
+        .push("mods")
+        .build();
+
+    fs::create_dir_all(&dir)?;
+    Ok(dir)
+}
+
 pub(crate) fn build_mod_dir_path(
     mod_id: &str,
     loader: &str,
     filename: &str,
 ) -> error::Result<PathBuf> {
-    let dir = PathBuilder::new(&mut *file::get_data_path()?)
-        .push("mods")
+    let dir = PathBuilder::new(&mut *get_base_mod_dir_path()?)
         .push(mod_id)
         .push(loader)
         .build();

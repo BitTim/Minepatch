@@ -6,7 +6,7 @@
  *
  * File:       vault_cli.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   02.01.25, 22:25
+ * Modified:   06.01.25, 00:55
  */
 use clap::Subcommand;
 use std::path::PathBuf;
@@ -17,5 +17,11 @@ pub enum VaultCommands {
     Add {
         /// Path to the mod file
         path: PathBuf,
+    },
+
+    /// Removes a mod from the vault
+    Remove {
+        /// Hash of the mod file that should be removed
+        hash: String,
     },
 }

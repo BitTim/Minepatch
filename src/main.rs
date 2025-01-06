@@ -6,7 +6,7 @@
  *
  * File:       main.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   02.01.25, 22:25
+ * Modified:   06.01.25, 00:56
  */
 use clap::Parser;
 use minepatch::commands::instance::instance_cli::InstanceCommands;
@@ -27,6 +27,7 @@ fn match_command(command: &Commands) -> error::Result<()> {
         },
         Commands::Vault { vault_commands } => match vault_commands {
             VaultCommands::Add { path } => vault_main::add(path)?,
+            VaultCommands::Remove { hash } => vault_main::remove(hash)?,
         },
     }
 
