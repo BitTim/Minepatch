@@ -6,8 +6,9 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   05.01.25, 18:42
+ * Modified:   06.01.25, 18:17
  */
+use colored::Colorize;
 use std::fmt::{Debug, Display};
 
 pub mod list;
@@ -17,5 +18,19 @@ pub mod table;
 pub trait Output: Debug + Display {
     fn print(&self) {
         println!("{}", self)
+    }
+}
+
+pub(crate) fn format_bool(value: &bool) -> String {
+    match value {
+        true => "✓ Yes".green().to_string(),
+        false => "✗  No".red().to_string(),
+    }
+}
+
+pub(crate) fn format_string_option(value: &Option<String>) -> String {
+    match value {
+        Some(value) => value.to_owned(),
+        None => "?".red().to_string(),
     }
 }

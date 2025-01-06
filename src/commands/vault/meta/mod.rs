@@ -6,7 +6,7 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   05.01.25, 01:06
+ * Modified:   06.01.25, 18:10
  */
 mod fabric;
 mod forge_based;
@@ -52,9 +52,16 @@ impl Loader {
         }
     }
 
-    pub(crate) fn extract_meta(&self, data: &str) -> error::Result<Meta> {
+    pub(crate) fn extra_path(&self) -> Option<&'static str> {
         match self {
-            Loader::Forge | Loader::NeoForge => forge_based::extract_meta(data, self.name()),
+            Loader::Forge | Loader::NeoForge => Some("META-INF/MANIFEST.MF"),
+            Loader::Fabric => None,
+        }
+    }
+
+    pub(crate) fn extract_meta(&self, data: &str, extra: &Option<String>) -> error::Result<Meta> {
+        match self {
+            Loader::Forge | Loader::NeoForge => forge_based::extract_meta(data, self.name(), extra),
             Loader::Fabric => fabric::extract_meta(data, self.name()),
         }
     }

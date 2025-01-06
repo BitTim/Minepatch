@@ -6,9 +6,9 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   02.01.25, 18:49
+ * Modified:   06.01.25, 18:17
  */
-use colored::Colorize;
+use crate::common::output::format_bool;
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -20,10 +20,12 @@ pub mod instance_main;
 mod instance_util;
 
 #[derive(Debug, Tabled)]
-#[tabled(rename_all = "PascalCase")]
 pub(crate) struct InstanceDisplay {
+    #[tabled(rename = "Name")]
     name: String,
+    #[tabled(rename = "Path")]
     path: String,
+    #[tabled(rename = "Valid")]
     valid: String,
 }
 
@@ -58,10 +60,7 @@ impl Instance {
         InstanceDisplay {
             name: self.name.clone(),
             path: self.path.display().to_string(),
-            valid: match valid {
-                true => "✓ Yes".green().to_string(),
-                false => "✗  No".red().to_string(),
-            },
+            valid: format_bool(&valid),
         }
     }
 }

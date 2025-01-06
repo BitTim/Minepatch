@@ -6,7 +6,7 @@
  *
  * File:       table.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   05.01.25, 19:55
+ * Modified:   06.01.25, 14:56
  */
 use crate::common::output::Output;
 use std::fmt::{Display, Formatter};
@@ -35,6 +35,11 @@ impl TableOutput {
 
     pub(crate) fn center<T: Object<VecRecords<Text<String>>>>(mut self, target: T) -> Self {
         self.table = self.table.modify(target, Alignment::center()).to_owned();
+        self
+    }
+
+    pub(crate) fn right<T: Object<VecRecords<Text<String>>>>(mut self, target: T) -> Self {
+        self.table = self.table.modify(target, Alignment::right()).to_owned();
         self
     }
 }
