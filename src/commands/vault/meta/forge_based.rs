@@ -6,7 +6,7 @@
  *
  * File:       forge_based.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   06.01.25, 17:55
+ * Modified:   08.01.25, 16:23
  */
 use crate::commands::vault::meta::meta_error::MetaError;
 use crate::commands::vault::meta::Meta;
@@ -84,7 +84,7 @@ fn extract_dep_table<'a>(
 }
 
 fn extract_string(table: &Table, key: &str) -> Option<String> {
-    table.get(key)?.as_str().map(ToOwned::to_owned)
+    Some(table.get(key)?.as_str()?.trim().to_owned())
 }
 
 fn extract_version_range(table: Option<&Table>) -> Option<String> {

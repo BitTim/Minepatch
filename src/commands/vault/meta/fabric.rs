@@ -6,7 +6,7 @@
  *
  * File:       fabric.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   08.01.25, 15:27
+ * Modified:   08.01.25, 16:22
  */
 use crate::commands::vault::meta::meta_error::MetaError;
 use crate::commands::vault::meta::Meta;
@@ -26,7 +26,7 @@ pub(crate) fn extract_meta(data: &str, loader: &str) -> error::Result<Meta> {
 }
 
 fn extract_string(obj: &Value, key: &str) -> Option<String> {
-    Some(obj.get(key)?.as_str()?.to_owned())
+    Some(obj.get(key)?.as_str()?.trim().to_owned())
 }
 
 fn extract_authors(obj: &Value) -> Option<Vec<String>> {
