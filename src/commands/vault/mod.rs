@@ -6,10 +6,12 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   06.01.25, 18:17
+ * Modified:   08.01.25, 16:18
  */
 use crate::commands::vault::meta::Meta;
+use crate::common::output::detailed::{DetailedDisplayObject, Entry};
 use crate::common::output::{format_bool, format_string_option};
+use colored::Colorize;
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -74,5 +76,35 @@ impl Mod {
             mc_version: format_string_option(&self.meta.minecraft_version),
             valid: format_bool(&valid),
         }
+    }
+
+    fn to_detailed_display(&self) -> DetailedDisplayObject {
+        let authors = &self.meta.authors.join("\n");
+
+        DetailedDisplayObject::new(
+            vec![
+                Entry::new("Hash", &self.hash.bold().purple().to_string()),
+                Entry::new(
+                    "Path",
+                    &self.path.display().to_string().dimmed().blue().to_string(),
+                ),
+            ],
+            vec![
+                Entry::new("Mod ID", &self.meta.id.bold().yellow().to_string()),
+                Entry::new("Name", &self.meta.name),
+                Entry::new("Version", &self.meta.version),
+                Entry::new("Authors", authors),
+                Entry::new("Loader", &self.meta.loader),
+                Entry::new(
+                    "Loader version",
+                    &format_string_option(&self.meta.loader_version),
+                ),
+                Entry::new(
+                    "Minecraft version",
+                    &format_string_option(&self.meta.minecraft_version),
+                ),
+                Entry::new("Description", &self.meta.description),
+            ],
+        )
     }
 }

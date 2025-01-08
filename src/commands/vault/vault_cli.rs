@@ -6,7 +6,7 @@
  *
  * File:       vault_cli.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   08.01.25, 14:27
+ * Modified:   08.01.25, 16:28
  */
 use clap::Subcommand;
 use std::path::PathBuf;
@@ -26,7 +26,7 @@ pub enum VaultCommands {
         detailed: bool,
 
         /// Only display entries where the hash contains the provided hash.
-        #[arg(short = '#', long)]
+        #[arg(short = 's', long)]
         hash: Option<String>,
 
         /// Only display entries where the id contains the provided mod id.

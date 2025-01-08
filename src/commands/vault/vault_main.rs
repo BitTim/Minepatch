@@ -6,7 +6,7 @@
  *
  * File:       vault_main.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   08.01.25, 14:23
+ * Modified:   08.01.25, 16:29
  */
 use crate::commands::vault::vault_error::VaultError;
 use crate::commands::vault::vault_util::{
@@ -15,6 +15,7 @@ use crate::commands::vault::vault_util::{
 };
 use crate::commands::vault::{Mod, ModDisplay};
 use crate::common::error::ErrorType;
+use crate::common::output::detailed::{DetailedDisplayObject, DetailedOutput};
 use crate::common::output::status::{State, StatusOutput};
 use crate::common::output::table::TableOutput;
 use crate::common::output::Output;
@@ -62,7 +63,15 @@ pub fn list(detailed: &bool, hash: &Option<String>, id: &Option<String>) -> erro
                 .center(Columns::new(6..7))
                 .print();
         }
-        true => {}
+        true => {
+            DetailedOutput::new(
+                filtered
+                    .iter()
+                    .map(|&entry| entry.to_detailed_display())
+                    .collect::<Vec<DetailedDisplayObject>>(),
+            )
+            .print();
+        }
     }
 
     Ok(())

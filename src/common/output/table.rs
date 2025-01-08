@@ -6,7 +6,7 @@
  *
  * File:       table.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   06.01.25, 14:56
+ * Modified:   08.01.25, 15:59
  */
 use crate::common::output::Output;
 use std::fmt::{Display, Formatter};
@@ -26,7 +26,7 @@ impl TableOutput {
             .with(Style::rounded().remove_horizontals())
             .modify(
                 Rows::new(0..1),
-                Format::content(|s| format!("\x1b[1m\x1b[4m{}\x1b[22m\x1b[24m", s)),
+                Format::content(|s| format!("\x1b[1;4m{}\x1b[0m", s)),
             )
             .to_owned();
 

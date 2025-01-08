@@ -6,12 +6,12 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   06.01.25, 18:17
+ * Modified:   08.01.25, 16:14
  */
 use colored::Colorize;
 use std::fmt::{Debug, Display};
 
-pub mod list;
+pub mod detailed;
 pub mod status;
 pub mod table;
 
