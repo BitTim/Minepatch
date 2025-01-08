@@ -6,11 +6,12 @@
  *
  * File:       vault_main.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   06.01.25, 18:14
+ * Modified:   08.01.25, 14:23
  */
 use crate::commands::vault::vault_error::VaultError;
 use crate::commands::vault::vault_util::{
-    build_mod_dir_path, check_entry, confirm_remove, detect_loader, get_base_mod_dir_path,
+    build_mod_dir_path, check_entry, confirm_remove, detect_loader, filter_registry,
+    get_base_mod_dir_path,
 };
 use crate::commands::vault::{Mod, ModDisplay};
 use crate::common::error::ErrorType;
@@ -44,18 +45,25 @@ pub fn add(path: &Path) -> error::Result<()> {
     Ok(())
 }
 
-pub fn list() -> error::Result<()> {
+pub fn list(detailed: &bool, hash: &Option<String>, id: &Option<String>) -> error::Result<()> {
     let registry: Vec<Mod> = file::read_all()?;
-    let mod_displays = registry
+    let filtered = filter_registry(&registry, hash, id);
+
+    let mod_displays = filtered
         .iter()
         .map(|entry| entry.to_display())
         .collect::<Vec<ModDisplay>>();
 
-    TableOutput::new(mod_displays)
-        .right(Columns::new(3..4))
-        .right(Columns::new(5..6))
-        .center(Columns::new(6..7))
-        .print();
+    match detailed {
+        false => {
+            TableOutput::new(mod_displays)
+                .right(Columns::new(3..4))
+                .right(Columns::new(5..6))
+                .center(Columns::new(6..7))
+                .print();
+        }
+        true => {}
+    }
 
     Ok(())
 }

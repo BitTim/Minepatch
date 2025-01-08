@@ -6,7 +6,7 @@
  *
  * File:       vault_util.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   06.01.25, 18:17
+ * Modified:   08.01.25, 14:22
  */
 use crate::commands::vault::meta::Loader;
 use crate::commands::vault::vault_error::VaultError;
@@ -118,4 +118,29 @@ pub(crate) fn confirm_remove(entry: &Mod) -> error::Result<bool> {
     .prompt()?;
 
     Ok(ans)
+}
+
+pub(crate) fn filter_registry<'a>(
+    registry: &'a [Mod],
+    hash: &Option<String>,
+    id: &Option<String>,
+) -> Vec<&'a Mod> {
+    registry
+        .iter()
+        .filter(|&entry| {
+            let match_hash = if let Some(hash) = hash {
+                entry.hash.contains(hash)
+            } else {
+                true
+            };
+
+            let match_id = if let Some(id) = id {
+                entry.meta.id.contains(id)
+            } else {
+                true
+            };
+
+            match_hash && match_id
+        })
+        .collect::<Vec<&Mod>>()
 }
