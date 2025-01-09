@@ -6,19 +6,13 @@
  *
  * File:       vault_cli.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   08.01.25, 16:28
+ * Modified:   09.01.25, 16:01
  */
 use clap::Subcommand;
 use std::path::PathBuf;
 
 #[derive(Subcommand, Debug)]
 pub enum VaultCommands {
-    /// Adds a new mod file to the central mod vault
-    Add {
-        /// Path to the mod file
-        path: PathBuf,
-    },
-
     /// Lists all mods within the vault. Can be filtered and sorted.
     List {
         /// Displays all matching entries in a more detailed view with all data visible.
@@ -32,6 +26,12 @@ pub enum VaultCommands {
         /// Only display entries where the id contains the provided mod id.
         #[arg(short, long)]
         id: Option<String>,
+    },
+
+    /// Adds a new mod file to the central mod vault
+    Add {
+        /// Path to the mod file
+        path: PathBuf,
     },
 
     /// Removes a mod from the vault
