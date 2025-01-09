@@ -6,9 +6,10 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   04.01.25, 23:52
+ * Modified:   09.01.25, 16:03
  */
 use crate::commands::instance::Instance;
+use crate::commands::pack::Pack;
 use crate::commands::vault::Mod;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
@@ -23,4 +24,7 @@ impl DataType for Instance {
 }
 impl DataType for Mod {
     const FILENAME: &'static str = "mods.json";
+}
+impl DataType for Pack {
+    const FILENAME: &'static str = "packs.json";
 }
