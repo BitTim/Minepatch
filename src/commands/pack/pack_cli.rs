@@ -6,7 +6,7 @@
  *
  * File:       pack_cli.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   09.01.25, 21:49
+ * Modified:   10.01.25, 20:04
  */
 
 #[derive(Debug)]
@@ -15,17 +15,13 @@ pub enum PackCommands {
     List,
 
     /// Create a new mod pack
-    Create,
+    Create {
+        /// A unique name for the mod pack
+        name: String,
+    },
+
+    /// Subset of commands to modify the mod pack
 
     /// Delete a mod pack
     Delete,
-
-    /// Add a mod to be included in a mod pack
-    Include,
-
-    /// Remove a mod from a mod pack
-    Exclude,
-
-    /// Apply all changes to a mod pack and save it as a patch
-    Patch,
 }
