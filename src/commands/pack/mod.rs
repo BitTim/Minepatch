@@ -6,57 +6,82 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   10.01.25, 20:10
+ * Modified:   11.01.25, 21:52
  */
-mod modify;
 pub mod pack_cli;
+pub mod pack_main;
 
 use serde::{Deserialize, Serialize};
+use sha256::Sha256Digest;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Pack {
     name: String,
     latest_version: String,
-    mc_version: String,
-    loader: String,
+    base: Option<Base>,
     patches: Vec<Patch>,
 }
 
 impl Pack {
-    pub(crate) fn new(name: &str, mc_version: &str, loader: &str, patches: &[Patch]) -> Self {
+    pub(crate) fn empty(name: &str) -> Self {
         Self {
             name: name.to_owned(),
             latest_version: String::from("init"),
-            mc_version: mc_version.to_owned(),
-            loader: loader.to_owned(),
+            base: None,
+            patches: vec![Patch::empty("init")],
+        }
+    }
+
+    pub(crate) fn new(name: &str, base: Option<Base>, patches: &[Patch]) -> Self {
+        Self {
+            name: name.to_owned(),
+            latest_version: String::from("init"),
+            base,
             patches: Vec::from(patches),
         }
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Patch {
     name: String,
     dependency: String,
-    hashed_state: String,
+    state_hash: String,
     added: Vec<String>,
     removed: Vec<String>,
 }
 
 impl Patch {
+    pub(crate) fn empty(name: &str) -> Self {
+        Self {
+            name: name.to_owned(),
+            dependency: String::from(""),
+            state_hash: "".digest(),
+            added: vec![],
+            removed: vec![],
+        }
+    }
+
     pub(crate) fn new(
         name: &str,
         dependency: &str,
-        hashed_state: &str,
+        state_hash: &str,
         added: &[String],
         removed: &[String],
     ) -> Self {
         Self {
             name: name.to_owned(),
             dependency: dependency.to_owned(),
-            hashed_state: hashed_state.to_owned(),
+            state_hash: state_hash.to_owned(),
             added: Vec::from(added),
             removed: Vec::from(removed),
         }
     }
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Base {
+    name: String,
+    version: String,
+    link: String,
 }

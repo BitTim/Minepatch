@@ -6,10 +6,11 @@
  *
  * File:       pack_cli.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   10.01.25, 20:04
+ * Modified:   11.01.25, 19:27
  */
+use clap::Subcommand;
 
-#[derive(Debug)]
+#[derive(Subcommand, Debug)]
 pub enum PackCommands {
     /// List all mod packs
     List,
@@ -18,9 +19,15 @@ pub enum PackCommands {
     Create {
         /// A unique name for the mod pack
         name: String,
-    },
 
-    /// Subset of commands to modify the mod pack
+        /// The path to a Minecraft instance. Using this option will generate a pack from the contents of the instance.
+        #[arg(short, long)]
+        from: Option<String>,
+
+        /// The name for the instance. Using this option will also link the instance provided by '-f' or '--from' to the specified name.
+        #[arg(short, long, requires = "from")]
+        instance: Option<String>,
+    },
 
     /// Delete a mod pack
     Delete,

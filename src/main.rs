@@ -6,11 +6,13 @@
  *
  * File:       main.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   08.01.25, 14:10
+ * Modified:   11.01.25, 22:00
  */
 use clap::Parser;
 use minepatch::commands::instance::instance_cli::InstanceCommands;
 use minepatch::commands::instance::instance_main;
+use minepatch::commands::pack::pack_cli::PackCommands;
+use minepatch::commands::pack::pack_main;
 use minepatch::commands::vault::vault_cli::VaultCommands;
 use minepatch::commands::vault::vault_main;
 use minepatch::commands::{update, Cli, Commands};
@@ -19,16 +21,29 @@ use minepatch::common::error;
 fn match_command(command: &Commands) -> error::Result<()> {
     match command {
         Commands::Update => update::update()?,
-        Commands::Instance { instance_commands } => match instance_commands {
+        Commands::Instance {
+            instance_commands: instance_command,
+        } => match instance_command {
             InstanceCommands::List => instance_main::list()?,
             InstanceCommands::Link { path, name } => instance_main::link(path, name)?,
             InstanceCommands::Rename { name, new_name } => instance_main::rename(name, new_name)?,
             InstanceCommands::Unlink { name, all, yes } => instance_main::unlink(name, all, yes)?,
         },
-        Commands::Vault { vault_commands } => match vault_commands {
+        Commands::Vault {
+            vault_commands: vault_command,
+        } => match vault_command {
             VaultCommands::Add { path } => vault_main::add(path)?,
             VaultCommands::List { detailed, hash, id } => vault_main::list(detailed, hash, id)?,
             VaultCommands::Remove { hash, all, yes } => vault_main::remove(hash, all, yes)?,
+        },
+        Commands::Pack { pack_command } => match pack_command {
+            PackCommands::List => {}
+            PackCommands::Create {
+                name,
+                from,
+                instance,
+            } => pack_main::create(name, from, instance)?,
+            PackCommands::Delete => {}
         },
     }
 

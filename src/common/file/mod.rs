@@ -6,7 +6,7 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   06.01.25, 01:22
+ * Modified:   11.01.25, 18:58
  */
 
 use crate::common;
@@ -87,7 +87,7 @@ pub fn check_exists(path: &Path) -> common::error::Result<()> {
     if !fs::exists(path)? {
         Err(FileError::PathNotFound
             .builder()
-            .context("File", &path.display().to_string())
+            .context("Path", &path.display().to_string())
             .build())
     } else {
         Ok(())

@@ -6,7 +6,7 @@
  *
  * File:       vault_main.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   08.01.25, 16:29
+ * Modified:   11.01.25, 19:01
  */
 use crate::commands::vault::vault_error::VaultError;
 use crate::commands::vault::vault_util::{
@@ -34,7 +34,7 @@ pub fn add(path: &Path) -> error::Result<()> {
 
     let meta = loader.extract_meta(&*data, &extra)?;
     let mod_file_path = build_mod_dir_path(&*meta.id, loader.name(), filename)?;
-    file::move_file(path, &mod_file_path)?;
+    fs::copy(path, &mod_file_path)?;
 
     registry.push(Mod::new(&*hash, &mod_file_path, meta));
     file::write_all(registry)?;
