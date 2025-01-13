@@ -6,16 +6,15 @@
  *
  * File:       main.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   11.01.25, 22:00
+ * Modified:   13.01.25, 20:29
  */
 use clap::Parser;
 use minepatch::commands::instance::instance_cli::InstanceCommands;
 use minepatch::commands::instance::instance_main;
-use minepatch::commands::pack::pack_cli::PackCommands;
-use minepatch::commands::pack::pack_main;
+use minepatch::commands::pack::cli::PackCommands;
 use minepatch::commands::vault::vault_cli::VaultCommands;
 use minepatch::commands::vault::vault_main;
-use minepatch::commands::{update, Cli, Commands};
+use minepatch::commands::{pack, update, Cli, Commands};
 use minepatch::common::error;
 
 fn match_command(command: &Commands) -> error::Result<()> {
@@ -42,7 +41,7 @@ fn match_command(command: &Commands) -> error::Result<()> {
                 name,
                 from,
                 instance,
-            } => pack_main::create(name, from, instance)?,
+            } => pack::func::create::create(name, from, instance)?,
             PackCommands::Delete => {}
         },
     }

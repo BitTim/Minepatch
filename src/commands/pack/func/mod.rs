@@ -8,6 +8,5 @@
  * Author:     Tim Anhalt (BitTim)
  * Modified:   13.01.25, 20:29
  */
-pub mod cli;
-pub mod data;
-pub mod func;
+mod common;
+pub mod create;

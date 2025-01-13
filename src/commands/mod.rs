@@ -6,10 +6,10 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   09.01.25, 21:49
+ * Modified:   13.01.25, 20:29
  */
 use crate::commands::instance::instance_cli;
-use crate::commands::pack::pack_cli;
+use crate::commands::pack::cli;
 use crate::commands::vault::vault_cli;
 use clap::{Parser, Subcommand};
 
@@ -46,6 +46,6 @@ pub enum Commands {
     /// Manage mod packs and their patches
     Pack {
         #[command(subcommand)]
-        pack_command: pack_cli::PackCommands,
+        pack_command: cli::PackCommands,
     },
 }

@@ -4,11 +4,12 @@
  * Project:    Minepatch
  * License:    GPLv3
  *
- * File:       pack_main.rs
+ * File:       create.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   11.01.25, 22:00
+ * Modified:   13.01.25, 20:29
  */
-use crate::commands::pack::{Pack, Patch};
+use crate::commands::pack::data::pack::Pack;
+use crate::commands::pack::data::patch::Patch;
 use crate::common::output::status::{State, StatusOutput};
 use crate::common::output::{format_string_option, Output};
 use crate::common::{error, file};

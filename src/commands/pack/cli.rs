@@ -4,9 +4,9 @@
  * Project:    Minepatch
  * License:    GPLv3
  *
- * File:       pack_cli.rs
+ * File:       cli.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   11.01.25, 19:27
+ * Modified:   13.01.25, 20:29
  */
 use clap::Subcommand;
 
