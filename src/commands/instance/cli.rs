@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2024 Tim Anhalt (BitTim)
+ * Copyright (c) 2024-2025 Tim Anhalt (BitTim)
  *
  * Project:    Minepatch
  * License:    GPLv3
  *
- * File:       instance_cli.rs
+ * File:       cli.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   28.12.24, 01:58
+ * Modified:   28.12.24, 01:59
  */
 
 use clap::Subcommand;

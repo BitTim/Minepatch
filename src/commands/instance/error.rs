@@ -4,9 +4,9 @@
  * Project:    Minepatch
  * License:    GPLv3
  *
- * File:       instance_error.rs
+ * File:       error.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   04.01.25, 18:31
+ * Modified:   04.01.25, 19:24
  */
 use crate::common::error::ErrorType;
 

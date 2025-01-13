@@ -6,10 +6,8 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   13.01.25, 20:29
+ * Modified:   13.01.25, 21:39
  */
-use crate::commands::instance::instance_cli;
-use crate::commands::pack::cli;
 use crate::commands::vault::vault_cli;
 use clap::{Parser, Subcommand};
 
@@ -34,7 +32,7 @@ pub enum Commands {
     /// Manage relevant Minecraft instances
     Instance {
         #[command(subcommand)]
-        instance_commands: instance_cli::InstanceCommands,
+        instance_commands: instance::cli::InstanceCommands,
     },
 
     /// Manage mod files present in vault
@@ -46,6 +44,6 @@ pub enum Commands {
     /// Manage mod packs and their patches
     Pack {
         #[command(subcommand)]
-        pack_command: cli::PackCommands,
+        pack_command: pack::cli::PackCommands,
     },
 }

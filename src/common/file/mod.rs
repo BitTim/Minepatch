@@ -6,7 +6,7 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   11.01.25, 18:58
+ * Modified:   13.01.25, 21:40
  */
 
 use crate::common;
@@ -94,7 +94,7 @@ pub fn check_exists(path: &Path) -> common::error::Result<()> {
     }
 }
 
-pub(crate) fn move_file(path: &Path, new_path: &Path) -> common::error::Result<()> {
+pub(crate) fn _move_file(path: &Path, new_path: &Path) -> common::error::Result<()> {
     fs::copy(path, new_path)?;
     fs::remove_file(path)?;
 

@@ -1,20 +1,19 @@
 /*
- * Copyright (c) 2024-2025 Tim Anhalt (BitTim)
+ * Copyright (c) 2025 Tim Anhalt (BitTim)
  *
  * Project:    Minepatch
  * License:    GPLv3
  *
- * File:       instance_util.rs
+ * File:       registry.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   05.01.25, 19:18
+ * Modified:   13.01.25, 21:40
  */
-use crate::commands::instance::instance_error::InstanceError;
-use crate::commands::instance::Instance;
+use crate::commands::instance::data::Instance;
+use crate::commands::instance::error::InstanceError;
 use crate::common::error;
 use crate::common::error::ErrorType;
-use inquire::Confirm;
 
-pub fn check_instance<'a>(
+pub(crate) fn check_instance<'a>(
     instances: &'a [Instance],
     name: &str,
     should_exist: bool,
@@ -37,7 +36,7 @@ pub fn check_instance<'a>(
     }
 }
 
-pub fn find_instance_mut<'a>(
+pub(crate) fn find_instance_mut<'a>(
     instances: &'a mut [Instance],
     name: &str,
 ) -> error::Result<&'a mut Instance> {
@@ -50,16 +49,4 @@ pub fn find_instance_mut<'a>(
                 .context("Name", name)
                 .build(),
         )
-}
-
-pub fn confirm_unlink(instance: &Instance) -> error::Result<bool> {
-    let ans = Confirm::new(&format!(
-        "Are you sure you want to unlink '{}'?",
-        instance.name
-    ))
-    .with_default(false)
-    .with_help_message(&format!("Path: '{}'", &instance.path.display().to_string()))
-    .prompt()?;
-
-    Ok(ans)
 }
