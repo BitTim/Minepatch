@@ -6,7 +6,7 @@
  *
  * File:       data.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   15.01.25, 11:43
+ * Modified:   15.01.25, 15:20
  */
 
 use crate::util::meta::data::Meta;
@@ -56,7 +56,7 @@ impl Mod {
     }
 
     pub(crate) fn to_detailed_display(&self) -> DetailedDisplayObject {
-        let authors = &self.meta.authors.join("\n");
+        let authors = self.meta.authors.as_deref().map(|value| value.join("\n"));
 
         DetailedDisplayObject::new(
             vec![
@@ -70,7 +70,7 @@ impl Mod {
                 Entry::new("Mod ID", &self.meta.id.bold().yellow().to_string()),
                 Entry::new("Name", &self.meta.name),
                 Entry::new("Version", &self.meta.version),
-                Entry::new("Authors", authors),
+                Entry::new("Authors", &format_string_option(&authors)),
                 Entry::new("Loader", &self.meta.loader),
                 Entry::new(
                     "Loader version",
@@ -80,7 +80,7 @@ impl Mod {
                     "Minecraft version",
                     &format_string_option(&self.meta.minecraft_version),
                 ),
-                Entry::new("Description", &self.meta.description),
+                Entry::new("Description", &format_string_option(&self.meta.description)),
             ],
         )
     }

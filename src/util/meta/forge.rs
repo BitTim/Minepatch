@@ -6,7 +6,7 @@
  *
  * File:       forge.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   15.01.25, 12:14
+ * Modified:   15.01.25, 15:14
  */
 use crate::util::error;
 use crate::util::error::ErrorType;
@@ -23,13 +23,12 @@ pub(crate) fn extract_meta(
     let table = data.parse::<Table>()?;
     let jar_version = extract_version_from_extra(extra);
 
-    let meta = meta_from_root_table(&table, loader, &jar_version).ok_or_else(|| {
+    meta_from_root_table(&table, loader, &jar_version).ok_or(
         MetaError::MalformedMetaFile
             .builder()
             .context("Detected loader", loader)
-            .build()
-    })?;
-    Ok(meta)
+            .build(),
+    )
 }
 
 fn extract_version_from_extra(extra: &Option<String>) -> Option<String> {
@@ -105,15 +104,13 @@ fn meta_from_root_table(
         .or_else(|| extract_string(root_table, "authors"))
         .or_else(|| None);
 
-    let authors = if let Some(authors_value) = authors_value {
-        authors_value
+    let authors = authors_value.map(|value| {
+        value
             .split(',')
             .map(str::trim)
             .map(ToOwned::to_owned)
             .collect::<Vec<String>>()
-    } else {
-        vec![]
-    };
+    });
 
     let version = extract_string(mods_table, "version")?;
     let actual_version = if version == "${file.jarVersion}" {
@@ -129,7 +126,7 @@ fn meta_from_root_table(
         id: mod_id,
         name: extract_string(mods_table, "displayName")?,
         version: actual_version,
-        description: extract_string(mods_table, "description")?,
+        description: extract_string(mods_table, "description"),
         authors,
         loader: loader.to_owned(),
         loader_version: extract_version_range(loader_dep_table),

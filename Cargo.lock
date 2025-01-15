@@ -1143,6 +1143,7 @@ dependencies = [
  "clap",
     "colored",
  "directories",
+    "indicatif",
     "inquire",
     "self_update",
     "serde",

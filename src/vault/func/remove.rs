@@ -6,7 +6,7 @@
  *
  * File:       remove.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   15.01.25, 11:46
+ * Modified:   15.01.25, 14:58
  */
 
 use crate::util::error::ErrorType;
@@ -50,7 +50,7 @@ pub fn remove(hash: &Option<String>, all: &bool, yes: &bool, silent: &bool) -> e
         file::check_exists(&path)?;
         fs::remove_file(&path)?;
         file::remove_empty_dirs(&get_base_mod_dir_path()?)?;
-        registry.remove(index);
+        registry.swap_remove(index);
 
         if !silent {
             StatusOutput::new(State::Success, "Removed mod from vault")

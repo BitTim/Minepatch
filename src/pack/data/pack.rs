@@ -6,7 +6,7 @@
  *
  * File:       pack.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   15.01.25, 11:18
+ * Modified:   15.01.25, 13:44
  */
 use crate::pack::data::base::Base;
 use crate::pack::data::patch::Patch;
@@ -14,7 +14,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Pack {
-    name: String,
+    pub(crate) name: String,
     latest_version: String,
     base: Option<Base>,
     patches: Vec<Patch>,

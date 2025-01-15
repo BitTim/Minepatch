@@ -6,15 +6,12 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   15.01.25, 12:04
+ * Modified:   15.01.25, 12:54
  */
 
 use crate::util::data::DataType;
 use crate::util::error::{CommonError, ErrorType};
 use crate::util::file::error::FileError;
-use crate::util::output::status::{State, StatusOutput};
-use crate::util::output::Output;
-use crate::vault;
 use directories::ProjectDirs;
 use std::path::{Path, PathBuf};
 use std::{env, fs, io};
@@ -133,39 +130,4 @@ pub(crate) fn remove_empty_dirs(path: &Path) -> crate::util::error::Result<bool>
     }
 
     Ok(false)
-}
-
-pub(crate) fn extract_hashes_from_dir(
-    path: &Path,
-    silent: bool,
-) -> crate::util::error::Result<Vec<String>> {
-    let mod_files = fs::read_dir(&path)?;
-    Ok(mod_files
-        .map(|mod_file| {
-            let path = mod_file?.path();
-            if !silent {
-                println!("Found file '{}'", path.display());
-            }
-
-            // Adds mod file to vault and returns the hash
-            vault::func::add::add(&path, &true)
-        })
-        .filter_map(|result| match result {
-            Ok(hash) => {
-                if !silent {
-                    println!("Generated file hash: '{}'\n", hash);
-                }
-                Some(hash)
-            }
-            Err(error) => {
-                if !silent {
-                    StatusOutput::new(State::Error, "Error occurred during mod file hashing")
-                        .context("Message", &*error.to_string())
-                        .context("Path", &path.display().to_string())
-                        .print();
-                }
-                None
-            }
-        })
-        .collect::<Vec<String>>())
 }

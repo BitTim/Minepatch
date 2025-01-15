@@ -6,7 +6,7 @@
  *
  * File:       cli.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   15.01.25, 11:42
+ * Modified:   15.01.25, 14:55
  */
 use clap::Subcommand;
 use std::path::PathBuf;
@@ -36,6 +36,10 @@ pub enum VaultCommands {
         /// This flag suppresses output to the console.
         #[arg(short, long)]
         silent: bool,
+
+        /// When this flag is set and a mod file with the same hash is already registered, said file will be overwritten
+        #[arg(short, long)]
+        overwrite: bool,
     },
 
     /// Removes a mod from the vault
