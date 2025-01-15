@@ -6,7 +6,7 @@
  *
  * File:       forge.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   15.01.25, 11:46
+ * Modified:   15.01.25, 12:14
  */
 use crate::util::error;
 use crate::util::error::ErrorType;
@@ -101,14 +101,19 @@ fn meta_from_root_table(
     let loader_dep_table = extract_dep_table(root_table, &mod_id, &loader.to_lowercase());
     let minecraft_dep_table = extract_dep_table(root_table, &mod_id, "minecraft");
 
-    let authors_value =
-        extract_string(mods_table, "authors").or_else(|| extract_string(root_table, "authors"))?;
+    let authors_value = extract_string(mods_table, "authors")
+        .or_else(|| extract_string(root_table, "authors"))
+        .or_else(|| None);
 
-    let authors = authors_value
-        .split(',')
-        .map(str::trim)
-        .map(ToOwned::to_owned)
-        .collect::<Vec<String>>();
+    let authors = if let Some(authors_value) = authors_value {
+        authors_value
+            .split(',')
+            .map(str::trim)
+            .map(ToOwned::to_owned)
+            .collect::<Vec<String>>()
+    } else {
+        vec![]
+    };
 
     let version = extract_string(mods_table, "version")?;
     let actual_version = if version == "${file.jarVersion}" {

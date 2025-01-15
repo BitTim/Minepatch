@@ -6,7 +6,7 @@
  *
  * File:       error.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   15.01.25, 11:24
+ * Modified:   15.01.25, 11:53
  */
 use crate::util::error::ErrorType;
 
@@ -30,7 +30,7 @@ impl ErrorType for FileError {
     fn hint(&self) -> String {
         match self {
             FileError::PathNotFound => "Make sure that the path is properly formatted and the directory you are referencing actually exists.",
-            FileError::PathNoFileName | FileError::PathInvalidUTF8 => "Try to specify the name manually with '-n' or '--name'."
+            FileError::PathNoFileName | FileError::PathInvalidUTF8 => "Try to specify the name manually with '-n' or '--name'.",
         }.to_owned()
     }
 }

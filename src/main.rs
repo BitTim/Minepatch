@@ -6,7 +6,7 @@
  *
  * File:       main.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   15.01.25, 11:38
+ * Modified:   15.01.25, 11:56
  */
 use clap::Parser;
 use minepatch::instance::cli::InstanceCommands;
@@ -61,8 +61,9 @@ fn match_command(command: &Commands) -> error::Result<()> {
                 name,
                 from,
                 instance,
+                silent,
             } => {
-                pack::func::create::create(name, from, instance)?;
+                pack::func::create::create(name, from, instance, silent)?;
             }
             PackCommands::Delete => {}
         },

@@ -6,7 +6,7 @@
  *
  * File:       create.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   15.01.25, 11:46
+ * Modified:   15.01.25, 12:05
  */
 use crate::pack::data::pack::Pack;
 use crate::pack::data::patch::Patch;
@@ -14,11 +14,14 @@ use crate::util::output::status::{State, StatusOutput};
 use crate::util::output::{format_string_option, Output};
 use crate::util::{error, file};
 use sha256::Sha256Digest;
-use std::fs;
 use std::path::PathBuf;
 
-// TODO: Return some form of "Command runner" as a result
-pub fn create(name: &str, from: &Option<String>, instance: &Option<String>) -> error::Result<()> {
+pub fn create(
+    name: &str,
+    from: &Option<String>,
+    instance: &Option<String>,
+    silent: &bool,
+) -> error::Result<()> {
     let mut packs = file::read_all()?;
 
     match from {
@@ -30,31 +33,7 @@ pub fn create(name: &str, from: &Option<String>, instance: &Option<String>) -> e
             path.push("mods");
 
             file::check_exists(&*path)?;
-
-            let mod_files = fs::read_dir(&path)?;
-            let hashes = mod_files
-                .map(|mod_file| {
-                    let path = mod_file?.path();
-                    println!("Found file '{}'", path.display());
-                    // TODO: Run 'vault add' command in silent mode for all mod_files (Skip conflicts)
-
-                    // TODO: Retrieve hash from 'vault add' command
-                    file::hash_file(&path)
-                })
-                .filter_map(|result| match result {
-                    Ok(hash) => {
-                        println!("Generated file hash: '{}'", hash);
-                        Some(hash)
-                    }
-                    Err(error) => {
-                        StatusOutput::new(State::Error, "Error occurred during mod file hashing")
-                            .context("Message", &*error.to_string())
-                            .context("Path", &path.display().to_string())
-                            .print();
-                        None
-                    }
-                })
-                .collect::<Vec<String>>();
+            let hashes = file::extract_hashes_from_dir(&*path, *silent)?;
 
             let state_hash = hashes.join("\n").digest();
             let patch = Patch::new("init", "", &*state_hash, &hashes, &[]);
@@ -68,9 +47,11 @@ pub fn create(name: &str, from: &Option<String>, instance: &Option<String>) -> e
     }
 
     file::write_all(packs)?;
-    StatusOutput::new(State::Success, "Created a new pack")
-        .context("Name", name)
-        .context("From", &*format_string_option(from))
-        .print();
+    if !silent {
+        StatusOutput::new(State::Success, "Created a new pack")
+            .context("Name", name)
+            .context("From", &*format_string_option(from))
+            .print();
+    }
     Ok(())
 }
