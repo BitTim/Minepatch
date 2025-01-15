@@ -6,30 +6,15 @@
  *
  * File:       fabric.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   15.01.25, 15:56
+ * Modified:   15.01.25, 17:54
  */
 use crate::util::error;
-use crate::util::error::ErrorType;
+use crate::util::meta::common::{extract_meta_json, extract_string_json};
 use crate::util::meta::data::Meta;
-use crate::util::meta::error::MetaError;
 use serde_json::Value;
 
 pub(crate) fn extract_meta(data: &str, loader: &str) -> error::Result<Meta> {
-    let mut trimmed_data = data.to_owned();
-    trimmed_data.retain(|c| c != '\n');
-
-    let obj: Value = serde_json::from_str(&trimmed_data)?;
-
-    meta_from_obj(&obj, loader).ok_or(
-        MetaError::MalformedMetaFile
-            .builder()
-            .context("Detected loader", loader)
-            .build(),
-    )
-}
-
-fn extract_string(obj: &Value, key: &str) -> Option<String> {
-    Some(obj.get(key)?.as_str()?.trim().to_owned())
+    extract_meta_json(data, loader, meta_from_obj)
 }
 
 fn extract_authors(obj: &Value) -> Option<Vec<String>> {
@@ -52,18 +37,18 @@ fn meta_from_obj(obj: &Value, loader: &str) -> Option<Meta> {
     let depends_obj = obj.get("depends");
     let (loader_version, minecraft_version) = if let Some(depends_obj) = depends_obj {
         (
-            extract_string(depends_obj, "fabricloader"),
-            extract_string(depends_obj, "minecraft"),
+            extract_string_json(depends_obj, "fabricloader"),
+            extract_string_json(depends_obj, "minecraft"),
         )
     } else {
         (None, None)
     };
 
     Some(Meta {
-        id: extract_string(obj, "id")?,
-        name: extract_string(obj, "name")?,
-        version: extract_string(obj, "version")?,
-        description: extract_string(obj, "description"),
+        id: extract_string_json(obj, "id")?,
+        name: extract_string_json(obj, "name")?,
+        version: extract_string_json(obj, "version")?,
+        description: extract_string_json(obj, "description"),
         authors: extract_authors(obj),
         loader: loader.to_owned(),
         loader_version,

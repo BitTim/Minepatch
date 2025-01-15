@@ -6,7 +6,7 @@
  *
  * File:       create.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   15.01.25, 17:21
+ * Modified:   15.01.25, 17:55
  */
 use crate::pack::data::pack::Pack;
 use crate::pack::data::patch::Patch;
@@ -138,7 +138,7 @@ pub(crate) fn add_mods_from_dir(path: &Path, silent: bool) -> error::Result<Vec<
 
         let count = errors.iter().count();
         if count > 0 {
-            println!("Failed to parse {} mods", count);
+            println!("Failed to add {} mods", count);
         }
     }
 
