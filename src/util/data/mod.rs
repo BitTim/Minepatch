@@ -6,7 +6,7 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   15.01.25, 11:38
+ * Modified:   15.01.25, 18:56
  */
 use crate::instance::data::Instance;
 use crate::pack::data::pack::Pack;
@@ -15,7 +15,7 @@ use serde::de::DeserializeOwned;
 use serde::Serialize;
 use std::fmt::Debug;
 
-pub trait DataType: Debug + Serialize + DeserializeOwned {
+pub trait DataType: Debug + Serialize + DeserializeOwned + PartialEq {
     const FILENAME: &'static str;
 }
 

@@ -6,13 +6,15 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   15.01.25, 12:54
+ * Modified:   15.01.25, 20:55
  */
 
 use crate::util::data::DataType;
 use crate::util::error::{CommonError, ErrorType};
 use crate::util::file::error::FileError;
 use directories::ProjectDirs;
+use std::io::{Read, Write};
+use std::ops::DerefMut;
 use std::path::{Path, PathBuf};
 use std::{env, fs, io};
 
@@ -64,19 +66,21 @@ pub(crate) fn filename_from_path(path: &Path) -> Result<&str, Box<dyn std::error
 
 pub fn read_all<T: DataType>() -> crate::util::error::Result<Vec<T>> {
     let path = init_data_file(T::FILENAME)?;
-    let file = fs::OpenOptions::new().read(true).open(path)?;
-    let instances: Vec<T> = serde_json::from_reader(file)?;
+    let file = fs::OpenOptions::new().read(true).open(&path)?;
 
+    let instances: Vec<T> = serde_json::from_reader(file)?;
     Ok(instances)
 }
 
-pub fn write_all<T: DataType>(data: Vec<T>) -> crate::util::error::Result<()> {
+pub fn write_all<T: DataType>(mut data: Vec<T>) -> crate::util::error::Result<()> {
+    data.dedup_by(|a, b| a == b);
+
     let path = init_data_file(T::FILENAME)?;
     let file = fs::OpenOptions::new()
         .truncate(true)
         .write(true)
         .create(true)
-        .open(path)?;
+        .open(&path)?;
 
     serde_json::to_writer_pretty(file, &data)?;
     Ok(())

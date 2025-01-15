@@ -6,7 +6,7 @@
  *
  * File:       data.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   15.01.25, 11:24
+ * Modified:   15.01.25, 18:54
  */
 use crate::instance::output::InstanceDisplay;
 use crate::util::output::format_bool;
@@ -14,7 +14,7 @@ use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::{Path, PathBuf};
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Eq, PartialEq, Debug, Serialize, Deserialize)]
 pub(crate) struct Instance {
     pub(crate) name: String,
     pub(crate) path: PathBuf,

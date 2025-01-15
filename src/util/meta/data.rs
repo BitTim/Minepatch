@@ -6,7 +6,7 @@
  *
  * File:       data.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   15.01.25, 17:26
+ * Modified:   15.01.25, 18:55
  */
 use crate::util::error;
 use crate::util::meta::{fabric, forge, forge_legacy};
@@ -14,7 +14,7 @@ use colored::Colorize;
 use serde::{Deserialize, Serialize};
 use strum_macros::EnumIter;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Eq, PartialEq, Debug, Serialize, Deserialize)]
 pub struct Meta {
     pub(crate) id: String,
     pub(crate) name: String,

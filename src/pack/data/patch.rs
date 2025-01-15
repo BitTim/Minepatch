@@ -6,12 +6,12 @@
  *
  * File:       patch.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   13.01.25, 20:29
+ * Modified:   15.01.25, 18:55
  */
 use serde::{Deserialize, Serialize};
 use sha256::Sha256Digest;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Eq, PartialEq, Debug, Clone, Serialize, Deserialize)]
 pub struct Patch {
     name: String,
     dependency: String,

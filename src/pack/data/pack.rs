@@ -6,13 +6,13 @@
  *
  * File:       pack.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   15.01.25, 13:44
+ * Modified:   15.01.25, 18:55
  */
 use crate::pack::data::base::Base;
 use crate::pack::data::patch::Patch;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Eq, PartialEq, Debug, Serialize, Deserialize)]
 pub struct Pack {
     pub(crate) name: String,
     latest_version: String,
