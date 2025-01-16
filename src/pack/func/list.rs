@@ -4,12 +4,7 @@
  * Project:    Minepatch
  * License:    GPLv3
  *
- * File:       mod.rs
+ * File:       list.rs
  * Author:     Tim Anhalt (BitTim)
  * Modified:   16.01.25, 18:09
  */
-mod common;
-mod create;
-mod list;
-
-pub use create::*;

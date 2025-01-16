@@ -6,7 +6,7 @@
  *
  * File:       add.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   15.01.25, 15:45
+ * Modified:   16.01.25, 18:24
  */
 
 use crate::util::meta::data::Meta;
@@ -42,7 +42,7 @@ pub fn add(path: &Path, silent: &bool, overwrite: &bool) -> error::Result<String
         }
     }
 
-    let result = detect_loader(path)?;
+    let result = detect_loader(path, *silent)?;
 
     let (meta, mod_file_path) = if let Some((loader, data, extra)) = result {
         let meta = loader.extract_meta(&*data, &extra)?;

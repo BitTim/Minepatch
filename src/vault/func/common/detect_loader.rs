@@ -6,7 +6,7 @@
  *
  * File:       detect_loader.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   15.01.25, 17:26
+ * Modified:   16.01.25, 18:24
  */
 
 use crate::util::error;
@@ -21,6 +21,7 @@ use zip::ZipArchive;
 
 pub(crate) fn detect_loader(
     path: &Path,
+    silent: bool,
 ) -> error::Result<Option<(Loader, String, Option<String>)>> {
     let jar_file = File::open(path)?;
     let mut archive = ZipArchive::new(&jar_file)?;
@@ -58,11 +59,14 @@ pub(crate) fn detect_loader(
         break Some((loader, data, extra));
     };
 
-    if result.is_none() {
-        return Err(VaultError::NoLoaderDetected
-            .builder()
-            .context("File", &path.display().to_string())
-            .build());
+    if result.is_none() && !silent {
+        println!(
+            "{}",
+            VaultError::NoLoaderDetected
+                .builder()
+                .context("File", &path.display().to_string())
+                .build()
+        );
     }
 
     Ok(result)
