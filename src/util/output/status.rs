@@ -6,7 +6,7 @@
  *
  * File:       status.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   15.01.25, 11:24
+ * Modified:   16.01.25, 17:32
  */
 use crate::util::output::Output;
 use colored::{ColoredString, Colorize};
@@ -75,7 +75,7 @@ impl Display for StatusOutput {
 }
 
 impl StatusOutput {
-    pub(crate) fn new(state: State, message: &str) -> Self {
+    pub fn new(state: State, message: &str) -> Self {
         Self {
             state,
             message: message.to_owned(),
@@ -84,7 +84,7 @@ impl StatusOutput {
         }
     }
 
-    pub(crate) fn context(mut self, title: &str, content: &str) -> Self {
+    pub fn context(mut self, title: &str, content: &str) -> Self {
         self.contexts.push(Context {
             title: title.to_owned(),
             content: content.to_owned(),

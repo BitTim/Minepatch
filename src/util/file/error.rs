@@ -6,7 +6,7 @@
  *
  * File:       error.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   15.01.25, 11:53
+ * Modified:   16.01.25, 17:32
  */
 use crate::util::error::ErrorType;
 
@@ -15,6 +15,7 @@ pub enum FileError {
     PathNotFound,
     PathNoFileName,
     PathInvalidUTF8,
+    DataPathError,
 }
 
 impl ErrorType for FileError {
@@ -23,6 +24,7 @@ impl ErrorType for FileError {
             FileError::PathNotFound => "Path not found",
             FileError::PathNoFileName => "Path does not include a file or directory name",
             FileError::PathInvalidUTF8 => "Path contains invalid UTF-8 formatting",
+            FileError::DataPathError => "Did not find the projects OS specific data folder",
         }
         .to_owned()
     }
@@ -31,6 +33,7 @@ impl ErrorType for FileError {
         match self {
             FileError::PathNotFound => "Make sure that the path is properly formatted and the directory you are referencing actually exists.",
             FileError::PathNoFileName | FileError::PathInvalidUTF8 => "Try to specify the name manually with '-n' or '--name'.",
+            FileError::DataPathError => "Make sure you have access to the systems default data and config paths."
         }.to_owned()
     }
 }

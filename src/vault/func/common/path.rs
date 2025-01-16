@@ -6,10 +6,10 @@
  *
  * File:       path.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   15.01.25, 11:46
+ * Modified:   16.01.25, 17:32
  */
 
-use crate::util::file::path_builder::PathBuilder;
+use crate::util::file::PathBuilder;
 use crate::util::{error, file};
 use std::fs;
 use std::path::PathBuf;

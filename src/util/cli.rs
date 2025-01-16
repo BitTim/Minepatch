@@ -6,7 +6,7 @@
  *
  * File:       cli.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   15.01.25, 11:46
+ * Modified:   16.01.25, 17:32
  */
 use crate::{instance, pack, vault};
 use clap::{Parser, Subcommand};
@@ -39,6 +39,6 @@ pub enum Commands {
     /// Manage mod packs and their patches
     Pack {
         #[command(subcommand)]
-        pack_command: pack::cli::PackCommands,
+        pack_command: pack::PackCommands,
     },
 }

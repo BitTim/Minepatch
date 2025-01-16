@@ -6,10 +6,10 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   15.01.25, 18:56
+ * Modified:   16.01.25, 17:32
  */
 use crate::instance::data::Instance;
-use crate::pack::data::pack::Pack;
+use crate::pack::Pack;
 use crate::vault::data::Mod;
 use serde::de::DeserializeOwned;
 use serde::Serialize;

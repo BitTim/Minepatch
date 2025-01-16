@@ -6,12 +6,12 @@
  *
  * File:       create.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   15.01.25, 17:55
+ * Modified:   16.01.25, 17:32
  */
-use crate::pack::data::pack::Pack;
-use crate::pack::data::patch::Patch;
+use crate::pack::data::Pack;
+use crate::pack::data::Patch;
 use crate::pack::error::PackError;
-use crate::pack::func::common::registry::check_pack;
+use crate::pack::func::common::check_pack;
 use crate::util::error::ErrorType;
 use crate::util::output::status::{State, StatusOutput};
 use crate::util::output::{format_string_option, Output};

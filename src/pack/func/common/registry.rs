@@ -6,9 +6,9 @@
  *
  * File:       registry.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   15.01.25, 13:50
+ * Modified:   16.01.25, 17:32
  */
-use crate::pack::data::pack::Pack;
+use crate::pack::data::Pack;
 use crate::pack::error::PackError;
 use crate::util::error;
 use crate::util::error::ErrorType;
