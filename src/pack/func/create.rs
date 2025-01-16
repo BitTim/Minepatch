@@ -6,7 +6,7 @@
  *
  * File:       create.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   16.01.25, 17:32
+ * Modified:   16.01.25, 23:19
  */
 use crate::pack::data::Pack;
 use crate::pack::data::Patch;
@@ -18,7 +18,7 @@ use crate::util::output::{format_string_option, Output};
 use crate::util::{error, file};
 use crate::{instance, vault};
 use colored::Colorize;
-use indicatif::{ProgressBar, ProgressFinish, ProgressStyle};
+use indicatif::{ProgressBar, ProgressStyle};
 use sha256::Sha256Digest;
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -92,8 +92,7 @@ pub(crate) fn add_mods_from_dir(path: &Path, silent: bool) -> error::Result<Vec<
         })
         .collect::<Vec<&PathBuf>>();
 
-    let hashing_bar =
-        ProgressBar::new(mod_paths.iter().count() as u64).with_finish(ProgressFinish::AndClear);
+    let hashing_bar = ProgressBar::new(mod_paths.iter().count() as u64);
     hashing_bar.set_style(ProgressStyle::with_template("{msg}\n{spinner} {wide_bar} {percent:>3} % ({human_pos:>5} / {human_len:5})\nElapsed: {elapsed_precise}\tETA: {eta_precise}")?);
     hashing_bar.enable_steady_tick(Duration::from_millis(100));
 
