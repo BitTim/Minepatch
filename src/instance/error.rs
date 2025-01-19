@@ -6,36 +6,16 @@
  *
  * File:       error.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   15.01.25, 11:24
+ * Modified:   19.01.25, 13:18
  */
-use crate::util::error::ErrorType;
+use thiserror::Error;
 
-#[derive(Debug)]
+#[derive(Error, Debug)]
 pub enum InstanceError {
-    NameNotFound,
-    NameTaken,
+    #[error("No instance with name '{0}' was found.")]
+    NameNotFound(String),
+    #[error("Name '{0}' is already taken by another instance.")]
+    NameTaken(String),
+    #[error("New name cannot be the same as old name")]
     NameNotChanged,
-}
-
-impl ErrorType for InstanceError {
-    fn message(&self) -> String {
-        match self {
-            InstanceError::NameNotFound => "No instance found with this name",
-            InstanceError::NameTaken => "Name is already used by another instance",
-            InstanceError::NameNotChanged => "New name cannot be the same as old name",
-        }
-        .to_owned()
-    }
-
-    fn hint(&self) -> String {
-        match self {
-            InstanceError::NameNotFound => {
-                "Available instances can be viewed with sub command 'instance list'"
-            }
-            InstanceError::NameTaken | InstanceError::NameNotChanged => {
-                "Try specifying a different name with '-n' or '--name'"
-            }
-        }
-        .to_owned()
-    }
 }

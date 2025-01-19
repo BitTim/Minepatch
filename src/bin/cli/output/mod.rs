@@ -6,29 +6,30 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   08.01.25, 16:29
+ * Modified:   19.01.25, 14:01
  */
 use colored::Colorize;
 use std::fmt::{Debug, Display};
 
-pub mod detailed;
-pub mod status;
-pub mod table;
+mod detailed;
+mod displays;
+mod status;
+mod table;
 
-pub trait Output: Debug + Display {
+pub trait _Output: Debug + Display {
     fn print(&self) {
         println!("{}", self)
     }
 }
 
-pub(crate) fn format_bool(value: &bool) -> String {
+pub fn format_bool(value: &bool) -> String {
     match value {
         true => "✓ Yes".green().to_string(),
         false => "✗  No".red().to_string(),
     }
 }
 
-pub(crate) fn format_string_option(value: &Option<String>) -> String {
+pub fn format_string_option(value: &Option<String>) -> String {
     match value {
         Some(value) => value.to_owned(),
         None => "?".red().to_string(),

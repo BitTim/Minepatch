@@ -6,11 +6,8 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   15.01.25, 11:24
+ * Modified:   19.01.25, 12:28
  */
-pub mod cli;
-pub mod data;
-pub mod error;
+pub mod db;
 pub mod file;
 pub mod meta;
-pub mod output;

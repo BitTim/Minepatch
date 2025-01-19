@@ -6,34 +6,34 @@
  *
  * File:       status.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   16.01.25, 17:32
+ * Modified:   19.01.25, 14:01
  */
-use crate::util::output::Output;
+use crate::output::_Output;
 use colored::{ColoredString, Colorize};
 use std::fmt::{Display, Formatter};
 
 #[derive(Debug)]
 pub enum State {
-    Error,
-    Abort,
-    Success,
+    _Error,
+    _Abort,
+    _Success,
 }
 
 impl State {
     fn title(&self) -> ColoredString {
         match self {
-            State::Error => "error: ".red(),
-            State::Abort => "abort: ".yellow(),
-            State::Success => "success: ".green(),
+            State::_Error => "error: ".red(),
+            State::_Abort => "abort: ".yellow(),
+            State::_Success => "success: ".green(),
         }
         .bold()
     }
 
     fn colorize(&self, message: &str) -> ColoredString {
         match self {
-            State::Error => message.yellow(),
-            State::Abort => message.green(),
-            State::Success => message.cyan(),
+            State::_Error => message.yellow(),
+            State::_Abort => message.green(),
+            State::_Success => message.cyan(),
         }
     }
 }
@@ -75,7 +75,7 @@ impl Display for StatusOutput {
 }
 
 impl StatusOutput {
-    pub fn new(state: State, message: &str) -> Self {
+    pub fn _new(state: State, message: &str) -> Self {
         Self {
             state,
             message: message.to_owned(),
@@ -84,7 +84,7 @@ impl StatusOutput {
         }
     }
 
-    pub fn context(mut self, title: &str, content: &str) -> Self {
+    pub fn _context(mut self, title: &str, content: &str) -> Self {
         self.contexts.push(Context {
             title: title.to_owned(),
             content: content.to_owned(),
@@ -92,10 +92,10 @@ impl StatusOutput {
         self
     }
 
-    pub(crate) fn hint(mut self, hint: String) -> Self {
+    pub fn _hint(mut self, hint: String) -> Self {
         self.hint = hint;
         self
     }
 }
 
-impl Output for StatusOutput {}
+impl _Output for StatusOutput {}

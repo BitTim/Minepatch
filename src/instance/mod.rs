@@ -6,11 +6,9 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   15.01.25, 11:45
+ * Modified:   19.01.25, 13:09
  */
 
-pub mod cli;
 pub mod data;
 pub mod error;
 pub mod func;
-pub mod output;

@@ -6,9 +6,9 @@
  *
  * File:       detailed.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   15.01.25, 11:24
+ * Modified:   19.01.25, 14:01
  */
-use crate::util::output::Output;
+use crate::output::_Output;
 use std::fmt::{Debug, Display, Formatter};
 use tabled::builder::Builder;
 use tabled::settings::object::Columns;
@@ -23,7 +23,7 @@ pub struct Entry {
 }
 
 impl Entry {
-    pub(crate) fn new(title: &str, content: &str) -> Self {
+    pub fn new(title: &str, content: &str) -> Self {
         Self {
             title: title.to_owned(),
             content: content.to_owned(),
@@ -38,7 +38,7 @@ pub struct DetailedDisplayObject {
 }
 
 impl DetailedDisplayObject {
-    pub(crate) fn new(identifiers: Vec<Entry>, fields: Vec<Entry>) -> Self {
+    pub fn new(identifiers: Vec<Entry>, fields: Vec<Entry>) -> Self {
         Self {
             identifiers,
             fields,
@@ -60,7 +60,7 @@ impl Display for DetailedDisplayObject {
         let table = table_builder
             .build()
             .with(Style::rounded().horizontals([(
-                self.identifiers.iter().count(),
+                self.identifiers.len(),
                 HorizontalLine::full('─', '┼', '├', '┤'),
             )]))
             .modify(
@@ -85,14 +85,14 @@ impl Display for DetailedOutput {
             write!(f, "{}\n\n", obj)?;
         }
 
-        write!(f, "Found {} matching entries", self.objects.iter().count())
+        write!(f, "Found {} matching entries", self.objects.len())
     }
 }
 
 impl DetailedOutput {
-    pub(crate) fn new(objects: Vec<DetailedDisplayObject>) -> Self {
+    pub fn _new(objects: Vec<DetailedDisplayObject>) -> Self {
         Self { objects }
     }
 }
 
-impl Output for DetailedOutput {}
+impl _Output for DetailedOutput {}

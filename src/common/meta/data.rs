@@ -6,35 +6,34 @@
  *
  * File:       data.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   15.01.25, 18:55
+ * Modified:   19.01.25, 14:04
  */
-use crate::util::error;
-use crate::util::meta::{fabric, forge, forge_legacy};
-use colored::Colorize;
+use crate::common::meta::{fabric, forge, forge_legacy};
+use crate::prelude::*;
 use serde::{Deserialize, Serialize};
 use strum_macros::EnumIter;
 
 #[derive(Eq, PartialEq, Debug, Serialize, Deserialize)]
 pub struct Meta {
-    pub(crate) id: String,
-    pub(crate) name: String,
-    pub(crate) version: String,
-    pub(crate) description: Option<String>,
-    pub(crate) authors: Option<Vec<String>>,
-    pub(crate) loader: String,
-    pub(crate) loader_version: Option<String>,
-    pub(crate) minecraft_version: Option<String>,
+    pub id: Option<String>,
+    pub name: Option<String>,
+    pub version: Option<String>,
+    pub description: Option<String>,
+    pub authors: Option<Vec<String>>,
+    pub loader: Option<String>,
+    pub loader_version: Option<String>,
+    pub minecraft_version: Option<String>,
 }
 
 impl Meta {
     pub(crate) fn empty() -> Self {
         Self {
-            id: "?".red().to_string(),
-            name: "?".red().to_string(),
-            version: "?".red().to_string(),
+            id: None,
+            name: None,
+            version: None,
             description: None,
             authors: None,
-            loader: "?".red().to_string(),
+            loader: None,
             loader_version: None,
             minecraft_version: None,
         }
@@ -75,7 +74,7 @@ impl Loader {
         }
     }
 
-    pub(crate) fn extract_meta(&self, data: &str, extra: &Option<String>) -> error::Result<Meta> {
+    pub(crate) fn extract_meta(&self, data: &str, extra: &Option<String>) -> Result<Meta> {
         match self {
             Loader::Fabric => fabric::extract_meta(data, self.name()),
             Loader::Forge | Loader::NeoForge => forge::extract_meta(data, self.name(), extra),

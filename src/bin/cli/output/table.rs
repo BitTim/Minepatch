@@ -6,9 +6,9 @@
  *
  * File:       table.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   15.01.25, 11:24
+ * Modified:   19.01.25, 14:01
  */
-use crate::util::output::Output;
+use crate::output::_Output;
 use std::fmt::{Display, Formatter};
 use tabled::grid::records::vec_records::{Text, VecRecords};
 use tabled::settings::object::{Object, Rows};
@@ -21,7 +21,7 @@ pub struct TableOutput {
 }
 
 impl TableOutput {
-    pub(crate) fn new<T: Tabled>(values: Vec<T>) -> Self {
+    pub fn _new<T: Tabled>(values: Vec<T>) -> Self {
         let table = Table::new(values)
             .with(Style::rounded().remove_horizontals())
             .modify(
@@ -33,12 +33,12 @@ impl TableOutput {
         Self { table }
     }
 
-    pub(crate) fn center<T: Object<VecRecords<Text<String>>>>(mut self, target: T) -> Self {
+    pub fn _center<T: Object<VecRecords<Text<String>>>>(mut self, target: T) -> Self {
         self.table = self.table.modify(target, Alignment::center()).to_owned();
         self
     }
 
-    pub(crate) fn right<T: Object<VecRecords<Text<String>>>>(mut self, target: T) -> Self {
+    pub fn _right<T: Object<VecRecords<Text<String>>>>(mut self, target: T) -> Self {
         self.table = self.table.modify(target, Alignment::right()).to_owned();
         self
     }
@@ -50,4 +50,4 @@ impl Display for TableOutput {
     }
 }
 
-impl Output for TableOutput {}
+impl _Output for TableOutput {}

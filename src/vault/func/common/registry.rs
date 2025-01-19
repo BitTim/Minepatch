@@ -6,29 +6,25 @@
  *
  * File:       registry.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   15.01.25, 11:46
+ * Modified:   19.01.25, 13:58
  */
 
-use crate::util::error;
-use crate::util::error::ErrorType;
+use crate::prelude::*;
 use crate::vault::data::Mod;
 use crate::vault::error::VaultError;
 
-pub fn check_entry<'a>(registry: &'a [Mod], hash: &str) -> error::Result<(usize, &'a Mod)> {
+pub fn check_entry<'a>(registry: &'a [Mod], hash: &str) -> Result<(usize, &'a Mod)> {
     match registry
         .iter()
         .enumerate()
         .find(|(_, entry)| entry.hash == hash)
     {
         Some((index, entry)) => Ok((index, entry)),
-        None => Err(VaultError::HashNotFound
-            .builder()
-            .context("Hash", hash)
-            .build()),
+        None => Err(Error::Vault(VaultError::HashNotFound(hash.to_owned()))),
     }
 }
 
-pub(crate) fn filter_registry<'a>(
+pub(crate) fn _filter_registry<'a>(
     registry: &'a [Mod],
     hash: &Option<String>,
     id: &Option<String>,
@@ -43,7 +39,10 @@ pub(crate) fn filter_registry<'a>(
             };
 
             let match_id = if let Some(id) = id {
-                entry.meta.id.contains(id)
+                match &entry.meta.id {
+                    Some(entity_id) => entity_id.contains(id),
+                    None => false,
+                }
             } else {
                 true
             };

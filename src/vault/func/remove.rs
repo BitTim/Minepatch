@@ -6,13 +6,11 @@
  *
  * File:       remove.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   15.01.25, 14:58
+ * Modified:   19.01.25, 13:54
  */
 
-use crate::util::error::ErrorType;
-use crate::util::output::status::{State, StatusOutput};
-use crate::util::output::Output;
-use crate::util::{error, file};
+use crate::common::file;
+use crate::prelude::*;
 use crate::vault::data::Mod;
 use crate::vault::error::VaultError;
 use crate::vault::func::common::path::get_base_mod_dir_path;
@@ -20,8 +18,9 @@ use crate::vault::func::common::registry::check_entry;
 use inquire::Confirm;
 use std::fs;
 
-pub fn remove(hash: &Option<String>, all: &bool, yes: &bool, silent: &bool) -> error::Result<()> {
-    let mut registry = file::read_all()?;
+pub fn remove(hash: &Option<String>, all: &bool, yes: &bool) -> Result<()> {
+    // TODO: Rework for SQLite
+    let mut registry = /*file::read_all()?*/ vec![];
 
     let hashes: Vec<String> = if *all {
         registry
@@ -31,19 +30,15 @@ pub fn remove(hash: &Option<String>, all: &bool, yes: &bool, silent: &bool) -> e
     } else {
         match hash {
             Some(hash) => vec![hash.to_owned()],
-            None => return Err(VaultError::HashNotFound.builder().build()),
+            None => return Err(Error::Vault(VaultError::HashNotFound("".to_owned()))),
         }
     };
 
     for hash in hashes {
         let (index, entry) = check_entry(&registry, &hash)?;
-        let (name, path) = (&entry.meta.name.to_owned(), &entry.path.to_owned());
+        let path = &entry.path.to_owned();
 
         if !yes && !confirm_remove(entry)? {
-            StatusOutput::new(State::Abort, "Did not remove mod from vault")
-                .context("Name", name)
-                .context("Hash", &hash)
-                .print();
             continue;
         }
 
@@ -51,23 +46,18 @@ pub fn remove(hash: &Option<String>, all: &bool, yes: &bool, silent: &bool) -> e
         fs::remove_file(&path)?;
         file::remove_empty_dirs(&get_base_mod_dir_path()?)?;
         registry.swap_remove(index);
-
-        if !silent {
-            StatusOutput::new(State::Success, "Removed mod from vault")
-                .context("Name", name)
-                .context("Hash", &hash)
-                .print();
-        }
     }
 
-    file::write_all(registry)?;
+    //file::write_all(registry)?;
     Ok(())
 }
 
-pub(crate) fn confirm_remove(entry: &Mod) -> error::Result<bool> {
+pub(crate) fn confirm_remove(entry: &Mod) -> Result<bool> {
     let ans = Confirm::new(&format!(
         "Do you really want to remove '{}' ({}, {}) from the vault?",
-        entry.meta.name, entry.meta.version, entry.meta.loader
+        entry.meta.name.clone().unwrap_or("?".to_owned()),
+        entry.meta.version.clone().unwrap_or("?".to_owned()),
+        entry.meta.loader.clone().unwrap_or("?".to_owned())
     ))
     .with_default(false)
     .with_help_message(&format!("Hash: '{}'", &entry.hash))

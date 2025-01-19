@@ -6,13 +6,13 @@
  *
  * File:       confirm.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   15.01.25, 11:24
+ * Modified:   19.01.25, 12:58
  */
 use crate::instance::data::Instance;
-use crate::util::error;
+use crate::prelude::*;
 use inquire::Confirm;
 
-pub(crate) fn confirm_unlink(instance: &Instance) -> error::Result<bool> {
+pub(crate) fn confirm_unlink(instance: &Instance) -> Result<bool> {
     let ans = Confirm::new(&format!(
         "Are you sure you want to unlink '{}'?",
         instance.name

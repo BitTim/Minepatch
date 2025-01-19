@@ -6,19 +6,16 @@
  *
  * File:       unlink.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   15.01.25, 11:46
+ * Modified:   19.01.25, 13:17
  */
 use crate::instance::data::Instance;
 use crate::instance::error::InstanceError;
 use crate::instance::func::common::confirm::confirm_unlink;
 use crate::instance::func::common::registry::check_instance;
-use crate::util::error::ErrorType;
-use crate::util::output::status::{State, StatusOutput};
-use crate::util::output::Output;
-use crate::util::{error, file};
+use crate::prelude::*;
 
-pub fn unlink(name: &Option<String>, all: &bool, yes: &bool) -> error::Result<()> {
-    let mut instances = file::read_all()?;
+pub fn unlink(name: &Option<String>, all: &bool, yes: &bool) -> Result<()> {
+    let mut instances = /*file::read_all()?*/ vec![];
 
     let names: Vec<String> = if *all {
         instances
@@ -28,25 +25,19 @@ pub fn unlink(name: &Option<String>, all: &bool, yes: &bool) -> error::Result<()
     } else {
         match name {
             Some(name) => vec![name.to_owned()],
-            None => return Err(InstanceError::NameNotFound.builder().build()),
+            None => return Err(Error::Instance(InstanceError::NameNotFound(String::new()))),
         }
     };
 
     for name in names {
         let (index, instance) = check_instance(&instances, &name, true)?.unwrap();
         if !yes && !confirm_unlink(instance)? {
-            StatusOutput::new(State::Abort, "Did not unlink instance")
-                .context("Name", &instance.name)
-                .print();
             continue;
         }
 
         instances.remove(index);
-        StatusOutput::new(State::Success, "Unlinked instance")
-            .context("Name", &*name)
-            .print();
     }
 
-    file::write_all(instances)?;
+    //file::write_all(instances)?;
     Ok(())
 }

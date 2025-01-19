@@ -4,9 +4,9 @@
  * Project:    Minepatch
  * License:    GPLv3
  *
- * File:       cli.rs
+ * File:       vault.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   15.01.25, 14:55
+ * Modified:   19.01.25, 13:57
  */
 use clap::Subcommand;
 use std::path::PathBuf;
@@ -33,10 +33,6 @@ pub enum VaultCommands {
         /// Path to the mod file.
         path: PathBuf,
 
-        /// This flag suppresses output to the console.
-        #[arg(short, long)]
-        silent: bool,
-
         /// When this flag is set and a mod file with the same hash is already registered, said file will be overwritten
         #[arg(short, long)]
         overwrite: bool,
@@ -55,9 +51,5 @@ pub enum VaultCommands {
         /// Use this flag to skip the confirmation prompt.
         #[arg(short, long)]
         yes: bool,
-
-        /// This flag suppresses output to the console. Only works if '-y' or '--yes' is set.
-        #[arg(short, long, requires = "yes")]
-        silent: bool,
     },
 }

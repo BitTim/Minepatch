@@ -6,12 +6,11 @@
  *
  * File:       detect_loader.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   16.01.25, 18:24
+ * Modified:   19.01.25, 13:29
  */
 
-use crate::util::error;
-use crate::util::error::ErrorType;
-use crate::util::meta::data::Loader;
+use crate::common::meta::data::Loader;
+use crate::prelude::*;
 use crate::vault::error::VaultError;
 use std::fs::File;
 use std::io::Read;
@@ -19,10 +18,7 @@ use std::path::Path;
 use strum::IntoEnumIterator;
 use zip::ZipArchive;
 
-pub(crate) fn detect_loader(
-    path: &Path,
-    silent: bool,
-) -> error::Result<Option<(Loader, String, Option<String>)>> {
+pub(crate) fn detect_loader(path: &Path) -> Result<Option<(Loader, String, Option<String>)>> {
     let jar_file = File::open(path)?;
     let mut archive = ZipArchive::new(&jar_file)?;
 
@@ -59,14 +55,10 @@ pub(crate) fn detect_loader(
         break Some((loader, data, extra));
     };
 
-    if result.is_none() && !silent {
-        println!(
-            "{}",
-            VaultError::NoLoaderDetected
-                .builder()
-                .context("File", &path.display().to_string())
-                .build()
-        );
+    if result.is_none() {
+        return Err(Error::Vault(VaultError::NoLoaderDetected(
+            path.display().to_string(),
+        )));
     }
 
     Ok(result)

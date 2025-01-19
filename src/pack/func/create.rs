@@ -6,16 +6,14 @@
  *
  * File:       create.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   16.01.25, 23:19
+ * Modified:   19.01.25, 13:50
  */
+use crate::common::file;
 use crate::pack::data::Pack;
 use crate::pack::data::Patch;
 use crate::pack::error::PackError;
 use crate::pack::func::common::check_pack;
-use crate::util::error::ErrorType;
-use crate::util::output::status::{State, StatusOutput};
-use crate::util::output::{format_string_option, Output};
-use crate::util::{error, file};
+use crate::prelude::*;
 use crate::{instance, vault};
 use colored::Colorize;
 use indicatif::{ProgressBar, ProgressStyle};
@@ -29,14 +27,11 @@ pub fn create(
     from: &Option<String>,
     instance: &Option<String>,
     silent: &bool,
-) -> error::Result<()> {
-    let mut packs = file::read_all()?;
+) -> Result<()> {
+    let mut packs = /*file::read_all()?*/ vec![];
 
     if let Some(_) = check_pack(&packs, name).ok() {
-        return Err(PackError::PackExists
-            .builder()
-            .context("Name", name)
-            .build());
+        return Err(Error::Pack(PackError::PackExists(name.to_owned())));
     }
 
     match from {
@@ -66,17 +61,11 @@ pub fn create(
         }
     }
 
-    file::write_all(packs)?;
-    if !silent {
-        StatusOutput::new(State::Success, "Created a new pack")
-            .context("Name", name)
-            .context("From", &*format_string_option(from))
-            .print();
-    }
+    //file::write_all(packs)?;
     Ok(())
 }
 
-pub(crate) fn add_mods_from_dir(path: &Path, silent: bool) -> error::Result<Vec<String>> {
+pub(crate) fn add_mods_from_dir(path: &Path, silent: bool) -> Result<Vec<String>> {
     let mod_dir_contents = fs::read_dir(&path)?
         .filter_map(|entry| entry.ok())
         .map(|entry| entry.path())
@@ -92,6 +81,7 @@ pub(crate) fn add_mods_from_dir(path: &Path, silent: bool) -> error::Result<Vec<
         })
         .collect::<Vec<&PathBuf>>();
 
+    // TODO Extract this out to be handled by the binary and be more flexible
     let hashing_bar = ProgressBar::new(mod_paths.iter().count() as u64);
     hashing_bar.set_style(ProgressStyle::with_template("{msg}\n{spinner} {wide_bar} {percent:>3} % ({human_pos:>5} / {human_len:5})\nElapsed: {elapsed_precise}\tETA: {eta_precise}")?);
     hashing_bar.enable_steady_tick(Duration::from_millis(100));
@@ -102,7 +92,7 @@ pub(crate) fn add_mods_from_dir(path: &Path, silent: bool) -> error::Result<Vec<
         .iter()
         .filter_map(|path| {
             hashing_bar.inc(1);
-            match vault::func::add::add(&path, &true, &false) {
+            match vault::func::add::add(&path, &false) {
                 Ok(hash) => {
                     if !silent {
                         hashing_bar.set_message(format!(

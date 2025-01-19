@@ -6,17 +6,14 @@
  *
  * File:       main.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   16.01.25, 17:33
+ * Modified:   19.01.25, 13:57
  */
+use crate::cli::{Cli, Commands, InstanceCommands, PackCommands, VaultCommands};
 use clap::Parser;
 use colored::Colorize;
 use indicatif::{ProgressBar, ProgressStyle};
-use minepatch::instance::cli::InstanceCommands;
-use minepatch::pack::PackCommands;
+use minepatch::prelude::*;
 use minepatch::update::func;
-use minepatch::util::cli::{Cli, Commands};
-use minepatch::util::error;
-use minepatch::vault::cli::VaultCommands;
 use minepatch::vault::func::{add, list, remove};
 use minepatch::{instance, pack};
 use std::ffi::OsStr;
@@ -25,7 +22,10 @@ use std::thread::sleep;
 use std::time::Duration;
 use sysinfo::{Pid, Process, ProcessStatus, System};
 
-fn match_command(command: &Commands) -> error::Result<()> {
+mod cli;
+mod output;
+
+fn match_command(command: &Commands) -> Result<()> {
     match command {
         Commands::Update => func::update::update()?,
         Commands::Instance {
@@ -47,23 +47,14 @@ fn match_command(command: &Commands) -> error::Result<()> {
         Commands::Vault {
             vault_commands: vault_command,
         } => match vault_command {
-            VaultCommands::Add {
-                path,
-                silent,
-                overwrite,
-            } => {
-                add::add(path, silent, overwrite)?;
+            VaultCommands::Add { path, overwrite } => {
+                add::add(path, overwrite)?;
             }
             VaultCommands::List { detailed, hash, id } => {
                 list::list(detailed, hash, id)?;
             }
-            VaultCommands::Remove {
-                hash,
-                all,
-                yes,
-                silent,
-            } => {
-                remove::remove(hash, all, yes, silent)?;
+            VaultCommands::Remove { hash, all, yes } => {
+                remove::remove(hash, all, yes)?;
             }
         },
         Commands::Pack { pack_command } => match pack_command {
@@ -83,7 +74,7 @@ fn match_command(command: &Commands) -> error::Result<()> {
     Ok(())
 }
 
-fn await_exclusive() -> error::Result<()> {
+fn await_exclusive() -> Result<()> {
     let pid = process::id();
 
     let spinner = ProgressBar::new_spinner();

@@ -4,12 +4,18 @@
  * Project:    Minepatch
  * License:    GPLv3
  *
- * File:       cli.rs
+ * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   16.01.25, 17:32
+ * Modified:   19.01.25, 14:04
  */
-use crate::{instance, pack, vault};
 use clap::{Parser, Subcommand};
+
+mod instance;
+pub use instance::InstanceCommands;
+mod pack;
+pub use pack::PackCommands;
+mod vault;
+pub use vault::VaultCommands;
 
 #[derive(Debug, Parser)]
 #[command(author, version, about, long_about = None)]
@@ -27,13 +33,13 @@ pub enum Commands {
     /// Manage relevant Minecraft instances
     Instance {
         #[command(subcommand)]
-        instance_commands: instance::cli::InstanceCommands,
+        instance_commands: instance::InstanceCommands,
     },
 
     /// Manage mod files present in vault
     Vault {
         #[command(subcommand)]
-        vault_commands: vault::cli::VaultCommands,
+        vault_commands: vault::VaultCommands,
     },
 
     /// Manage mod packs and their patches

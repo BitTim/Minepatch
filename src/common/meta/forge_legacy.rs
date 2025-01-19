@@ -6,14 +6,14 @@
  *
  * File:       forge_legacy.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   15.01.25, 17:53
+ * Modified:   19.01.25, 12:52
  */
-use crate::util::error;
-use crate::util::meta::common::{extract_meta_json, extract_string_json};
-use crate::util::meta::data::Meta;
+use crate::common::meta::common::{extract_meta_json, extract_string_json};
+use crate::common::meta::data::Meta;
+use crate::prelude::*;
 use serde_json::Value;
 
-pub(crate) fn extract_meta(data: &str, loader: &str) -> error::Result<Meta> {
+pub(crate) fn extract_meta(data: &str, loader: &str) -> Result<Meta> {
     extract_meta_json(data, loader, meta_from_obj)
 }
 
@@ -31,12 +31,12 @@ fn meta_from_obj(obj: &Value, loader: &str) -> Option<Meta> {
     let mod_obj = obj.as_array()?.first()?;
 
     Some(Meta {
-        id: extract_string_json(mod_obj, "modid")?,
-        name: extract_string_json(mod_obj, "name")?,
-        version: extract_string_json(mod_obj, "version")?,
+        id: extract_string_json(mod_obj, "modid"),
+        name: extract_string_json(mod_obj, "name"),
+        version: extract_string_json(mod_obj, "version"),
         description: extract_string_json(mod_obj, "description"),
         authors: extract_authors(mod_obj),
-        loader: loader.to_owned(),
+        loader: Some(loader.to_owned()),
         loader_version: None,
         minecraft_version: extract_string_json(mod_obj, "mcversion"),
     })

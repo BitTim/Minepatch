@@ -6,14 +6,14 @@
  *
  * File:       fabric.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   15.01.25, 17:54
+ * Modified:   19.01.25, 12:33
  */
-use crate::util::error;
-use crate::util::meta::common::{extract_meta_json, extract_string_json};
-use crate::util::meta::data::Meta;
+use crate::common::meta::common::{extract_meta_json, extract_string_json};
+use crate::common::meta::data::Meta;
+use crate::prelude::*;
 use serde_json::Value;
 
-pub(crate) fn extract_meta(data: &str, loader: &str) -> error::Result<Meta> {
+pub(crate) fn extract_meta(data: &str, loader: &str) -> Result<Meta> {
     extract_meta_json(data, loader, meta_from_obj)
 }
 
@@ -45,12 +45,12 @@ fn meta_from_obj(obj: &Value, loader: &str) -> Option<Meta> {
     };
 
     Some(Meta {
-        id: extract_string_json(obj, "id")?,
-        name: extract_string_json(obj, "name")?,
-        version: extract_string_json(obj, "version")?,
+        id: extract_string_json(obj, "id"),
+        name: extract_string_json(obj, "name"),
+        version: extract_string_json(obj, "version"),
         description: extract_string_json(obj, "description"),
         authors: extract_authors(obj),
-        loader: loader.to_owned(),
+        loader: Some(loader.to_owned()),
         loader_version,
         minecraft_version,
     })
