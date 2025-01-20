@@ -6,12 +6,13 @@
  *
  * File:       remove.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.01.25, 13:30
+ * Modified:   20.01.25, 13:38
  */
 use crate::file;
 use crate::prelude::*;
-use crate::vault::data::repository::{exists, query};
-use crate::vault::data::{repository, Mod};
+use crate::vault::data;
+use crate::vault::data::Mod;
+use crate::vault::data::{exists, query};
 use crate::vault::error::VaultError;
 use crate::vault::func::common::path::get_base_mod_dir_path;
 use rusqlite::Connection;
@@ -54,7 +55,7 @@ where
             fs::remove_file(&entry.path)?;
             file::remove_empty_dirs(&get_base_mod_dir_path()?)?;
 
-            repository::remove(connection, &entry.hash)?;
+            data::remove(connection, &entry.hash)?;
         }
     }
 

@@ -6,14 +6,14 @@
  *
  * File:       add.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.01.25, 12:41
+ * Modified:   20.01.25, 13:37
  */
 
 use crate::common::file;
 use crate::msg::Message;
 use crate::prelude::*;
-use crate::vault::data::repository::{exists, insert};
 use crate::vault::data::Mod;
+use crate::vault::data::{exists, insert};
 use crate::vault::error::VaultError;
 use crate::vault::func::common::meta::{detect_loader, extract_meta};
 use rusqlite::Connection;
