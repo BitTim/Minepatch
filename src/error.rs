@@ -6,12 +6,13 @@
  *
  * File:       error.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.01.25, 13:40
+ * Modified:   20.01.25, 16:43
  */
 use crate::common::file::error::FileError;
 use crate::common::meta::error::MetaError;
 use crate::instance::error::InstanceError;
 use crate::pack::PackError;
+use crate::template::TemplateError;
 use crate::vault::VaultError;
 
 #[derive(thiserror::Error, Debug)]
@@ -29,6 +30,8 @@ pub enum Error {
     Pack(#[from] PackError),
     #[error(transparent)]
     Vault(#[from] VaultError),
+    #[error(transparent)]
+    Template(#[from] TemplateError),
 
     #[error(transparent)]
     IO(#[from] std::io::Error),

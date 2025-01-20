@@ -6,12 +6,11 @@
  *
  * File:       create.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   19.01.25, 21:05
+ * Modified:   20.01.25, 16:27
  */
 use crate::common::file;
 use crate::instance;
 use crate::pack::data::Pack;
-use crate::pack::data::Patch;
 use crate::pack::error::PackError;
 use crate::pack::func::common::check_pack;
 use crate::prelude::*;
@@ -46,9 +45,9 @@ pub fn create(
             let hashes = add_mods_from_dir(&*path, *silent)?;
 
             let state_hash = hashes.join("\n").digest();
-            let patch = Patch::new("init", "", &*state_hash, &hashes, &[]);
+            //let patch = Patch::new("init", "", &*state_hash, &hashes, &[]);
 
-            packs.push(Pack::new(name, None, &*vec![patch]));
+            //packs.push(Pack::new(name, None, &*vec![patch]));
 
             if let Some(instance) = instance {
                 let instance_name = match instance.is_empty() {

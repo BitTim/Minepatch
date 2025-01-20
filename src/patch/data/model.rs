@@ -4,46 +4,37 @@
  * Project:    Minepatch
  * License:    GPLv3
  *
- * File:       patch.rs
+ * File:       model.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   15.01.25, 18:55
+ * Modified:   20.01.25, 15:12
  */
 use serde::{Deserialize, Serialize};
 use sha256::Sha256Digest;
 
 #[derive(Eq, PartialEq, Debug, Clone, Serialize, Deserialize)]
 pub struct Patch {
-    name: String,
-    dependency: String,
-    state_hash: String,
-    added: Vec<String>,
-    removed: Vec<String>,
+    pub(crate) name: String,
+    pub(crate) dependency: String,
+    pub(crate) state_hash: String,
+    pub(crate) pack: String,
 }
 
 impl Patch {
-    pub(crate) fn empty(name: &str) -> Self {
+    pub(crate) fn empty(name: &str, pack: &str) -> Self {
         Self {
             name: name.to_owned(),
             dependency: String::from(""),
             state_hash: "".digest(),
-            added: vec![],
-            removed: vec![],
+            pack: pack.to_owned(),
         }
     }
 
-    pub(crate) fn new(
-        name: &str,
-        dependency: &str,
-        state_hash: &str,
-        added: &[String],
-        removed: &[String],
-    ) -> Self {
+    pub(crate) fn new(name: &str, dependency: &str, state_hash: &str, pack: &str) -> Self {
         Self {
             name: name.to_owned(),
             dependency: dependency.to_owned(),
             state_hash: state_hash.to_owned(),
-            added: Vec::from(added),
-            removed: Vec::from(removed),
+            pack: pack.to_owned(),
         }
     }
 }

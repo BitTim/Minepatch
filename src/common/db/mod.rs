@@ -6,7 +6,7 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   19.01.25, 20:26
+ * Modified:   20.01.25, 17:04
  */
 use crate::common::file;
 use crate::common::file::PathBuilder;
@@ -40,7 +40,7 @@ fn _create_tables(connection: &Connection) -> Result<()> {
             mc_version TEXT
         );
 
-        CREATE TABLE IF NOT EXISTS base (
+        CREATE TABLE IF NOT EXISTS template (
             name TEXT NOT NULL PRIMARY KEY,
             loader TEXT,
             version TEXT,

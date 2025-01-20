@@ -6,8 +6,6 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.01.25, 15:55
+ * Modified:   20.01.25, 17:04
  */
-mod model;
-pub use model::*;
-mod repo;
+mod data;

@@ -4,38 +4,41 @@
  * Project:    Minepatch
  * License:    GPLv3
  *
- * File:       pack.rs
+ * File:       model.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   15.01.25, 18:55
+ * Modified:   20.01.25, 15:19
  */
-use crate::pack::data::base::Base;
-use crate::pack::data::patch::Patch;
 use serde::{Deserialize, Serialize};
 
 #[derive(Eq, PartialEq, Debug, Serialize, Deserialize)]
 pub struct Pack {
     pub(crate) name: String,
-    latest_version: String,
-    base: Option<Base>,
-    patches: Vec<Patch>,
+    pub(crate) description: Option<String>,
+    pub(crate) base: Option<String>,
+    pub(crate) latest_patch: String,
 }
 
 impl Pack {
     pub(crate) fn empty(name: &str) -> Self {
         Self {
             name: name.to_owned(),
-            latest_version: String::from("init"),
+            description: None,
             base: None,
-            patches: vec![Patch::empty("init")],
+            latest_patch: String::from("init"),
         }
     }
 
-    pub(crate) fn new(name: &str, base: Option<Base>, patches: &[Patch]) -> Self {
+    pub(crate) fn new(
+        name: &str,
+        description: Option<String>,
+        base: Option<String>,
+        latest_patch: &str,
+    ) -> Self {
         Self {
             name: name.to_owned(),
-            latest_version: String::from("init"),
+            description,
             base,
-            patches: Vec::from(patches),
+            latest_patch: latest_patch.to_owned(),
         }
     }
 }

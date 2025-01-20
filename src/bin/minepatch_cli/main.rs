@@ -6,11 +6,12 @@
  *
  * File:       main.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.01.25, 13:31
+ * Modified:   20.01.25, 16:54
  */
 use crate::cli::instance::InstanceCommands;
 use crate::cli::pack::PackCommands;
-use crate::cli::{vault, Cli, Commands};
+use crate::cli::template::TemplateCommands;
+use crate::cli::{template, vault, Cli, Commands};
 use crate::output::_Output;
 use crate::output::status::{Status, StatusOutput};
 use clap::Parser;
@@ -67,6 +68,16 @@ fn match_command(command: &Commands, connection: &Connection) -> Result<()> {
             VaultCommands::Remove { hash, all, yes } => {
                 vault::remove(connection, hash, *all, *yes)?;
             }
+        },
+        Commands::Template {
+            template_commands: template_command,
+        } => match template_command {
+            TemplateCommands::Create {
+                name,
+                version,
+                loader,
+                download,
+            } => template::create(connection, name, version, loader, download)?,
         },
         Commands::Pack { pack_command } => match pack_command {
             PackCommands::List => {}

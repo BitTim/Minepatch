@@ -4,9 +4,9 @@
  * Project:    Minepatch
  * License:    GPLv3
  *
- * File:       repository.rs
+ * File:       repo.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.01.25, 13:33
+ * Modified:   20.01.25, 16:38
  */
 use crate::meta::data::Meta;
 use crate::prelude::*;
@@ -16,7 +16,7 @@ use rusqlite::{params, Connection};
 use std::path::PathBuf;
 
 pub(crate) fn exists(connection: &Connection, hash: &str) -> Result<bool> {
-    let mut statement = connection.prepare("SELECT * FROM mod WHERE hash LIKE '%'||?1||'%'")?;
+    let mut statement = connection.prepare("SELECT * FROM mod WHERE hash = ?1")?;
     Ok(statement.exists(params![hash])?)
 }
 

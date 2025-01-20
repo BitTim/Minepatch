@@ -6,13 +6,13 @@
  *
  * File:       remove.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.01.25, 13:38
+ * Modified:   20.01.25, 17:04
  */
 use crate::file;
 use crate::prelude::*;
 use crate::vault::data;
+use crate::vault::data::query;
 use crate::vault::data::Mod;
-use crate::vault::data::{exists, query};
 use crate::vault::error::VaultError;
 use crate::vault::func::common::path::get_base_mod_dir_path;
 use rusqlite::Connection;
@@ -41,11 +41,11 @@ where
     };
 
     for hash in hashes {
-        if !exists(connection, &hash)? {
+        let matches = query(connection, &hash, "", "")?;
+        if matches.is_empty() {
             return Err(Error::Vault(VaultError::HashNotFound(hash)));
         }
 
-        let matches = query(connection, &hash, "", "")?;
         for entry in matches {
             if !yes && confirm(&entry)? {
                 continue;

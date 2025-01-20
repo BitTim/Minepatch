@@ -6,17 +6,17 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.01.25, 01:35
+ * Modified:   20.01.25, 16:58
  */
 use clap::{Parser, Subcommand};
 
 pub(crate) mod instance;
 pub(crate) mod pack;
+pub(crate) mod template;
 pub(crate) mod vault;
 
 #[derive(Debug, Parser)]
 #[command(author, version, about, long_about = None)]
-#[command(propagate_version = true)]
 pub struct Cli {
     #[command(subcommand)]
     pub command: Commands,
@@ -37,6 +37,12 @@ pub enum Commands {
     Vault {
         #[command(subcommand)]
         vault_commands: vault::VaultCommands,
+    },
+
+    /// Manage mod pack templates
+    Template {
+        #[command(subcommand)]
+        template_commands: template::TemplateCommands,
     },
 
     /// Manage mod packs and their patches
