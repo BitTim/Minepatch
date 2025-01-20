@@ -6,13 +6,13 @@
  *
  * File:       error.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.01.25, 12:53
+ * Modified:   20.01.25, 13:40
  */
 use crate::common::file::error::FileError;
 use crate::common::meta::error::MetaError;
 use crate::instance::error::InstanceError;
 use crate::pack::PackError;
-use crate::vault::error::VaultError;
+use crate::vault::VaultError;
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {

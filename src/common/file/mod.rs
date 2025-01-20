@@ -6,7 +6,7 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.01.25, 03:19
+ * Modified:   20.01.25, 13:42
  */
 
 use crate::common::file::error::FileError;
@@ -75,12 +75,10 @@ pub(crate) fn hash_file(path: &Path) -> Result<String> {
 pub(crate) fn remove_empty_dirs(path: &Path) -> Result<bool> {
     if path.is_dir() {
         let mut is_empty = true;
-        for entry in fs::read_dir(path)? {
-            if let Ok(entry) = entry {
-                let sub_path = entry.path();
-                if !remove_empty_dirs(&sub_path)? {
-                    is_empty = false;
-                }
+        for entry in (fs::read_dir(path)?).flatten() {
+            let sub_path = entry.path();
+            if !remove_empty_dirs(&sub_path)? {
+                is_empty = false;
             }
         }
 

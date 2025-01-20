@@ -6,7 +6,7 @@
  *
  * File:       remove.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.01.25, 13:35
+ * Modified:   20.01.25, 13:47
  */
 use inquire::Confirm;
 use minepatch::prelude::*;

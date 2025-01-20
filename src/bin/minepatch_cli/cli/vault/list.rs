@@ -6,7 +6,7 @@
  *
  * File:       list.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.01.25, 03:14
+ * Modified:   20.01.25, 13:43
  */
 use crate::output::_Output;
 use crate::output::detailed::{DetailedDisplayObject, DetailedOutput};

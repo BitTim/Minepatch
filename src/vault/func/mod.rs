@@ -6,13 +6,12 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.01.25, 01:59
+ * Modified:   20.01.25, 13:41
  */
 mod add;
+pub use add::*;
 mod common;
 mod query;
-mod remove;
-
-pub use add::*;
 pub use query::*;
+mod remove;
 pub use remove::*;
