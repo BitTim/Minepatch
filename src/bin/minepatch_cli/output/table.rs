@@ -6,9 +6,9 @@
  *
  * File:       table.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.01.25, 02:18
+ * Modified:   20.01.25, 22:20
  */
-use crate::output::_Output;
+use crate::output::Output;
 use std::fmt::{Display, Formatter};
 use tabled::grid::records::vec_records::{Text, VecRecords};
 use tabled::settings::object::{Object, Rows};
@@ -50,4 +50,4 @@ impl Display for TableOutput {
     }
 }
 
-impl _Output for TableOutput {}
+impl Output for TableOutput {}

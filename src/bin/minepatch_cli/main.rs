@@ -6,14 +6,15 @@
  *
  * File:       main.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.01.25, 16:54
+ * Modified:   20.01.25, 22:14
  */
 use crate::cli::instance::InstanceCommands;
 use crate::cli::pack::PackCommands;
+use crate::cli::patch::PatchCommands;
 use crate::cli::template::TemplateCommands;
-use crate::cli::{template, vault, Cli, Commands};
-use crate::output::_Output;
+use crate::cli::{patch, template, vault, Cli, Commands};
 use crate::output::status::{Status, StatusOutput};
+use crate::output::Output;
 use clap::Parser;
 use cli::vault::VaultCommands;
 use colored::Colorize;
@@ -79,7 +80,19 @@ fn match_command(command: &Commands, connection: &Connection) -> Result<()> {
                 download,
             } => template::create(connection, name, version, loader, download)?,
         },
-        Commands::Pack { pack_command } => match pack_command {
+        Commands::Patch {
+            patch_commands: patch_command,
+        } => match patch_command {
+            PatchCommands::Create {
+                name,
+                dependency,
+                state_hash,
+                pack,
+            } => patch::create(connection, name, dependency, state_hash, pack)?,
+        },
+        Commands::Pack {
+            pack_commands: pack_command,
+        } => match pack_command {
             PackCommands::List => {}
             PackCommands::Create {
                 name,
@@ -96,7 +109,7 @@ fn match_command(command: &Commands, connection: &Connection) -> Result<()> {
     Ok(())
 }
 
-fn await_exclusive() -> Result<()> {
+fn _await_exclusive() -> Result<()> {
     let pid = process::id();
 
     let spinner = ProgressBar::new_spinner();
@@ -158,7 +171,7 @@ fn await_exclusive() -> Result<()> {
 }
 
 fn error_handled() -> Result<()> {
-    await_exclusive()?;
+    //_await_exclusive()?;
     let connection = db::init()?;
 
     let cli = Cli::parse();

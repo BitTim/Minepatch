@@ -8,9 +8,5 @@
  * Author:     Tim Anhalt (BitTim)
  * Modified:   20.01.25, 22:01
  */
-mod data;
-pub use data::*;
-mod error;
-pub use error::*;
-mod func;
-pub use func::*;
+mod create;
+pub use create::*;

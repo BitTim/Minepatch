@@ -11,24 +11,17 @@
 use crate::output::status::{Status, StatusOutput};
 use crate::output::Output;
 use minepatch::msg::Message;
-use minepatch::prelude::*;
-use minepatch::template;
+use minepatch::patch;
 use rusqlite::Connection;
 
 pub(crate) fn create(
     connection: &Connection,
     name: &str,
-    loader: &Option<String>,
-    version: &Option<String>,
-    download: &Option<String>,
-) -> Result<()> {
-    template::create(
-        connection,
-        name,
-        loader.clone(),
-        version.clone(),
-        download.clone(),
-    )?;
+    dependency: &str,
+    state_hash: &str,
+    pack: &str,
+) -> minepatch::prelude::Result<()> {
+    patch::create(connection, name, dependency, state_hash, pack)?;
 
     StatusOutput::new(
         Status::Success,

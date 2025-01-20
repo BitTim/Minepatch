@@ -6,9 +6,9 @@
  *
  * File:       detailed.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.01.25, 02:17
+ * Modified:   20.01.25, 22:20
  */
-use crate::output::_Output;
+use crate::output::Output;
 use std::fmt::{Debug, Display, Formatter};
 use tabled::builder::Builder;
 use tabled::settings::object::Columns;
@@ -95,4 +95,4 @@ impl DetailedOutput {
     }
 }
 
-impl _Output for DetailedOutput {}
+impl Output for DetailedOutput {}

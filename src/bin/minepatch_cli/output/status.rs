@@ -6,9 +6,9 @@
  *
  * File:       status.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.01.25, 12:46
+ * Modified:   20.01.25, 22:20
  */
-use crate::output::_Output;
+use crate::output::Output;
 use colored::{ColoredString, Colorize};
 use minepatch::msg::Message;
 use std::fmt::{Display, Formatter};
@@ -68,4 +68,4 @@ impl StatusOutput {
     }
 }
 
-impl _Output for StatusOutput {}
+impl Output for StatusOutput {}

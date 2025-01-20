@@ -6,7 +6,7 @@
  *
  * File:       model.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.01.25, 15:12
+ * Modified:   20.01.25, 22:12
  */
 use serde::{Deserialize, Serialize};
 use sha256::Sha256Digest;
@@ -20,7 +20,7 @@ pub struct Patch {
 }
 
 impl Patch {
-    pub(crate) fn empty(name: &str, pack: &str) -> Self {
+    pub(crate) fn _empty(name: &str, pack: &str) -> Self {
         Self {
             name: name.to_owned(),
             dependency: String::from(""),
