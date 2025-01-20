@@ -6,10 +6,11 @@
  *
  * File:       add.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.01.25, 02:38
+ * Modified:   20.01.25, 12:41
  */
 
 use crate::common::file;
+use crate::msg::Message;
 use crate::prelude::*;
 use crate::vault::data::repository::{exists, insert};
 use crate::vault::data::Mod;
@@ -19,7 +20,15 @@ use rusqlite::Connection;
 use std::fs;
 use std::path::Path;
 
-pub fn add(connection: &Connection, path: &Path, overwrite: bool) -> Result<String> {
+pub fn add<F>(
+    connection: &Connection,
+    path: &Path,
+    overwrite: bool,
+    handle_warning: F,
+) -> Result<String>
+where
+    F: FnOnce(Message),
+{
     file::check_exists(path)?;
     let hash = file::hash_file(path)?;
 
@@ -28,6 +37,13 @@ pub fn add(connection: &Connection, path: &Path, overwrite: bool) -> Result<Stri
     }
 
     let loader_result = detect_loader(path)?;
+    if loader_result.is_none() {
+        handle_warning(
+            Message::new("No compatible loader detected for the provided file")
+                .context("Path", &path.display().to_string()),
+        )
+    }
+
     let filename = file::filename_from_path(path)?;
     let (meta, mod_file_path) = extract_meta(loader_result, filename)?;
 

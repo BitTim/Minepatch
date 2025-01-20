@@ -6,8 +6,9 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   19.01.25, 12:28
+ * Modified:   20.01.25, 12:53
  */
 pub mod db;
 pub mod file;
 pub mod meta;
+pub mod msg;

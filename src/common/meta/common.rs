@@ -6,7 +6,7 @@
  *
  * File:       common.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.01.25, 03:06
+ * Modified:   20.01.25, 12:53
  */
 use crate::common::meta::data::Meta;
 use crate::common::meta::error::MetaError;

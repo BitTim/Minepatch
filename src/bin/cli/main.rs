@@ -6,15 +6,18 @@
  *
  * File:       main.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.01.25, 03:13
+ * Modified:   20.01.25, 12:46
  */
 use crate::cli::instance::InstanceCommands;
 use crate::cli::pack::PackCommands;
 use crate::cli::{vault, Cli, Commands};
+use crate::output::_Output;
+use crate::output::status::{Status, StatusOutput};
 use clap::Parser;
 use cli::vault::VaultCommands;
 use colored::Colorize;
 use indicatif::{ProgressBar, ProgressStyle};
+use minepatch::msg::Message;
 use minepatch::prelude::*;
 use minepatch::update::func;
 use minepatch::{db, instance, pack};
@@ -155,6 +158,6 @@ fn error_handled() -> Result<()> {
 
 fn main() {
     if let Err(error) = error_handled() {
-        println!("{}", error);
+        StatusOutput::new(Status::Error, Message::new(&error.to_string())).print();
     }
 }
