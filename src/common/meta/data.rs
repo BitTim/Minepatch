@@ -6,7 +6,7 @@
  *
  * File:       data.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   19.01.25, 14:04
+ * Modified:   20.01.25, 03:05
  */
 use crate::common::meta::{fabric, forge, forge_legacy};
 use crate::prelude::*;
@@ -15,27 +15,49 @@ use strum_macros::EnumIter;
 
 #[derive(Eq, PartialEq, Debug, Serialize, Deserialize)]
 pub struct Meta {
-    pub id: Option<String>,
-    pub name: Option<String>,
+    pub id: String,
+    pub name: String,
     pub version: Option<String>,
     pub description: Option<String>,
     pub authors: Option<Vec<String>>,
-    pub loader: Option<String>,
+    pub loader: String,
     pub loader_version: Option<String>,
     pub minecraft_version: Option<String>,
 }
 
 impl Meta {
-    pub(crate) fn empty() -> Self {
+    pub(crate) fn empty(filename: &str) -> Self {
         Self {
-            id: None,
-            name: None,
+            id: "unknown".to_owned(),
+            name: filename.to_owned(),
             version: None,
             description: None,
             authors: None,
-            loader: None,
+            loader: "unknown".to_owned(),
             loader_version: None,
             minecraft_version: None,
+        }
+    }
+
+    pub(crate) fn new(
+        id: Option<String>,
+        name: String,
+        version: Option<String>,
+        description: Option<String>,
+        authors: Option<Vec<String>>,
+        loader: Option<String>,
+        loader_version: Option<String>,
+        minecraft_version: Option<String>,
+    ) -> Self {
+        Self {
+            id: id.unwrap_or("unknown".to_owned()),
+            name,
+            version,
+            description,
+            authors,
+            loader: loader.unwrap_or("unknown".to_owned()),
+            loader_version,
+            minecraft_version,
         }
     }
 }
@@ -74,11 +96,18 @@ impl Loader {
         }
     }
 
-    pub(crate) fn extract_meta(&self, data: &str, extra: &Option<String>) -> Result<Meta> {
+    pub(crate) fn extract_meta(
+        &self,
+        data: &str,
+        extra: &Option<String>,
+        filename: &str,
+    ) -> Result<Meta> {
         match self {
-            Loader::Fabric => fabric::extract_meta(data, self.name()),
-            Loader::Forge | Loader::NeoForge => forge::extract_meta(data, self.name(), extra),
-            Loader::ForgeLegacy => forge_legacy::extract_meta(data, self.name()),
+            Loader::Fabric => fabric::extract_meta(data, self.name(), filename),
+            Loader::Forge | Loader::NeoForge => {
+                forge::extract_meta(data, self.name(), extra, filename)
+            }
+            Loader::ForgeLegacy => forge_legacy::extract_meta(data, self.name(), filename),
         }
     }
 }

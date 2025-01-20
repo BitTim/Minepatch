@@ -6,15 +6,15 @@
  *
  * File:       fabric.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   19.01.25, 12:33
+ * Modified:   20.01.25, 03:07
  */
 use crate::common::meta::common::{extract_meta_json, extract_string_json};
 use crate::common::meta::data::Meta;
 use crate::prelude::*;
 use serde_json::Value;
 
-pub(crate) fn extract_meta(data: &str, loader: &str) -> Result<Meta> {
-    extract_meta_json(data, loader, meta_from_obj)
+pub(crate) fn extract_meta(data: &str, loader: &str, filename: &str) -> Result<Meta> {
+    extract_meta_json(data, loader, filename, meta_from_obj)
 }
 
 fn extract_authors(obj: &Value) -> Option<Vec<String>> {
@@ -33,7 +33,7 @@ fn extract_authors(obj: &Value) -> Option<Vec<String>> {
     )
 }
 
-fn meta_from_obj(obj: &Value, loader: &str) -> Option<Meta> {
+fn meta_from_obj(obj: &Value, loader: &str, filename: &str) -> Option<Meta> {
     let depends_obj = obj.get("depends");
     let (loader_version, minecraft_version) = if let Some(depends_obj) = depends_obj {
         (
@@ -44,14 +44,14 @@ fn meta_from_obj(obj: &Value, loader: &str) -> Option<Meta> {
         (None, None)
     };
 
-    Some(Meta {
-        id: extract_string_json(obj, "id"),
-        name: extract_string_json(obj, "name"),
-        version: extract_string_json(obj, "version"),
-        description: extract_string_json(obj, "description"),
-        authors: extract_authors(obj),
-        loader: Some(loader.to_owned()),
+    Some(Meta::new(
+        extract_string_json(obj, "id"),
+        extract_string_json(obj, "name").unwrap_or(filename.to_owned()),
+        extract_string_json(obj, "version"),
+        extract_string_json(obj, "description"),
+        extract_authors(obj),
+        Some(loader.to_owned()),
         loader_version,
         minecraft_version,
-    })
+    ))
 }

@@ -6,7 +6,7 @@
  *
  * File:       error.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   19.01.25, 13:27
+ * Modified:   19.01.25, 20:45
  */
 use thiserror::Error;
 
@@ -16,4 +16,6 @@ pub enum VaultError {
     NoLoaderDetected(String),
     #[error("No mod found with hash '{0}'")]
     HashNotFound(String),
+    #[error("Hash '{0}' is already registered by another mod.")]
+    HashExists(String),
 }

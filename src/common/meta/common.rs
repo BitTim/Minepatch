@@ -6,18 +6,23 @@
  *
  * File:       common.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   19.01.25, 12:29
+ * Modified:   20.01.25, 03:06
  */
 use crate::common::meta::data::Meta;
 use crate::common::meta::error::MetaError;
 use crate::prelude::*;
 use serde_json::Value;
 
-pub(crate) fn extract_meta_json<F>(data: &str, loader: &str, meta_from_obj: F) -> Result<Meta>
+pub(crate) fn extract_meta_json<F>(
+    data: &str,
+    loader: &str,
+    filename: &str,
+    meta_from_obj: F,
+) -> Result<Meta>
 where
-    F: FnOnce(&Value, &str) -> Option<Meta>,
+    F: FnOnce(&Value, &str, &str) -> Option<Meta>,
 {
-    meta_from_obj(&parse_json(data)?, loader)
+    meta_from_obj(&parse_json(data)?, loader, filename)
         .ok_or(Error::Meta(MetaError::MalformedMetaFile(loader.to_owned())))
 }
 

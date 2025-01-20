@@ -6,15 +6,15 @@
  *
  * File:       create.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   19.01.25, 13:50
+ * Modified:   19.01.25, 21:05
  */
 use crate::common::file;
+use crate::instance;
 use crate::pack::data::Pack;
 use crate::pack::data::Patch;
 use crate::pack::error::PackError;
 use crate::pack::func::common::check_pack;
 use crate::prelude::*;
-use crate::{instance, vault};
 use colored::Colorize;
 use indicatif::{ProgressBar, ProgressStyle};
 use sha256::Sha256Digest;
@@ -82,17 +82,17 @@ pub(crate) fn add_mods_from_dir(path: &Path, silent: bool) -> Result<Vec<String>
         .collect::<Vec<&PathBuf>>();
 
     // TODO Extract this out to be handled by the binary and be more flexible
-    let hashing_bar = ProgressBar::new(mod_paths.iter().count() as u64);
+    let hashing_bar = ProgressBar::new(mod_paths.len() as u64);
     hashing_bar.set_style(ProgressStyle::with_template("{msg}\n{spinner} {wide_bar} {percent:>3} % ({human_pos:>5} / {human_len:5})\nElapsed: {elapsed_precise}\tETA: {eta_precise}")?);
     hashing_bar.enable_steady_tick(Duration::from_millis(100));
 
-    let mut errors = vec![];
+    let mut errors: std::vec::Vec<(&&std::path::PathBuf, Error)> = vec![];
 
     let hashes = mod_paths
         .iter()
         .filter_map(|path| {
             hashing_bar.inc(1);
-            match vault::func::add::add(&path, &false) {
+            match /*vault::func::add::add(&path, &false)*/ Ok("".to_owned()) {
                 Ok(hash) => {
                     if !silent {
                         hashing_bar.set_message(format!(
@@ -125,7 +125,7 @@ pub(crate) fn add_mods_from_dir(path: &Path, silent: bool) -> Result<Vec<String>
             println!("{}\n{}\n", path.display().to_string().purple(), error)
         }
 
-        let count = errors.iter().count();
+        let count = errors.len();
         if count > 0 {
             println!("Failed to add {} mods", count);
         }

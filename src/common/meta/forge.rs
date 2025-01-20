@@ -6,18 +6,23 @@
  *
  * File:       forge.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   19.01.25, 13:56
+ * Modified:   20.01.25, 03:05
  */
 use crate::common::meta::data::Meta;
 use crate::common::meta::error::MetaError;
 use crate::prelude::*;
 use toml::Table;
 
-pub(crate) fn extract_meta(data: &str, loader: &str, extra: &Option<String>) -> Result<Meta> {
+pub(crate) fn extract_meta(
+    data: &str,
+    loader: &str,
+    extra: &Option<String>,
+    filename: &str,
+) -> Result<Meta> {
     let table = data.parse::<Table>()?;
     let jar_version = extract_version_from_extra(extra);
 
-    meta_from_root_table(&table, loader, jar_version)
+    meta_from_root_table(&table, loader, jar_version, filename)
         .ok_or(Error::Meta(MetaError::MalformedMetaFile(loader.to_owned())))
 }
 
@@ -84,6 +89,7 @@ fn meta_from_root_table(
     root_table: &Table,
     loader: &str,
     jar_version: Option<String>,
+    filename: &str,
 ) -> Option<Meta> {
     let mods_table = extract_mods_table(root_table)?;
     let mod_id = extract_string(mods_table, "modId");
@@ -109,14 +115,14 @@ fn meta_from_root_table(
         version
     };
 
-    Some(Meta {
-        id: mod_id,
-        name: extract_string(mods_table, "displayName"),
-        version: actual_version,
-        description: extract_string(mods_table, "description"),
+    Some(Meta::new(
+        mod_id,
+        extract_string(mods_table, "displayName").unwrap_or(filename.to_owned()),
+        actual_version,
+        extract_string(mods_table, "description"),
         authors,
-        loader: Some(loader.to_owned()),
-        loader_version: extract_version_range(loader_dep_table),
-        minecraft_version: extract_version_range(minecraft_dep_table),
-    })
+        Some(loader.to_owned()),
+        extract_version_range(loader_dep_table),
+        extract_version_range(minecraft_dep_table),
+    ))
 }

@@ -6,7 +6,7 @@
  *
  * File:       detailed.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   19.01.25, 14:01
+ * Modified:   20.01.25, 02:17
  */
 use crate::output::_Output;
 use std::fmt::{Debug, Display, Formatter};
@@ -90,7 +90,7 @@ impl Display for DetailedOutput {
 }
 
 impl DetailedOutput {
-    pub fn _new(objects: Vec<DetailedDisplayObject>) -> Self {
+    pub fn new(objects: Vec<DetailedDisplayObject>) -> Self {
         Self { objects }
     }
 }

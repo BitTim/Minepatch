@@ -6,9 +6,11 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   19.01.25, 14:05
+ * Modified:   20.01.25, 01:29
  */
 
-pub mod data;
+mod data;
+pub use data::Mod;
 pub mod error;
-pub mod func;
+mod func;
+pub use func::*;

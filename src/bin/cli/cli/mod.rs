@@ -6,16 +6,13 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   19.01.25, 14:04
+ * Modified:   20.01.25, 01:35
  */
 use clap::{Parser, Subcommand};
 
-mod instance;
-pub use instance::InstanceCommands;
-mod pack;
-pub use pack::PackCommands;
-mod vault;
-pub use vault::VaultCommands;
+pub(crate) mod instance;
+pub(crate) mod pack;
+pub(crate) mod vault;
 
 #[derive(Debug, Parser)]
 #[command(author, version, about, long_about = None)]

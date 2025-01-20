@@ -4,9 +4,9 @@
  * Project:    Minepatch
  * License:    GPLv3
  *
- * File:       data.rs
+ * File:       model.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   19.01.25, 14:04
+ * Modified:   20.01.25, 03:18
  */
 
 use crate::common::meta::data::Meta;

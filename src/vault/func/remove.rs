@@ -6,17 +6,13 @@
  *
  * File:       remove.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   19.01.25, 13:54
+ * Modified:   20.01.25, 03:09
  */
 
-use crate::common::file;
 use crate::prelude::*;
 use crate::vault::data::Mod;
 use crate::vault::error::VaultError;
-use crate::vault::func::common::path::get_base_mod_dir_path;
-use crate::vault::func::common::registry::check_entry;
 use inquire::Confirm;
-use std::fs;
 
 pub fn remove(hash: &Option<String>, all: &bool, yes: &bool) -> Result<()> {
     // TODO: Rework for SQLite
@@ -35,17 +31,17 @@ pub fn remove(hash: &Option<String>, all: &bool, yes: &bool) -> Result<()> {
     };
 
     for hash in hashes {
-        let (index, entry) = check_entry(&registry, &hash)?;
-        let path = &entry.path.to_owned();
+        //let (index, entry) = check_exists(&registry, &hash)?;
+        //let path = &entry.path.to_owned();
 
-        if !yes && !confirm_remove(entry)? {
-            continue;
-        }
+        //if !yes && !confirm_remove(entry)? {
+        //    continue;
+        //}
 
-        file::check_exists(&path)?;
-        fs::remove_file(&path)?;
-        file::remove_empty_dirs(&get_base_mod_dir_path()?)?;
-        registry.swap_remove(index);
+        //file::check_exists(&path)?;
+        //fs::remove_file(&path)?;
+        //file::remove_empty_dirs(&get_base_mod_dir_path()?)?;
+        //registry.swap_remove(index);
     }
 
     //file::write_all(registry)?;
@@ -55,9 +51,9 @@ pub fn remove(hash: &Option<String>, all: &bool, yes: &bool) -> Result<()> {
 pub(crate) fn confirm_remove(entry: &Mod) -> Result<bool> {
     let ans = Confirm::new(&format!(
         "Do you really want to remove '{}' ({}, {}) from the vault?",
-        entry.meta.name.clone().unwrap_or("?".to_owned()),
+        entry.meta.name,
         entry.meta.version.clone().unwrap_or("?".to_owned()),
-        entry.meta.loader.clone().unwrap_or("?".to_owned())
+        entry.meta.loader
     ))
     .with_default(false)
     .with_help_message(&format!("Hash: '{}'", &entry.hash))

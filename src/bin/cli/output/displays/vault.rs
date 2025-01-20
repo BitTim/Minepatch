@@ -6,12 +6,12 @@
  *
  * File:       vault.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   19.01.25, 13:39
+ * Modified:   20.01.25, 03:10
  */
 use crate::output::detailed::{DetailedDisplayObject, Entry};
 use crate::output::{format_bool, format_string_option};
 use colored::Colorize;
-use minepatch::vault::data::Mod;
+use minepatch::vault::Mod;
 use std::fs;
 use tabled::Tabled;
 
@@ -33,38 +33,30 @@ pub struct ModDisplay {
     pub valid: String,
 }
 
-impl TryFrom<Mod> for ModDisplay {
-    type Error = ();
-
-    fn try_from(value: Mod) -> Result<Self, Self::Error> {
+impl From<&Mod> for ModDisplay {
+    fn from(value: &Mod) -> Self {
         let mut short_hash = value.hash.to_owned();
         short_hash.truncate(8);
 
-        let valid = if let Ok(value) = fs::exists(&value.path) {
-            value
-        } else {
-            false
-        };
+        let valid = fs::exists(&value.path).unwrap_or_default();
 
-        Ok(ModDisplay {
+        ModDisplay {
             short_hash,
-            id: format_string_option(&value.meta.id.to_owned()),
-            name: format_string_option(&value.meta.name.to_owned()),
+            id: value.meta.id.to_owned(),
+            name: value.meta.name.to_owned(),
             version: format_string_option(&value.meta.version.to_owned()),
-            loader: format_string_option(&value.meta.loader.to_owned()),
+            loader: value.meta.loader.to_owned(),
             mc_version: format_string_option(&value.meta.minecraft_version),
             valid: format_bool(&valid),
-        })
+        }
     }
 }
 
-impl TryFrom<Mod> for DetailedDisplayObject {
-    type Error = ();
-
-    fn try_from(value: Mod) -> Result<Self, Self::Error> {
+impl From<&Mod> for DetailedDisplayObject {
+    fn from(value: &Mod) -> Self {
         let authors = value.meta.authors.as_deref().map(|value| value.join("\n"));
 
-        Ok(DetailedDisplayObject::new(
+        DetailedDisplayObject::new(
             vec![
                 Entry::new("Hash", &value.hash.bold().purple().to_string()),
                 Entry::new(
@@ -73,14 +65,11 @@ impl TryFrom<Mod> for DetailedDisplayObject {
                 ),
             ],
             vec![
-                Entry::new(
-                    "Mod ID",
-                    &format_string_option(&value.meta.id.map(|id| id.bold().yellow().to_string())),
-                ),
-                Entry::new("Name", &format_string_option(&value.meta.name)),
+                Entry::new("Mod ID", &value.meta.id.bold().yellow().to_string()),
+                Entry::new("Name", &value.meta.name),
                 Entry::new("Version", &format_string_option(&value.meta.version)),
                 Entry::new("Authors", &format_string_option(&authors)),
-                Entry::new("Loader", &format_string_option(&value.meta.loader)),
+                Entry::new("Loader", &value.meta.loader),
                 Entry::new(
                     "Loader version",
                     &format_string_option(&value.meta.loader_version),
@@ -94,6 +83,6 @@ impl TryFrom<Mod> for DetailedDisplayObject {
                     &format_string_option(&value.meta.description),
                 ),
             ],
-        ))
+        )
     }
 }

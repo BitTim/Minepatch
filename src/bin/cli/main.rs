@@ -6,16 +6,19 @@
  *
  * File:       main.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   19.01.25, 13:57
+ * Modified:   20.01.25, 03:13
  */
-use crate::cli::{Cli, Commands, InstanceCommands, PackCommands, VaultCommands};
+use crate::cli::instance::InstanceCommands;
+use crate::cli::pack::PackCommands;
+use crate::cli::{vault, Cli, Commands};
 use clap::Parser;
+use cli::vault::VaultCommands;
 use colored::Colorize;
 use indicatif::{ProgressBar, ProgressStyle};
 use minepatch::prelude::*;
 use minepatch::update::func;
-use minepatch::vault::func::{add, list, remove};
-use minepatch::{instance, pack};
+use minepatch::{db, instance, pack};
+use rusqlite::Connection;
 use std::ffi::OsStr;
 use std::process;
 use std::thread::sleep;
@@ -25,7 +28,7 @@ use sysinfo::{Pid, Process, ProcessStatus, System};
 mod cli;
 mod output;
 
-fn match_command(command: &Commands) -> Result<()> {
+fn match_command(command: &Commands, connection: Connection) -> Result<()> {
     match command {
         Commands::Update => func::update::update()?,
         Commands::Instance {
@@ -48,13 +51,18 @@ fn match_command(command: &Commands) -> Result<()> {
             vault_commands: vault_command,
         } => match vault_command {
             VaultCommands::Add { path, overwrite } => {
-                add::add(path, overwrite)?;
+                vault::add(&connection, path, overwrite)?;
             }
-            VaultCommands::List { detailed, hash, id } => {
-                list::list(detailed, hash, id)?;
+            VaultCommands::List {
+                detailed,
+                hash,
+                id,
+                name,
+            } => {
+                vault::list(&connection, detailed, hash, id, name)?;
             }
             VaultCommands::Remove { hash, all, yes } => {
-                remove::remove(hash, all, yes)?;
+                vault::remove(hash, *all, *yes)?;
             }
         },
         Commands::Pack { pack_command } => match pack_command {
@@ -93,7 +101,7 @@ fn await_exclusive() -> Result<()> {
             }
             false => {
                 let mut counter = 0;
-                let total = processes.iter().count() - 1;
+                let total = processes.len() - 1;
 
                 for proc in &processes {
                     if proc.pid() == Pid::from_u32(pid) {
@@ -107,11 +115,11 @@ fn await_exclusive() -> Result<()> {
                             "{}\n\t{}{}\n\t{}{}\n\t{}{}s\n\t{}{}",
                             "Minepatch is already running. Waiting for other process to end to prevent data corruption.".bold().purple(),
                             "Name:     ".bold().yellow(),
-                            proc.name().to_str().or(Some("")).unwrap().trim(),
+                            proc.name().to_str().unwrap_or("").trim(),
                             "PID:      ".bold().yellow(),
                             proc.pid().to_string().trim(),
                             "Time:     ".bold().yellow(),
-                            proc.run_time().to_string(),
+                            proc.run_time(),
                             "Conflict: ".bold().yellow(),
                             format!(
                                 "{} / {}",
@@ -135,14 +143,18 @@ fn await_exclusive() -> Result<()> {
     Ok(())
 }
 
-fn main() {
-    if let Err(error) = await_exclusive() {
-        println!("{}", error);
-    }
+fn error_handled() -> Result<()> {
+    await_exclusive()?;
+    let connection = db::init()?;
 
     let cli = Cli::parse();
+    match_command(&cli.command, connection)?;
 
-    if let Err(error) = match_command(&cli.command) {
+    Ok(())
+}
+
+fn main() {
+    if let Err(error) = error_handled() {
         println!("{}", error);
     }
 }

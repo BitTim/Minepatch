@@ -6,7 +6,7 @@
  *
  * File:       table.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   19.01.25, 14:01
+ * Modified:   20.01.25, 02:18
  */
 use crate::output::_Output;
 use std::fmt::{Display, Formatter};
@@ -21,7 +21,7 @@ pub struct TableOutput {
 }
 
 impl TableOutput {
-    pub fn _new<T: Tabled>(values: Vec<T>) -> Self {
+    pub fn new<T: Tabled>(values: Vec<T>) -> Self {
         let table = Table::new(values)
             .with(Style::rounded().remove_horizontals())
             .modify(

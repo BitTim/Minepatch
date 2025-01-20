@@ -6,9 +6,10 @@
  *
  * File:       lib.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   19.01.25, 13:57
+ * Modified:   19.01.25, 18:46
  */
-pub mod common;
+mod common;
+pub use common::*;
 mod error;
 pub mod instance;
 pub mod pack;

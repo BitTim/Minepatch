@@ -6,7 +6,7 @@
  *
  * File:       instance.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   19.01.25, 13:09
+ * Modified:   20.01.25, 02:13
  */
 use crate::output::format_bool;
 use minepatch::instance::data::Instance;
@@ -23,20 +23,18 @@ pub(crate) struct InstanceDisplay {
     pub(crate) valid: String,
 }
 
-impl TryFrom<Instance> for InstanceDisplay {
-    type Error = ();
-
-    fn try_from(value: Instance) -> Result<Self, Self::Error> {
+impl From<Instance> for InstanceDisplay {
+    fn from(value: Instance) -> Self {
         let valid = if let Ok(value) = fs::exists(&value.path) {
             value
         } else {
             false
         };
 
-        Ok(InstanceDisplay {
+        InstanceDisplay {
             name: value.name.clone(),
             path: value.path.display().to_string(),
             valid: format_bool(&valid),
-        })
+        }
     }
 }

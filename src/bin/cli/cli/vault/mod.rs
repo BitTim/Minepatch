@@ -4,12 +4,19 @@
  * Project:    Minepatch
  * License:    GPLv3
  *
- * File:       vault.rs
+ * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   19.01.25, 13:57
+ * Modified:   20.01.25, 03:13
  */
 use clap::Subcommand;
 use std::path::PathBuf;
+
+mod add;
+pub(crate) use add::*;
+mod list;
+pub(crate) use list::*;
+mod remove;
+pub(crate) use remove::*;
 
 #[derive(Subcommand, Debug)]
 pub enum VaultCommands {
@@ -26,6 +33,10 @@ pub enum VaultCommands {
         /// Only display entries where the id contains the provided mod id.
         #[arg(short, long)]
         id: Option<String>,
+
+        /// Only display entries where the name contains the provided name.
+        #[arg(short, long)]
+        name: Option<String>,
     },
 
     /// Adds a new mod file to the central mod vault.

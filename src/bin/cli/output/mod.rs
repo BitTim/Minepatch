@@ -6,15 +6,15 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   19.01.25, 14:01
+ * Modified:   20.01.25, 02:11
  */
 use colored::Colorize;
 use std::fmt::{Debug, Display};
 
-mod detailed;
-mod displays;
-mod status;
-mod table;
+pub(crate) mod detailed;
+pub(crate) mod displays;
+pub(crate) mod status;
+pub(crate) mod table;
 
 pub trait _Output: Debug + Display {
     fn print(&self) {

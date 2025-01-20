@@ -6,7 +6,7 @@
  *
  * File:       error.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   19.01.25, 13:52
+ * Modified:   20.01.25, 01:51
  */
 use crate::common::file::error::FileError;
 use crate::common::meta::error::MetaError;
@@ -33,6 +33,8 @@ pub enum Error {
     #[error(transparent)]
     IO(#[from] std::io::Error),
     #[error(transparent)]
+    SQLite(#[from] rusqlite::Error),
+    #[error(transparent)]
     JSON(#[from] serde_json::Error),
     #[error(transparent)]
     TOML(#[from] toml::de::Error),
@@ -44,4 +46,8 @@ pub enum Error {
     SelfUpdate(#[from] self_update::errors::Error),
     #[error(transparent)]
     Zip(#[from] zip::result::ZipError),
+    #[error(transparent)]
+    RONSer(#[from] ron::error::Error),
+    #[error(transparent)]
+    RONDe(#[from] ron::error::SpannedError),
 }

@@ -6,7 +6,7 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   19.01.25, 12:23
+ * Modified:   20.01.25, 03:19
  */
 
 use crate::common::file::error::FileError;
@@ -36,15 +36,14 @@ pub(crate) fn get_data_path() -> Result<PathBuf> {
 }
 
 pub(crate) fn filename_from_path(path: &Path) -> Result<&str> {
-    Ok(path
-        .file_name()
+    path.file_name()
         .ok_or(Error::File(FileError::PathNoFileName(
             path.display().to_string(),
         )))?
         .to_str()
         .ok_or(Error::File(FileError::PathInvalidUTF8(
             path.display().to_string(),
-        )))?)
+        )))
 }
 
 pub fn check_exists(path: &Path) -> Result<()> {

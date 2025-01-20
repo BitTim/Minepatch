@@ -25,4 +25,5 @@ serde_json = "1.0.134"
 indicatif = "0.17.9"
 sysinfo = "0.33.1"
 thiserror = "2.0.11"
-rusqlite = { version = "0.32.1", features = ["bundled"] }
+rusqlite = { version = "0.33.0", features = ["bundled"] }
+ron = "0.8.1"
