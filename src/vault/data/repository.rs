@@ -6,7 +6,7 @@
  *
  * File:       repository.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.01.25, 03:14
+ * Modified:   20.01.25, 13:33
  */
 use crate::meta::data::Meta;
 use crate::prelude::*;
@@ -16,7 +16,7 @@ use rusqlite::{params, Connection};
 use std::path::PathBuf;
 
 pub(crate) fn exists(connection: &Connection, hash: &str) -> Result<bool> {
-    let mut statement = connection.prepare("SELECT * FROM mod WHERE hash = ?1")?;
+    let mut statement = connection.prepare("SELECT * FROM mod WHERE hash LIKE '%'||?1||'%'")?;
     Ok(statement.exists(params![hash])?)
 }
 
@@ -71,4 +71,8 @@ pub(crate) fn query(connection: &Connection, hash: &str, id: &str, name: &str) -
     }
 
     Ok(results)
+}
+
+pub(crate) fn remove(connection: &Connection, hash: &str) -> Result<usize> {
+    Ok(connection.execute("DELETE FROM mod WHERE hash = ?1", params![hash])?)
 }

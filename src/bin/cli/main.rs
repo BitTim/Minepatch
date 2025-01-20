@@ -6,7 +6,7 @@
  *
  * File:       main.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.01.25, 12:46
+ * Modified:   20.01.25, 13:31
  */
 use crate::cli::instance::InstanceCommands;
 use crate::cli::pack::PackCommands;
@@ -31,7 +31,7 @@ use sysinfo::{Pid, Process, ProcessStatus, System};
 mod cli;
 mod output;
 
-fn match_command(command: &Commands, connection: Connection) -> Result<()> {
+fn match_command(command: &Commands, connection: &Connection) -> Result<()> {
     match command {
         Commands::Update => func::update::update()?,
         Commands::Instance {
@@ -54,7 +54,7 @@ fn match_command(command: &Commands, connection: Connection) -> Result<()> {
             vault_commands: vault_command,
         } => match vault_command {
             VaultCommands::Add { path, overwrite } => {
-                vault::add(&connection, path, overwrite)?;
+                vault::add(connection, path, overwrite)?;
             }
             VaultCommands::List {
                 detailed,
@@ -62,10 +62,10 @@ fn match_command(command: &Commands, connection: Connection) -> Result<()> {
                 id,
                 name,
             } => {
-                vault::list(&connection, detailed, hash, id, name)?;
+                vault::list(connection, detailed, hash, id, name)?;
             }
             VaultCommands::Remove { hash, all, yes } => {
-                vault::remove(hash, *all, *yes)?;
+                vault::remove(connection, hash, *all, *yes)?;
             }
         },
         Commands::Pack { pack_command } => match pack_command {
@@ -151,7 +151,7 @@ fn error_handled() -> Result<()> {
     let connection = db::init()?;
 
     let cli = Cli::parse();
-    match_command(&cli.command, connection)?;
+    match_command(&cli.command, &connection)?;
 
     Ok(())
 }
