@@ -6,7 +6,7 @@
  *
  * File:       fabric.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.01.25, 03:07
+ * Modified:   22.01.25, 16:23
  */
 use crate::common::meta::common::{extract_meta_json, extract_string_json};
 use crate::common::meta::data::Meta;
@@ -23,11 +23,14 @@ fn extract_authors(obj: &Value) -> Option<Vec<String>> {
             .as_array()?
             .iter()
             .filter_map(|author| {
-                author.as_object().and_then(|author| {
-                    author
-                        .get("name")
-                        .and_then(|author| author.as_str().map(|author| author.to_owned()))
-                })
+                author
+                    .as_object()
+                    .and_then(|author| {
+                        author
+                            .get("name")
+                            .and_then(|author| author.as_str().map(|author| author.to_owned()))
+                    })
+                    .or(author.as_str().map(|author| author.to_owned()))
             })
             .collect(),
     )
