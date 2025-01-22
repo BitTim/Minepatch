@@ -6,24 +6,24 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   22.01.25, 03:55
+ * Modified:   22.01.25, 16:16
  */
 use crate::common::file;
 use crate::common::file::PathBuilder;
 use crate::prelude::*;
 use rusqlite::Connection;
 
-const _DB_FILENAME: &str = "minepatch.db";
+const DB_FILENAME: &str = "minepatch.db";
 
-fn _connect() -> Result<Connection> {
+fn connect() -> Result<Connection> {
     let path = PathBuilder::new(&file::get_data_path()?)
-        .push(_DB_FILENAME)
+        .push(DB_FILENAME)
         .build();
 
     Ok(Connection::open(path)?)
 }
 
-fn _create_tables(connection: &Connection) -> Result<()> {
+fn create_tables(connection: &Connection) -> Result<()> {
     Ok(connection.execute_batch(
         "
         BEGIN;
@@ -92,8 +92,8 @@ fn _create_tables(connection: &Connection) -> Result<()> {
 }
 
 pub fn init() -> Result<Connection> {
-    let connection = _connect()?;
-    _create_tables(&connection)?;
+    let connection = connect()?;
+    create_tables(&connection)?;
 
     Ok(connection)
 }
