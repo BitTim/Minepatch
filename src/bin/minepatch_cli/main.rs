@@ -6,13 +6,13 @@
  *
  * File:       main.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.01.25, 22:14
+ * Modified:   22.01.25, 02:18
  */
 use crate::cli::instance::InstanceCommands;
 use crate::cli::pack::PackCommands;
 use crate::cli::patch::PatchCommands;
 use crate::cli::template::TemplateCommands;
-use crate::cli::{patch, template, vault, Cli, Commands};
+use crate::cli::{pack, patch, template, vault, Cli, Commands};
 use crate::output::status::{Status, StatusOutput};
 use crate::output::Output;
 use clap::Parser;
@@ -22,7 +22,7 @@ use indicatif::{ProgressBar, ProgressStyle};
 use minepatch::msg::Message;
 use minepatch::prelude::*;
 use minepatch::update::func;
-use minepatch::{db, instance, pack};
+use minepatch::{db, instance};
 use rusqlite::Connection;
 use std::ffi::OsStr;
 use std::process;
@@ -96,12 +96,11 @@ fn match_command(command: &Commands, connection: &Connection) -> Result<()> {
             PackCommands::List => {}
             PackCommands::Create {
                 name,
+                description,
+                template,
                 from,
                 instance,
-                silent,
-            } => {
-                pack::create(name, from, instance, silent)?;
-            }
+            } => pack::create(connection, name, description, template, from, instance)?,
             PackCommands::Delete => {}
         },
     }

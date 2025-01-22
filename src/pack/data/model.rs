@@ -6,7 +6,7 @@
  *
  * File:       model.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.01.25, 15:19
+ * Modified:   22.01.25, 02:26
  */
 use serde::{Deserialize, Serialize};
 
@@ -14,31 +14,15 @@ use serde::{Deserialize, Serialize};
 pub struct Pack {
     pub(crate) name: String,
     pub(crate) description: Option<String>,
-    pub(crate) base: Option<String>,
-    pub(crate) latest_patch: String,
+    pub(crate) template: Option<String>,
 }
 
 impl Pack {
-    pub(crate) fn empty(name: &str) -> Self {
-        Self {
-            name: name.to_owned(),
-            description: None,
-            base: None,
-            latest_patch: String::from("init"),
-        }
-    }
-
-    pub(crate) fn new(
-        name: &str,
-        description: Option<String>,
-        base: Option<String>,
-        latest_patch: &str,
-    ) -> Self {
+    pub(crate) fn new(name: &str, description: Option<String>, template: Option<String>) -> Self {
         Self {
             name: name.to_owned(),
             description,
-            base,
-            latest_patch: latest_patch.to_owned(),
+            template,
         }
     }
 }

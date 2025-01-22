@@ -6,12 +6,14 @@
  *
  * File:       error.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.01.25, 16:42
+ * Modified:   22.01.25, 02:37
  */
 use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum TemplateError {
+    #[error("No template with name '{0}' was found.")]
+    NotFound(String),
     #[error("Name '{0}' is already used by a template.")]
-    NameExists(String),
+    NameTaken(String),
 }

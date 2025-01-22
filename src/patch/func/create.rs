@@ -6,9 +6,11 @@
  *
  * File:       create.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.01.25, 21:58
+ * Modified:   22.01.25, 02:37
  */
 use crate::error::Error;
+use crate::pack;
+use crate::pack::PackError;
 use crate::patch::{exists, insert, Patch, PatchError};
 use rusqlite::Connection;
 
@@ -24,6 +26,10 @@ pub fn create(
             name.to_owned(),
             pack.to_owned(),
         )));
+    }
+
+    if !pack::exists(connection, pack)? {
+        return Err(Error::Pack(PackError::NotFound(pack.to_owned())));
     }
 
     insert(connection, Patch::new(name, dependency, state_hash, pack))?;

@@ -6,10 +6,9 @@
  *
  * File:       model.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.01.25, 22:12
+ * Modified:   22.01.25, 02:27
  */
 use serde::{Deserialize, Serialize};
-use sha256::Sha256Digest;
 
 #[derive(Eq, PartialEq, Debug, Clone, Serialize, Deserialize)]
 pub struct Patch {
@@ -20,15 +19,6 @@ pub struct Patch {
 }
 
 impl Patch {
-    pub(crate) fn _empty(name: &str, pack: &str) -> Self {
-        Self {
-            name: name.to_owned(),
-            dependency: String::from(""),
-            state_hash: "".digest(),
-            pack: pack.to_owned(),
-        }
-    }
-
     pub(crate) fn new(name: &str, dependency: &str, state_hash: &str, pack: &str) -> Self {
         Self {
             name: name.to_owned(),

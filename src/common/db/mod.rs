@@ -6,7 +6,7 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.01.25, 22:43
+ * Modified:   22.01.25, 02:27
  */
 use crate::common::file;
 use crate::common::file::PathBuilder;
@@ -50,11 +50,9 @@ fn _create_tables(connection: &Connection) -> Result<()> {
         CREATE TABLE IF NOT EXISTS pack (
             name TEXT NOT NULL PRIMARY KEY,
             description TEXT,
-            base TEXT,
-            latest_patch TEXT NOT NULL,
+            template TEXT,
             
-            FOREIGN KEY (base) REFERENCES base(name),
-            FOREIGN KEY (latest_patch) REFERENCES patch(name)
+            FOREIGN KEY (template) REFERENCES template(name)
         );
 
         CREATE TABLE IF NOT EXISTS patch (

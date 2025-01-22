@@ -6,7 +6,7 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   16.01.25, 17:32
+ * Modified:   22.01.25, 02:12
  */
-mod registry;
-pub use registry::*;
+mod path;
+pub(crate) use path::*;

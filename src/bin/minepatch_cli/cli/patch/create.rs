@@ -6,7 +6,7 @@
  *
  * File:       create.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.01.25, 22:20
+ * Modified:   22.01.25, 02:30
  */
 use crate::output::status::{Status, StatusOutput};
 use crate::output::Output;
@@ -25,7 +25,9 @@ pub(crate) fn create(
 
     StatusOutput::new(
         Status::Success,
-        Message::new("Added template to be used with packs").context("Name", name),
+        Message::new("Added patch to pack")
+            .context("Name", name)
+            .context("Pack", pack),
     )
     .print();
     Ok(())
