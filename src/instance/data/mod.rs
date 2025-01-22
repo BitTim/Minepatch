@@ -6,7 +6,9 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   22.01.25, 02:12
+ * Modified:   22.01.25, 18:00
  */
-mod path;
-pub(crate) use path::*;
+mod model;
+pub use model::*;
+mod repo;
+pub(crate) use repo::*;

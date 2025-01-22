@@ -4,10 +4,11 @@
  * Project:    Minepatch
  * License:    GPLv3
  *
- * File:       data.rs
+ * File:       model.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   19.01.25, 13:09
+ * Modified:   22.01.25, 17:00
  */
+
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
 
@@ -15,20 +16,17 @@ use std::path::{Path, PathBuf};
 pub struct Instance {
     pub name: String,
     pub path: PathBuf,
+    pub pack: String,
+    pub patch: String,
 }
 
 impl Instance {
-    pub fn new(name: &str, path: &Path) -> Self {
+    pub fn new(name: &str, path: &Path, pack: &str, patch: &str) -> Self {
         Self {
-            name: name.to_string(),
-            path: path.to_path_buf(),
+            name: name.to_owned(),
+            path: path.to_owned(),
+            pack: pack.to_owned(),
+            patch: patch.to_owned(),
         }
-    }
-
-    pub(crate) fn get_name(&self) -> &str {
-        &self.name
-    }
-    pub(crate) fn set_name(&mut self, name: &str) {
-        self.name = name.to_string()
     }
 }

@@ -6,7 +6,7 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   22.01.25, 16:59
+ * Modified:   22.01.25, 18:59
  */
-mod link;
-pub use link::*;
+mod data;
+pub use data::*;

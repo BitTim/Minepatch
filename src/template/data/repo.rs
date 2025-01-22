@@ -6,7 +6,7 @@
  *
  * File:       repo.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.01.25, 16:38
+ * Modified:   22.01.25, 18:00
  */
 use crate::template::data::model::Template;
 use rusqlite::{params, Connection};
@@ -16,15 +16,15 @@ pub(crate) fn exists(connection: &Connection, name: &str) -> crate::prelude::Res
     Ok(statement.exists(params![name])?)
 }
 
-pub(crate) fn insert(connection: &Connection, value: Template) -> crate::prelude::Result<i64> {
+pub(crate) fn insert(connection: &Connection, template: Template) -> crate::prelude::Result<i64> {
     let mut statement = connection.prepare(
         "INSERT INTO template (name, loader, version, download) VALUES (?1, ?2, ?3, ?4)",
     )?;
 
     Ok(statement.insert(params![
-        value.name,
-        value.loader,
-        value.version,
-        value.download,
+        template.name,
+        template.loader,
+        template.version,
+        template.download,
     ])?)
 }

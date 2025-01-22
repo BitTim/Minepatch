@@ -6,21 +6,21 @@
  *
  * File:       main.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   22.01.25, 16:07
+ * Modified:   22.01.25, 19:10
  */
 use crate::cli::instance::InstanceCommands;
 use crate::cli::pack::PackCommands;
 use crate::cli::patch::PatchCommands;
 use crate::cli::template::TemplateCommands;
-use crate::cli::{pack, patch, template, vault, Cli, Commands};
+use crate::cli::{instance, pack, patch, template, vault, Cli, Commands};
 use crate::output::status::{Status, StatusOutput};
 use crate::output::Output;
 use clap::Parser;
 use cli::vault::VaultCommands;
+use minepatch::db;
 use minepatch::msg::Message;
 use minepatch::prelude::*;
 use minepatch::update::func;
-use minepatch::{db, instance};
 use rusqlite::Connection;
 
 mod cli;
@@ -32,18 +32,22 @@ fn match_command(command: &Commands, connection: &Connection) -> Result<()> {
         Commands::Instance {
             instance_commands: instance_command,
         } => match instance_command {
-            InstanceCommands::List => {
-                instance::func::list::list()?;
-            }
-            InstanceCommands::Link { path, name } => {
-                instance::func::link::link(path, name)?;
-            }
-            InstanceCommands::Rename { name, new_name } => {
-                instance::func::rename::rename(name, new_name)?;
-            }
-            InstanceCommands::Unlink { name, all, yes } => {
-                instance::func::unlink::unlink(name, all, yes)?;
-            }
+            // InstanceCommands::List => {
+            //     //instance::list()?;
+            // }
+            InstanceCommands::Link {
+                path,
+                name,
+                pack,
+                patch,
+            } => {
+                instance::link(connection, path, name, pack, patch)?;
+            } // InstanceCommands::Rename { name, new_name } => {
+              //     //instance::rename(name, new_name)?;
+              // }
+              // InstanceCommands::Unlink { name, all, yes } => {
+              //     //instance::unlink(name, all, yes)?;
+              // }
         },
         Commands::Vault {
             vault_commands: vault_command,

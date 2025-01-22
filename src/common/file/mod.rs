@@ -6,7 +6,7 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.01.25, 13:42
+ * Modified:   22.01.25, 18:05
  */
 
 use crate::common::file::error::FileError;
@@ -89,4 +89,27 @@ pub(crate) fn remove_empty_dirs(path: &Path) -> Result<bool> {
     }
 
     Ok(false)
+}
+
+pub(crate) fn mod_paths_from_instance_path(path: &Path) -> Result<Vec<PathBuf>> {
+    let mut path = path.to_owned();
+    path.push("mods");
+
+    check_exists(&path)?;
+    let mod_dir_contents = fs::read_dir(&path)?
+        .filter_map(|entry| entry.ok())
+        .map(|entry| entry.path())
+        .collect::<Vec<PathBuf>>();
+
+    let mod_paths = mod_dir_contents
+        .iter()
+        .filter_map(|path| {
+            if path.extension().and_then(|ext| ext.to_str()) != Some("jar") {
+                return None;
+            }
+            Some(path.to_owned())
+        })
+        .collect::<Vec<PathBuf>>();
+
+    Ok(mod_paths)
 }

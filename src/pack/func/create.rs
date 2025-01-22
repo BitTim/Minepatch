@@ -6,20 +6,19 @@
  *
  * File:       create.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   22.01.25, 15:12
+ * Modified:   22.01.25, 18:06
  */
 use crate::common::file;
 use crate::msg::Message;
+use crate::pack::data;
 use crate::pack::data::Pack;
 use crate::pack::error::PackError;
-use crate::pack::func::common::get_mod_paths;
-use crate::pack::{exists, insert};
 use crate::prelude::*;
 use crate::template::TemplateError;
 use crate::{instance, patch, template, vault};
 use rusqlite::Connection;
 use sha256::Sha256Digest;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 const INIT_PATCH_NAME: &str = "init";
 
@@ -40,22 +39,19 @@ where
     let name = pack.name.to_owned();
     let template = pack.template.to_owned();
 
-    if exists(connection, &name)? {
+    if data::exists(connection, &name)? {
         return Err(Error::Pack(PackError::NameTaken(name)));
     }
 
-    if template.is_some() && !template::exists(connection, template.as_ref().unwrap())? {
+    if template.is_some() && !template::data::exists(connection, template.as_ref().unwrap())? {
         return Err(Error::Template(TemplateError::NotFound(name)));
     }
 
-    insert(connection, pack)?;
+    data::insert(connection, pack)?;
 
     if let Some(from) = from {
-        let mut path = PathBuf::from(from);
-        path.push("mods");
-
-        file::check_exists(&path)?;
-        let mod_paths = get_mod_paths(&path)?;
+        file::check_exists(from.as_ref())?;
+        let mod_paths = file::mod_paths_from_instance_path(from.as_ref())?;
         init_progress(mod_paths.len() as u64);
 
         patch::create(connection, INIT_PATCH_NAME, "", &"".digest(), &name)?;
@@ -80,7 +76,13 @@ where
                 false => Some(instance.to_owned()),
             };
 
-            instance::func::link::link(&path, &instance_name)?;
+            instance::link(
+                connection,
+                from.as_ref(),
+                &instance_name,
+                &name,
+                INIT_PATCH_NAME,
+            )?;
         };
     }
 

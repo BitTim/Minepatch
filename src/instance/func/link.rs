@@ -6,18 +6,28 @@
  *
  * File:       link.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   19.01.25, 13:13
+ * Modified:   22.01.25, 19:08
  */
 use crate::common::file::error::FileError;
 use crate::common::file::filename_from_path;
-use crate::instance::data::Instance;
-use crate::instance::func::common::registry::check_instance;
+use crate::instance::{data, Instance, InstanceError};
+use crate::pack::PackError;
+use crate::patch::PatchError;
 use crate::prelude::*;
+use crate::{file, pack, patch};
+use rusqlite::Connection;
+use sha256::Sha256Digest;
 use std::fs;
 use std::path::Path;
 
-pub fn link(path: &Path, name: &Option<String>) -> Result<()> {
-    if fs::exists(&path)? == false {
+pub fn link(
+    connection: &Connection,
+    path: &Path,
+    name: &Option<String>,
+    pack: &str,
+    patch: &str,
+) -> Result<String> {
+    if !fs::exists(path)? {
         return Err(Error::File(FileError::PathNotFound(
             path.display().to_string(),
         )));
@@ -25,15 +35,43 @@ pub fn link(path: &Path, name: &Option<String>) -> Result<()> {
 
     let actual_name = match name {
         Some(name) => name,
-        None => filename_from_path(&path)?,
+        None => filename_from_path(path)?,
     };
 
-    // TODO: Rework for SQLite
-    let mut instances = /*file::read_all()?*/ vec![];
-    check_instance(&instances, actual_name, false)?;
+    if data::exists(connection, actual_name)? {
+        return Err(Error::Instance(InstanceError::NameTaken(
+            actual_name.to_owned(),
+        )));
+    }
 
-    instances.push(Instance::new(actual_name, path));
-    //file::write_all(instances)?;
+    if !pack::data::exists(connection, pack)? {
+        return Err(Error::Pack(PackError::NotFound(pack.to_owned())));
+    }
 
-    Ok(())
+    if !patch::data::exists(connection, patch, pack)? {
+        return Err(Error::Patch(PatchError::NotFound(
+            patch.to_owned(),
+            pack.to_owned(),
+        )));
+    }
+
+    data::insert(connection, Instance::new(actual_name, path, pack, patch))?;
+
+    // 1. [x] Query list of mods
+    // 2. [x] Generate state hash
+    // 3. [ ] Simulate patches up until applied
+    // 4. [ ] Generate state hash of simulation
+    // 5. [ ] Check state hash
+    // 6. [ ] Delete mod file
+    // 7. [ ] Create Symlink
+
+    let mod_paths = file::mod_paths_from_instance_path(path)?;
+    let mut hashes = vec![];
+    for mod_path in mod_paths {
+        hashes.push(file::hash_file(&mod_path)?);
+    }
+
+    let state_hash = hashes.join("\n").digest();
+
+    Ok(actual_name.to_owned())
 }
