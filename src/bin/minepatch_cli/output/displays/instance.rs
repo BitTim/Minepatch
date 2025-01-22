@@ -6,10 +6,10 @@
  *
  * File:       instance.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.01.25, 02:13
+ * Modified:   22.01.25, 16:48
  */
 use crate::output::format_bool;
-use minepatch::instance::data::Instance;
+use minepatch::instance::Instance;
 use std::fs;
 use tabled::Tabled;
 

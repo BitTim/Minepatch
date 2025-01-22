@@ -6,7 +6,7 @@
  *
  * File:       repo.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   22.01.25, 03:36
+ * Modified:   22.01.25, 19:08
  */
 
 use crate::patch::data::model::Patch;
@@ -18,30 +18,28 @@ pub(crate) fn exists(connection: &Connection, name: &str, pack: &str) -> Result<
     Ok(statement.exists(params![name, pack])?)
 }
 
-pub(crate) fn insert(connection: &Connection, value: Patch) -> Result<i64> {
+pub(crate) fn insert(connection: &Connection, patch: Patch) -> Result<i64> {
     let mut statement = connection.prepare(
         "INSERT INTO patch (name, dependency, state_hash, pack) VALUES (?1, ?2, ?3, ?4)",
     )?;
 
     Ok(statement.insert(params![
-        value.name,
-        value.dependency,
-        value.state_hash,
-        value.pack,
+        patch.name,
+        patch.dependency,
+        patch.state_hash,
+        patch.pack,
     ])?)
 }
 
-pub(crate) fn query_relation(
-    connection: &Connection,
-    name: &str,
-    pack: &str,
-    mod_hash: &str,
-) -> Result<Option<bool>> {
-    let mut statement = connection
-        .prepare("SELECT * FROM patch_with_mods WHERE patch = ?1 AND pack = ?2 AND mod = ?3")?;
+pub(crate) fn query(connection: &Connection, name: &str, pack: &str) -> Result<Vec<Patch>> {
+    let mut statement = connection.prepare(
+        "SELECT (name, dependency, state_hash, pack) FROM patch WHERE name = ?1 AND pack = ?2",
+    )?;
+    let raw_results = statement.query_and_then(params![name, pack], |row| {
+        let dependency: String = row.get(1)?;
+        let state_hash: String = row.get(2)?;
 
-    let raw_results = statement.query_and_then(params![name, pack, mod_hash], |row| {
-        Ok::<bool, Error>(row.get(3)?)
+        Ok::<Patch, Error>(Patch::new(name, &dependency, &state_hash, pack))
     })?;
 
     let mut results = vec![];
@@ -49,18 +47,5 @@ pub(crate) fn query_relation(
         results.push(result?);
     }
 
-    Ok(results.first().copied())
-}
-
-pub(crate) fn insert_relation(
-    connection: &Connection,
-    name: &str,
-    pack: &str,
-    mod_hash: &str,
-    removed: bool,
-) -> Result<i64> {
-    let mut statement = connection.prepare(
-        "INSERT INTO patch_with_mods (patch, pack, mod, removed) VALUES (?1, ?2, ?3, ?4)",
-    )?;
-    Ok(statement.insert(params![name, pack, mod_hash, removed])?)
+    Ok(results)
 }

@@ -6,10 +6,7 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   15.01.25, 11:45
+ * Modified:   22.01.25, 16:59
  */
-pub mod common;
-pub mod link;
-pub mod list;
-pub mod rename;
-pub mod unlink;
+mod link;
+pub use link::*;

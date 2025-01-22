@@ -6,10 +6,10 @@
  *
  * File:       create.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   22.01.25, 02:37
+ * Modified:   22.01.25, 16:40
  */
 use crate::prelude::*;
-use crate::template::{exists, insert, Template, TemplateError};
+use crate::template::{data, Template, TemplateError};
 use rusqlite::Connection;
 
 pub fn create(
@@ -19,10 +19,10 @@ pub fn create(
     version: Option<String>,
     download: Option<String>,
 ) -> Result<()> {
-    if exists(connection, name)? {
+    if data::exists(connection, name)? {
         return Err(Error::Template(TemplateError::NameTaken(name.to_owned())));
     }
 
-    insert(connection, Template::new(name, loader, version, download))?;
+    data::insert(connection, Template::new(name, loader, version, download))?;
     Ok(())
 }

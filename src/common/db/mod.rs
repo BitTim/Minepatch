@@ -6,7 +6,7 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   22.01.25, 16:16
+ * Modified:   22.01.25, 17:00
  */
 use crate::common::file;
 use crate::common::file::PathBuilder;
@@ -81,10 +81,10 @@ fn create_tables(connection: &Connection) -> Result<()> {
             name TEXT NOT NULL PRIMARY KEY,
             path TEXT NOT NULL,
             pack TEXT NOT NULL,
-            applied_patch TEXT NOT NULL,
+            patch TEXT NOT NULL,
             
             FOREIGN KEY (pack) REFERENCES pack(name),
-            FOREIGN KEY (applied_patch, pack) REFERENCES patch(name, pack)
+            FOREIGN KEY (patch, pack) REFERENCES patch(name, pack)
         );
         COMMIT;
     ",
