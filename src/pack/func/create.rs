@@ -6,7 +6,7 @@
  *
  * File:       create.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   22.01.25, 02:37
+ * Modified:   22.01.25, 03:40
  */
 use crate::common::file;
 use crate::pack::data::Pack;
@@ -19,6 +19,8 @@ use crate::{instance, patch, template, vault};
 use rusqlite::Connection;
 use sha256::Sha256Digest;
 use std::path::PathBuf;
+
+const INIT_PATCH_NAME: &str = "init";
 
 pub fn create(
     connection: &Connection,
@@ -45,16 +47,14 @@ pub fn create(
         file::check_exists(&path)?;
         let mod_paths = get_mod_paths(&path)?;
 
+        patch::create(connection, INIT_PATCH_NAME, "", &"".digest(), name)?;
+
         let mut hashes = vec![];
         for mod_path in mod_paths {
             let hash = vault::add(connection, &mod_path, false, |_| {})?;
-            // TODO: Run Patch Include
-
+            patch::include(connection, INIT_PATCH_NAME, name, &hash)?;
             hashes.push(hash);
         }
-
-        let state_hash = hashes.join("\n").digest();
-        patch::create(connection, "init", "", &state_hash, name)?;
 
         if let Some(instance) = instance {
             let instance_name = match instance.is_empty() {

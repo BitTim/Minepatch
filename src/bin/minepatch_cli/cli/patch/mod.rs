@@ -6,12 +6,14 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.01.25, 22:15
+ * Modified:   22.01.25, 03:32
  */
 use clap::Subcommand;
 
 mod create;
 pub(crate) use create::*;
+mod include;
+pub(crate) use include::*;
 
 #[derive(Subcommand, Debug)]
 pub enum PatchCommands {
@@ -32,5 +34,20 @@ pub enum PatchCommands {
         /// The pack this patch belongs to
         #[arg(short, long)]
         pack: String,
+    },
+
+    /// Includes a mod into a patch
+    Include {
+        /// Name of the patch.
+        #[arg(short, long)]
+        name: String,
+
+        /// The pack this patch belongs to
+        #[arg(short, long)]
+        pack: String,
+
+        /// The hash of the mod that should be added to this patch
+        #[arg(short, long)]
+        mod_hash: String,
     },
 }

@@ -6,7 +6,7 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   22.01.25, 02:27
+ * Modified:   22.01.25, 03:55
  */
 use crate::common::file;
 use crate::common::file::PathBuilder;
@@ -67,11 +67,13 @@ fn _create_tables(connection: &Connection) -> Result<()> {
 
         CREATE TABLE IF NOT EXISTS patch_with_mods (
             patch TEXT NOT NULL,
+            pack TEXT NOT NULL,
             mod TEXT NOT NULL,
             removed BOOLEAN NOT NULL,
             
-            PRIMARY KEY (patch, mod),
-            FOREIGN KEY (patch) REFERENCES patch(name),
+            PRIMARY KEY (patch, pack, mod),
+            FOREIGN KEY (patch, pack) REFERENCES patch(name, pack),
+            FOREIGN KEY (pack) REFERENCES pack(name),
             FOREIGN KEY (mod) REFERENCES mod(hash)
         );
 
@@ -82,7 +84,7 @@ fn _create_tables(connection: &Connection) -> Result<()> {
             applied_patch TEXT NOT NULL,
             
             FOREIGN KEY (pack) REFERENCES pack(name),
-            FOREIGN KEY (applied_patch) REFERENCES patch(name)
+            FOREIGN KEY (applied_patch, pack) REFERENCES patch(name, pack)
         );
         COMMIT;
     ",
