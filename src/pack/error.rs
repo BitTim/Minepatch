@@ -6,31 +6,14 @@
  *
  * File:       error.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   15.01.25, 13:50
+ * Modified:   22.01.25, 02:37
  */
-use crate::util::error::ErrorType;
-use std::fmt::Debug;
+use thiserror::Error;
 
-#[derive(Debug)]
+#[derive(Error, Debug)]
 pub enum PackError {
-    PackNotFound,
-    PackExists,
-}
-
-impl ErrorType for PackError {
-    fn message(&self) -> String {
-        match self {
-            PackError::PackNotFound => "A pack with this name was not found",
-            PackError::PackExists => "Pack with this name already exists",
-        }
-        .to_owned()
-    }
-
-    fn hint(&self) -> String {
-        match self {
-            PackError::PackNotFound => "View existing pack names with the 'pack list' command.",
-            PackError::PackExists => "Try specifying another name that is not used yet.",
-        }
-        .to_owned()
-    }
+    #[error("No pack with name '{0}' was found.")]
+    NotFound(String),
+    #[error("Name '{0}' is already taken by another pack.")]
+    NameTaken(String),
 }

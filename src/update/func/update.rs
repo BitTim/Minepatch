@@ -6,35 +6,22 @@
  *
  * File:       update.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   15.01.25, 11:43
+ * Modified:   19.01.25, 13:24
  */
 
-use crate::util::error;
-use crate::util::error::{CommonError, ErrorType};
+use crate::prelude::*;
 use self_update::backends::github::Update;
 use self_update::cargo_crate_version;
 
-pub fn update() -> error::Result<()> {
+pub fn update() -> Result<()> {
     let status = Update::configure()
         .repo_owner("BitTim")
         .repo_name(env!("CARGO_PKG_NAME"))
         .bin_name("minepatch")
         .show_download_progress(true)
         .current_version(cargo_crate_version!())
-        .build()
-        .map_err(|error| {
-            CommonError::Wrapper(Box::new(error))
-                .builder()
-                .context("Cause", "Updater")
-                .build()
-        })?
-        .update()
-        .map_err(|error| {
-            CommonError::Wrapper(Box::new(error))
-                .builder()
-                .context("Cause", "Updater")
-                .build()
-        })?;
+        .build()?
+        .update()?;
 
     println!("Update status: '{}'!", status.version());
     Ok(())

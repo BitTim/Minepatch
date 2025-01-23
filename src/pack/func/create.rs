@@ -6,140 +6,85 @@
  *
  * File:       create.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   16.01.25, 23:19
+ * Modified:   22.01.25, 18:06
  */
+use crate::common::file;
+use crate::msg::Message;
+use crate::pack::data;
 use crate::pack::data::Pack;
-use crate::pack::data::Patch;
 use crate::pack::error::PackError;
-use crate::pack::func::common::check_pack;
-use crate::util::error::ErrorType;
-use crate::util::output::status::{State, StatusOutput};
-use crate::util::output::{format_string_option, Output};
-use crate::util::{error, file};
-use crate::{instance, vault};
-use colored::Colorize;
-use indicatif::{ProgressBar, ProgressStyle};
+use crate::prelude::*;
+use crate::template::TemplateError;
+use crate::{instance, patch, template, vault};
+use rusqlite::Connection;
 use sha256::Sha256Digest;
-use std::fs;
-use std::path::{Path, PathBuf};
-use std::time::Duration;
+use std::path::Path;
 
-pub fn create(
-    name: &str,
-    from: &Option<String>,
-    instance: &Option<String>,
-    silent: &bool,
-) -> error::Result<()> {
-    let mut packs = file::read_all()?;
+const INIT_PATCH_NAME: &str = "init";
 
-    if let Some(_) = check_pack(&packs, name).ok() {
-        return Err(PackError::PackExists
-            .builder()
-            .context("Name", name)
-            .build());
+pub fn create<F, G, H>(
+    connection: &Connection,
+    pack: Pack,
+    from: Option<String>,
+    instance: Option<String>,
+    init_progress: F,
+    tick_progress: G,
+    handle_warnings: H,
+) -> Result<()>
+where
+    F: Fn(u64),
+    G: Fn(&str, &Path),
+    H: FnOnce(Vec<Message>),
+{
+    let name = pack.name.to_owned();
+    let template = pack.template.to_owned();
+
+    if data::exists(connection, &name)? {
+        return Err(Error::Pack(PackError::NameTaken(name)));
     }
 
-    match from {
-        None => {
-            packs.push(Pack::empty(name));
+    if template.is_some() && !template::data::exists(connection, template.as_ref().unwrap())? {
+        return Err(Error::Template(TemplateError::NotFound(name)));
+    }
+
+    data::insert(connection, pack)?;
+
+    if let Some(from) = from {
+        file::check_exists(from.as_ref())?;
+        let mod_paths = file::mod_paths_from_instance_path(from.as_ref())?;
+        init_progress(mod_paths.len() as u64);
+
+        patch::create(connection, INIT_PATCH_NAME, "", &"".digest(), &name)?;
+
+        let mut warnings = vec![];
+        let mut hashes = vec![];
+        for mod_path in mod_paths {
+            let hash = vault::add(connection, &mod_path, false, |warning| {
+                warnings.push(warning)
+            })?;
+            patch::include(connection, INIT_PATCH_NAME, &name, &hash)?;
+
+            tick_progress(&hash, &mod_path);
+            hashes.push(hash);
         }
-        Some(from) => {
-            let mut path = PathBuf::from(from);
-            path.push("mods");
 
-            file::check_exists(&*path)?;
-            let hashes = add_mods_from_dir(&*path, *silent)?;
+        handle_warnings(warnings);
 
-            let state_hash = hashes.join("\n").digest();
-            let patch = Patch::new("init", "", &*state_hash, &hashes, &[]);
-
-            packs.push(Pack::new(name, None, &*vec![patch]));
-
-            if let Some(instance) = instance {
-                let instance_name = match instance.is_empty() {
-                    true => None,
-                    false => Some(instance.to_owned()),
-                };
-
-                instance::func::link::link(&path, &instance_name)?;
+        if let Some(instance) = instance {
+            let instance_name = match instance.is_empty() {
+                true => None,
+                false => Some(instance.to_owned()),
             };
-        }
+
+            instance::link(
+                connection,
+                from.as_ref(),
+                &instance_name,
+                &name,
+                INIT_PATCH_NAME,
+            )?;
+        };
     }
 
-    file::write_all(packs)?;
-    if !silent {
-        StatusOutput::new(State::Success, "Created a new pack")
-            .context("Name", name)
-            .context("From", &*format_string_option(from))
-            .print();
-    }
     Ok(())
-}
-
-pub(crate) fn add_mods_from_dir(path: &Path, silent: bool) -> error::Result<Vec<String>> {
-    let mod_dir_contents = fs::read_dir(&path)?
-        .filter_map(|entry| entry.ok())
-        .map(|entry| entry.path())
-        .collect::<Vec<PathBuf>>();
-
-    let mod_paths = mod_dir_contents
-        .iter()
-        .filter_map(|path| {
-            if path.extension().and_then(|ext| ext.to_str()) != Some("jar") {
-                return None;
-            }
-            Some(path)
-        })
-        .collect::<Vec<&PathBuf>>();
-
-    let hashing_bar = ProgressBar::new(mod_paths.iter().count() as u64);
-    hashing_bar.set_style(ProgressStyle::with_template("{msg}\n{spinner} {wide_bar} {percent:>3} % ({human_pos:>5} / {human_len:5})\nElapsed: {elapsed_precise}\tETA: {eta_precise}")?);
-    hashing_bar.enable_steady_tick(Duration::from_millis(100));
-
-    let mut errors = vec![];
-
-    let hashes = mod_paths
-        .iter()
-        .filter_map(|path| {
-            hashing_bar.inc(1);
-            match vault::func::add::add(&path, &true, &false) {
-                Ok(hash) => {
-                    if !silent {
-                        hashing_bar.set_message(format!(
-                            "File\t'{}'\nHash\t'{}'",
-                            path.display(),
-                            hash
-                        ));
-                    }
-                    Some(hash)
-                }
-                Err(error) => {
-                    errors.push((path, error));
-                    if !silent {
-                        hashing_bar.set_message(format!(
-                            "File\t'{}'\nHash\t'{}'",
-                            path.display(),
-                            "ERROR"
-                        ));
-                    }
-                    None
-                }
-            }
-        })
-        .collect::<Vec<String>>();
-
-    hashing_bar.finish_and_clear();
-
-    if !silent {
-        for (path, error) in &errors {
-            println!("{}\n{}\n", path.display().to_string().purple(), error)
-        }
-
-        let count = errors.iter().count();
-        if count > 0 {
-            println!("Failed to add {} mods", count);
-        }
-    }
-
-    Ok(hashes)
 }

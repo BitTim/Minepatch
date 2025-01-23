@@ -6,8 +6,7 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   15.01.25, 11:27
+ * Modified:   20.01.25, 01:39
  */
-pub mod detect_loader;
+pub mod meta;
 pub mod path;
-pub mod registry;

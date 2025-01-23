@@ -6,72 +6,57 @@
  *
  * File:       remove.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   15.01.25, 14:58
+ * Modified:   23.01.25, 16:49
  */
-
-use crate::util::error::ErrorType;
-use crate::util::output::status::{State, StatusOutput};
-use crate::util::output::Output;
-use crate::util::{error, file};
+use crate::file;
+use crate::prelude::*;
+use crate::vault::data;
 use crate::vault::data::Mod;
 use crate::vault::error::VaultError;
 use crate::vault::func::common::path::get_base_mod_dir_path;
-use crate::vault::func::common::registry::check_entry;
-use inquire::Confirm;
+use rusqlite::Connection;
 use std::fs;
 
-pub fn remove(hash: &Option<String>, all: &bool, yes: &bool, silent: &bool) -> error::Result<()> {
-    let mut registry = file::read_all()?;
-
-    let hashes: Vec<String> = if *all {
-        registry
+pub fn remove<F>(
+    connection: &Connection,
+    hash: Option<&String>,
+    all: bool,
+    yes: bool,
+    confirm: F,
+) -> Result<()>
+where
+    F: Fn(&Mod) -> Result<bool>,
+{
+    let hashes: Vec<String> = if all {
+        data::query(connection, None, None, None)?
             .iter()
             .map(|entry: &Mod| entry.hash.to_owned())
             .collect()
     } else {
         match hash {
             Some(hash) => vec![hash.to_owned()],
-            None => return Err(VaultError::HashNotFound.builder().build()),
+            None => return Err(Error::Vault(VaultError::NotFound("".to_owned()))),
         }
     };
 
     for hash in hashes {
-        let (index, entry) = check_entry(&registry, &hash)?;
-        let (name, path) = (&entry.meta.name.to_owned(), &entry.path.to_owned());
-
-        if !yes && !confirm_remove(entry)? {
-            StatusOutput::new(State::Abort, "Did not remove mod from vault")
-                .context("Name", name)
-                .context("Hash", &hash)
-                .print();
-            continue;
+        let matches = data::query(connection, Some(hash.to_owned()), None, None)?;
+        if matches.is_empty() {
+            return Err(Error::Vault(VaultError::NotFound(hash)));
         }
 
-        file::check_exists(&path)?;
-        fs::remove_file(&path)?;
-        file::remove_empty_dirs(&get_base_mod_dir_path()?)?;
-        registry.swap_remove(index);
+        for entry in matches {
+            if !yes && confirm(&entry)? {
+                continue;
+            }
 
-        if !silent {
-            StatusOutput::new(State::Success, "Removed mod from vault")
-                .context("Name", name)
-                .context("Hash", &hash)
-                .print();
+            file::check_exists(&entry.path)?;
+            fs::remove_file(&entry.path)?;
+            file::remove_empty_dirs(&get_base_mod_dir_path()?)?;
+
+            data::remove(connection, &entry.hash)?;
         }
     }
 
-    file::write_all(registry)?;
     Ok(())
-}
-
-pub(crate) fn confirm_remove(entry: &Mod) -> error::Result<bool> {
-    let ans = Confirm::new(&format!(
-        "Do you really want to remove '{}' ({}, {}) from the vault?",
-        entry.meta.name, entry.meta.version, entry.meta.loader
-    ))
-    .with_default(false)
-    .with_help_message(&format!("Hash: '{}'", &entry.hash))
-    .prompt()?;
-
-    Ok(ans)
 }

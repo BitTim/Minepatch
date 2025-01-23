@@ -6,16 +6,17 @@
  *
  * File:       path.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   16.01.25, 17:32
+ * Modified:   20.01.25, 03:06
  */
 
-use crate::util::file::PathBuilder;
-use crate::util::{error, file};
+use crate::common::file;
+use crate::common::file::PathBuilder;
+use crate::prelude::*;
 use std::fs;
 use std::path::PathBuf;
 
-pub(crate) fn get_base_mod_dir_path() -> error::Result<PathBuf> {
-    let dir = PathBuilder::new(&mut *file::get_data_path()?)
+pub(crate) fn get_base_mod_dir_path() -> Result<PathBuf> {
+    let dir = PathBuilder::new(&file::get_data_path()?)
         .push("mods")
         .build();
 
@@ -23,12 +24,8 @@ pub(crate) fn get_base_mod_dir_path() -> error::Result<PathBuf> {
     Ok(dir)
 }
 
-pub(crate) fn build_mod_dir_path(
-    mod_id: &str,
-    loader: &str,
-    filename: &str,
-) -> error::Result<PathBuf> {
-    let dir = PathBuilder::new(&mut *get_base_mod_dir_path()?)
+pub(crate) fn build_mod_dir_path(mod_id: &str, loader: &str, filename: &str) -> Result<PathBuf> {
+    let dir = PathBuilder::new(&get_base_mod_dir_path()?)
         .push(mod_id)
         .push(loader)
         .build();

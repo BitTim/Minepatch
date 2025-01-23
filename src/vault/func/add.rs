@@ -6,66 +6,53 @@
  *
  * File:       add.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   16.01.25, 18:24
+ * Modified:   23.01.25, 17:57
  */
 
-use crate::util::meta::data::Meta;
-use crate::util::output::status::{State, StatusOutput};
-use crate::util::output::Output;
-use crate::util::{error, file};
+use crate::common::{file, hash};
+use crate::msg::Message;
+use crate::prelude::*;
+use crate::vault::data;
 use crate::vault::data::Mod;
-use crate::vault::func::common::detect_loader::detect_loader;
-use crate::vault::func::common::path::build_mod_dir_path;
-use crate::vault::func::common::registry::check_entry;
+use crate::vault::func::common::meta::{detect_loader, extract_meta};
+use rusqlite::Connection;
 use std::fs;
 use std::path::Path;
 
-pub fn add(path: &Path, silent: &bool, overwrite: &bool) -> error::Result<String> {
-    let mut registry: Vec<Mod> = file::read_all()?;
-
+pub fn add<F>(
+    connection: &Connection,
+    path: &Path,
+    overwrite: bool,
+    handle_warning: F,
+) -> Result<String>
+where
+    F: FnOnce(Message),
+{
     file::check_exists(path)?;
-    let filename = file::filename_from_path(path)?;
-    let hash = file::hash_file(path)?;
-    if let Some((index, entry)) = check_entry(&*registry, &*hash).ok() {
-        if *overwrite {
-            registry.swap_remove(index);
-        } else {
-            if !silent {
-                StatusOutput::new(State::Abort, "Hash is already present in vault, skipping")
-                    .context("File", &*path.display().to_string())
-                    .context("Vault file", &*entry.path.display().to_string())
-                    .context("Hash", &hash)
-                    .print();
-            }
+    let hash = hash::hash_file(path)?;
 
-            return Ok(hash);
-        }
+    if data::exists(connection, &hash)? && !overwrite {
+        handle_warning(
+            Message::new("Mod is already registered in vault")
+                .context("Path", &path.display().to_string())
+                .context("Hash", &hash),
+        );
+        return Ok(hash);
     }
 
-    let result = detect_loader(path, *silent)?;
+    let loader_result = detect_loader(path)?;
+    if loader_result.is_none() {
+        handle_warning(
+            Message::new("No compatible loader detected for the provided file")
+                .context("Path", &path.display().to_string()),
+        )
+    }
 
-    let (meta, mod_file_path) = if let Some((loader, data, extra)) = result {
-        let meta = loader.extract_meta(&*data, &extra)?;
-        let mod_file_path = build_mod_dir_path(&*meta.id, loader.name(), filename)?;
-
-        (meta, mod_file_path)
-    } else {
-        let mod_file_path = build_mod_dir_path("unknown_id", "unknown_loader", filename)?;
-        (Meta::empty(), mod_file_path)
-    };
+    let filename = file::filename_from_path(path)?;
+    let (meta, mod_file_path) = extract_meta(loader_result, filename)?;
 
     fs::copy(path, &mod_file_path)?;
-
-    registry.push(Mod::new(&*hash, &mod_file_path, meta));
-    file::write_all(registry)?;
-
-    if !silent {
-        StatusOutput::new(State::Success, "Registered and moved into vault")
-            .context("File", &*path.display().to_string())
-            .context("Vault file", &*mod_file_path.display().to_string())
-            .context("Hash", &hash)
-            .print();
-    }
+    data::insert(connection, Mod::new(&hash, &mod_file_path, meta))?;
 
     Ok(hash)
 }
