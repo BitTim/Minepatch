@@ -6,7 +6,7 @@
  *
  * File:       remove.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   22.01.25, 17:55
+ * Modified:   23.01.25, 16:49
  */
 use crate::file;
 use crate::prelude::*;
@@ -28,7 +28,7 @@ where
     F: Fn(&Mod) -> Result<bool>,
 {
     let hashes: Vec<String> = if all {
-        data::query(connection, "", "", "")?
+        data::query(connection, None, None, None)?
             .iter()
             .map(|entry: &Mod| entry.hash.to_owned())
             .collect()
@@ -40,7 +40,7 @@ where
     };
 
     for hash in hashes {
-        let matches = data::query(connection, &hash, "", "")?;
+        let matches = data::query(connection, Some(hash.to_owned()), None, None)?;
         if matches.is_empty() {
             return Err(Error::Vault(VaultError::NotFound(hash)));
         }

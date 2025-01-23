@@ -6,12 +6,12 @@
  *
  * File:       include.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   22.01.25, 18:59
+ * Modified:   23.01.25, 16:50
  */
 
 use crate::patch::PatchError;
 use crate::patch_with_mods;
-use crate::patch_with_mods::model::PatchWithMods;
+use crate::patch_with_mods::PatchWithMods;
 use crate::prelude::*;
 use rusqlite::Connection;
 

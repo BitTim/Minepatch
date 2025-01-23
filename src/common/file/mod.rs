@@ -6,19 +6,18 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   22.01.25, 18:05
+ * Modified:   23.01.25, 16:18
  */
 
 use crate::common::file::error::FileError;
 use crate::prelude::*;
 use directories::ProjectDirs;
-use sha256::Sha256Digest;
-use std::io::Read;
 use std::path::{Path, PathBuf};
 use std::{env, fs};
 
 pub mod error;
 mod path_builder;
+
 pub use path_builder::*;
 
 const QUALIFIER: &str = "dev";
@@ -61,15 +60,6 @@ pub(crate) fn _move_file(path: &Path, new_path: &Path) -> Result<()> {
     fs::remove_file(path)?;
 
     Ok(())
-}
-
-pub(crate) fn hash_file(path: &Path) -> Result<String> {
-    let mut file = fs::OpenOptions::new().read(true).open(&path)?;
-
-    let mut data: Vec<u8> = vec![];
-    file.read_to_end(&mut data)?;
-
-    Ok(data.digest())
 }
 
 pub(crate) fn remove_empty_dirs(path: &Path) -> Result<bool> {

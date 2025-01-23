@@ -6,19 +6,20 @@
  *
  * File:       link.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   22.01.25, 19:08
+ * Modified:   23.01.25, 17:57
  */
 use crate::common::file::error::FileError;
 use crate::common::file::filename_from_path;
+use crate::common::hash;
 use crate::instance::{data, Instance, InstanceError};
 use crate::pack::PackError;
 use crate::patch::PatchError;
 use crate::prelude::*;
-use crate::{file, pack, patch};
+use crate::vault::VaultError;
+use crate::{file, pack, patch, vault};
 use rusqlite::Connection;
-use sha256::Sha256Digest;
 use std::fs;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 pub fn link(
     connection: &Connection,
@@ -57,21 +58,55 @@ pub fn link(
 
     data::insert(connection, Instance::new(actual_name, path, pack, patch))?;
 
-    // 1. [x] Query list of mods
-    // 2. [x] Generate state hash
-    // 3. [ ] Simulate patches up until applied
-    // 4. [ ] Generate state hash of simulation
-    // 5. [ ] Check state hash
-    // 6. [ ] Delete mod file
-    // 7. [ ] Create Symlink
-
     let mod_paths = file::mod_paths_from_instance_path(path)?;
-    let mut hashes = vec![];
-    for mod_path in mod_paths {
-        hashes.push(file::hash_file(&mod_path)?);
+    let hashes: Result<Vec<String>> = mod_paths
+        .iter()
+        .map(|mod_path| hash::hash_file(mod_path))
+        .collect();
+
+    let mut hashes = hashes?;
+    hashes.sort();
+    let present_state_hash = hash::hash_state(&hashes);
+
+    let mut simulated_hashes = patch::simulate(connection, patch, pack)?;
+    simulated_hashes.sort();
+    let simulated_state_hash = hash::hash_state(&simulated_hashes);
+
+    if present_state_hash != simulated_state_hash {
+        return Err(Error::Instance(InstanceError::StateMismatch(
+            present_state_hash,
+            simulated_state_hash,
+        )));
     }
 
-    let state_hash = hashes.join("\n").digest();
+    // TODO: Create all symlinks first and only remove all jar files if all symlinks are created
+    for mod_path in mod_paths {
+        let hash = hash::hash_file(&mod_path)?;
+        let mod_entries = vault::query(connection, Some(hash.to_owned()), None, None)?;
+        let mod_entry = mod_entries
+            .first()
+            .ok_or(Error::Vault(VaultError::NotFound(hash)))?;
+
+        if !fs::exists(&mod_entry.path)? {
+            return Err(Error::File(FileError::PathNotFound(
+                mod_entry.path.display().to_string(),
+            )));
+        }
+
+        let tmp_mod_path = PathBuf::from(mod_path.display().to_string() + ".tmp");
+        fs::rename(&mod_path, &tmp_mod_path)?;
+        symlink::symlink_file(&mod_entry.path, &mod_path)?;
+
+        if !fs::exists(&mod_path)? {
+            fs::rename(&tmp_mod_path, &mod_path)?;
+            return Err(Error::Instance(InstanceError::SymlinkFailed(
+                mod_entry.path.display().to_string(),
+                mod_path.display().to_string(),
+            )));
+        }
+
+        fs::remove_file(&tmp_mod_path)?;
+    }
 
     Ok(actual_name.to_owned())
 }

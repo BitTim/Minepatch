@@ -6,7 +6,7 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   22.01.25, 17:00
+ * Modified:   23.01.25, 16:14
  */
 use crate::common::file;
 use crate::common::file::PathBuilder;

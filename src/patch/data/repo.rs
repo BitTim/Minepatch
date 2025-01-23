@@ -6,7 +6,7 @@
  *
  * File:       repo.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   22.01.25, 19:08
+ * Modified:   23.01.25, 17:06
  */
 
 use crate::patch::data::model::Patch;
@@ -33,13 +33,15 @@ pub(crate) fn insert(connection: &Connection, patch: Patch) -> Result<i64> {
 
 pub(crate) fn query(connection: &Connection, name: &str, pack: &str) -> Result<Vec<Patch>> {
     let mut statement = connection.prepare(
-        "SELECT (name, dependency, state_hash, pack) FROM patch WHERE name = ?1 AND pack = ?2",
+        "SELECT name, dependency, state_hash, pack FROM patch WHERE name = ?1 AND pack = ?2",
     )?;
-    let raw_results = statement.query_and_then(params![name, pack], |row| {
-        let dependency: String = row.get(1)?;
-        let state_hash: String = row.get(2)?;
-
-        Ok::<Patch, Error>(Patch::new(name, &dependency, &state_hash, pack))
+    let raw_results = statement.query_map(params![name, pack], |row| {
+        Ok(Patch {
+            name: name.to_owned(),
+            dependency: row.get(1)?,
+            state_hash: row.get(2)?,
+            pack: pack.to_owned(),
+        })
     })?;
 
     let mut results = vec![];

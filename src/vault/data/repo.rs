@@ -6,7 +6,7 @@
  *
  * File:       repo.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.01.25, 16:38
+ * Modified:   23.01.25, 16:53
  */
 use crate::meta::data::Meta;
 use crate::prelude::*;
@@ -42,28 +42,40 @@ pub(crate) fn insert(connection: &Connection, value: Mod) -> Result<i64> {
     ])?)
 }
 
-pub(crate) fn query(connection: &Connection, hash: &str, id: &str, name: &str) -> Result<Vec<Mod>> {
+pub(crate) fn query(
+    connection: &Connection,
+    hash: Option<String>,
+    id: Option<String>,
+    name: Option<String>,
+) -> Result<Vec<Mod>> {
     let mut statement = connection
         .prepare("SELECT * FROM mod WHERE hash LIKE ?1||'%' AND modid LIKE '%'||?2||'%' AND name LIKE '%'||?3||'%'")?;
-    let raw_results = statement.query_and_then(params![hash, id, name], |row| {
-        let path: String = row.get(1)?;
-        let authors: Option<String> = row.get(6)?;
+    let raw_results = statement.query_and_then(
+        params![
+            hash.unwrap_or_default(),
+            id.unwrap_or_default(),
+            name.unwrap_or_default()
+        ],
+        |row| {
+            let path: String = row.get(1)?;
+            let authors: Option<String> = row.get(6)?;
 
-        Ok::<Mod, Error>(Mod {
-            hash: row.get(0)?,
-            path: PathBuf::from(&path),
-            meta: Meta {
-                id: row.get(2)?,
-                name: row.get(3)?,
-                version: row.get(4)?,
-                description: row.get(5)?,
-                authors: authors.map(|authors| from_str(&authors)).transpose()?,
-                loader: row.get(7)?,
-                loader_version: row.get(8)?,
-                minecraft_version: row.get(9)?,
-            },
-        })
-    })?;
+            Ok::<Mod, Error>(Mod {
+                hash: row.get(0)?,
+                path: PathBuf::from(&path),
+                meta: Meta {
+                    id: row.get(2)?,
+                    name: row.get(3)?,
+                    version: row.get(4)?,
+                    description: row.get(5)?,
+                    authors: authors.map(|authors| from_str(&authors)).transpose()?,
+                    loader: row.get(7)?,
+                    loader_version: row.get(8)?,
+                    minecraft_version: row.get(9)?,
+                },
+            })
+        },
+    )?;
 
     let mut results = vec![];
     for result in raw_results {

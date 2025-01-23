@@ -6,10 +6,10 @@
  *
  * File:       add.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   22.01.25, 17:56
+ * Modified:   23.01.25, 17:57
  */
 
-use crate::common::file;
+use crate::common::{file, hash};
 use crate::msg::Message;
 use crate::prelude::*;
 use crate::vault::data;
@@ -29,7 +29,7 @@ where
     F: FnOnce(Message),
 {
     file::check_exists(path)?;
-    let hash = file::hash_file(path)?;
+    let hash = hash::hash_file(path)?;
 
     if data::exists(connection, &hash)? && !overwrite {
         handle_warning(

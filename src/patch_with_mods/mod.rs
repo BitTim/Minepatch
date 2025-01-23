@@ -6,7 +6,7 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   22.01.25, 19:16
+ * Modified:   23.01.25, 16:50
  */
 mod data;
 pub use data::*;

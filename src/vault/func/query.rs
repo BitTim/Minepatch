@@ -6,13 +6,18 @@
  *
  * File:       query.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.01.25, 13:45
+ * Modified:   23.01.25, 16:48
  */
 use crate::prelude::*;
 use crate::vault::data;
 use crate::vault::data::Mod;
 use rusqlite::Connection;
 
-pub fn query(connection: &Connection, hash: &str, id: &str, name: &str) -> Result<Vec<Mod>> {
+pub fn query(
+    connection: &Connection,
+    hash: Option<String>,
+    id: Option<String>,
+    name: Option<String>,
+) -> Result<Vec<Mod>> {
     data::query(connection, hash, id, name)
 }
