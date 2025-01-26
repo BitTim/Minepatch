@@ -6,7 +6,7 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   23.01.25, 16:14
+ * Modified:   25.01.25, 19:52
  */
 use crate::common::file;
 use crate::common::file::PathBuilder;
@@ -58,7 +58,7 @@ fn create_tables(connection: &Connection) -> Result<()> {
         CREATE TABLE IF NOT EXISTS patch (
             name TEXT NOT NULL,
             dependency TEXT,
-            state_hash TEXT NOT NULL,
+            src_dir_hash TEXT NOT NULL,
             pack TEXT NOT NULL,
 
             PRIMARY KEY (name, pack),

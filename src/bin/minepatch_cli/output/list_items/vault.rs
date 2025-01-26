@@ -6,7 +6,7 @@
  *
  * File:       vault.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.01.25, 13:47
+ * Modified:   25.01.25, 19:46
  */
 use crate::output::detailed::{DetailedDisplayObject, Entry};
 use crate::output::{format_bool, format_string_option};
@@ -16,7 +16,7 @@ use std::fs;
 use tabled::Tabled;
 
 #[derive(Debug, Tabled)]
-pub struct ModDisplay {
+pub struct ModListItem {
     #[tabled(rename = "Hash")]
     pub short_hash: String,
     #[tabled(rename = "Mod ID")]
@@ -33,14 +33,14 @@ pub struct ModDisplay {
     pub valid: String,
 }
 
-impl From<&Mod> for ModDisplay {
+impl From<&Mod> for ModListItem {
     fn from(value: &Mod) -> Self {
         let mut short_hash = value.hash.to_owned();
         short_hash.truncate(8);
 
         let valid = fs::exists(&value.path).unwrap_or_default();
 
-        ModDisplay {
+        ModListItem {
             short_hash,
             id: value.meta.id.to_owned(),
             name: value.meta.name.to_owned(),

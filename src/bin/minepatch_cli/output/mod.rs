@@ -6,13 +6,13 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.01.25, 22:20
+ * Modified:   25.01.25, 19:46
  */
 use colored::Colorize;
 use std::fmt::{Debug, Display};
 
 pub(crate) mod detailed;
-pub(crate) mod displays;
+pub(crate) mod list_items;
 pub(crate) mod status;
 pub(crate) mod table;
 

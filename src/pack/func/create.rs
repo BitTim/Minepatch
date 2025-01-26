@@ -6,7 +6,7 @@
  *
  * File:       create.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   22.01.25, 18:06
+ * Modified:   25.01.25, 19:54
  */
 use crate::common::file;
 use crate::msg::Message;
@@ -54,7 +54,7 @@ where
         let mod_paths = file::mod_paths_from_instance_path(from.as_ref())?;
         init_progress(mod_paths.len() as u64);
 
-        patch::create(connection, INIT_PATCH_NAME, "", &"".digest(), &name)?;
+        patch::create(connection, INIT_PATCH_NAME, &name, "", &"".digest())?;
 
         let mut warnings = vec![];
         let mut hashes = vec![];
