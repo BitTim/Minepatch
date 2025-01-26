@@ -6,17 +6,24 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   22.01.25, 02:17
+ * Modified:   26.01.25, 22:18
  */
 mod create;
+mod list;
+
 pub(crate) use create::*;
+pub(crate) use list::*;
 
 use clap::Subcommand;
 
 #[derive(Subcommand, Debug)]
 pub enum PackCommands {
     /// List all mod packs.
-    List,
+    List {
+        /// The name of the mod pack.
+        #[arg(short, long)]
+        name: Option<String>,
+    },
 
     /// Create a new mod pack.
     Create {
