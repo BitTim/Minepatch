@@ -6,26 +6,28 @@
  *
  * File:       validate.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   26.01.25, 02:49
+ * Modified:   26.01.25, 20:59
  */
 use crate::pack::data::query;
 use crate::template;
 use rusqlite::Connection;
 
 pub fn validate(connection: &Connection, name: &str) -> bool {
-    let query_result = query(connection, name);
-    if query_result.is_err() {
-        return false;
-    }
+    let query_result = match query(connection, name) {
+        Ok(result) => result,
+        Err(_) => return false,
+    };
 
-    let query_result = query_result.unwrap();
-    let pack = query_result.first();
-    if pack.is_none() {
-        return false;
-    }
+    let pack = match query_result.first() {
+        Some(pack) => pack,
+        None => return false,
+    };
 
-    let pack = pack.unwrap();
-    match &pack.template {
+    validate_template(connection, &pack.template)
+}
+
+fn validate_template(connection: &Connection, template: &Option<String>) -> bool {
+    match template {
         Some(template) => template::validate(connection, template),
         None => true,
     }

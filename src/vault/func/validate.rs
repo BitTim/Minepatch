@@ -6,28 +6,22 @@
  *
  * File:       validate.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   26.01.25, 17:52
+ * Modified:   26.01.25, 21:00
  */
 use crate::vault::data;
 use rusqlite::Connection;
 use std::fs;
 
 pub fn validate(connection: &Connection, hash: &str) -> bool {
-    let query_result = data::query(connection, Some(hash.to_owned()), None, None);
-    if query_result.is_err() {
-        return false;
-    }
-    let query_result = query_result.unwrap();
+    let query_result = match data::query(connection, Some(hash.to_owned()), None, None) {
+        Ok(result) => result,
+        Err(_) => return false,
+    };
 
-    let value = query_result.first();
-    if value.is_none() {
-        return false;
-    }
-    let value = value.unwrap();
+    let value = match query_result.first() {
+        Some(value) => value,
+        None => return false,
+    };
 
-    let path_valid = fs::exists(&value.path);
-    if path_valid.is_err() {
-        return false;
-    }
-    path_valid.unwrap()
+    fs::exists(&value.path).unwrap_or(false)
 }
