@@ -6,15 +6,15 @@
  *
  * File:       model.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   22.01.25, 15:07
+ * Modified:   26.01.25, 22:11
  */
 use serde::{Deserialize, Serialize};
 
 #[derive(Eq, PartialEq, Debug, Serialize, Deserialize)]
 pub struct Pack {
-    pub(crate) name: String,
-    pub(crate) description: Option<String>,
-    pub(crate) template: Option<String>,
+    pub name: String,
+    pub description: Option<String>,
+    pub template: Option<String>,
 }
 
 impl Pack {
