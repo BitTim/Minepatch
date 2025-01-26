@@ -6,11 +6,11 @@
  *
  * File:       validate.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   26.01.25, 03:13
+ * Modified:   26.01.25, 17:41
  */
-use crate::pack;
 use crate::patch::data::query;
 use crate::patch_with_mods::query_by_patch;
+use crate::{pack, vault};
 use rusqlite::Connection;
 
 pub fn validate(connection: &Connection, name: &str, pack: &str) -> bool {
@@ -26,13 +26,13 @@ pub fn validate(connection: &Connection, name: &str, pack: &str) -> bool {
     }
 
     let patch = patch.unwrap();
-    let pack_valid = pack::validate(connection, pack);
+    if !pack::validate(connection, pack) {
+        return false;
+    }
 
-    let dep_valid = if !patch.dependency.is_empty() {
-        pack_valid && validate(connection, &patch.dependency, pack)
-    } else {
-        true
-    };
+    if !patch.dependency.is_empty() && !validate(connection, &patch.dependency, pack) {
+        return false;
+    }
 
     let mods = query_by_patch(connection, name, pack);
     if mods.is_err() {
@@ -41,7 +41,9 @@ pub fn validate(connection: &Connection, name: &str, pack: &str) -> bool {
 
     let mods = mods.unwrap();
     for value in mods {
-        //TODO: Query and validate mods
+        if !vault::validate(connection, &value.mod_hash) {
+            return false;
+        }
     }
 
     true

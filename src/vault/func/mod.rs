@@ -6,7 +6,7 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.01.25, 13:41
+ * Modified:   26.01.25, 17:37
  */
 mod add;
 pub use add::*;
@@ -15,3 +15,5 @@ mod query;
 pub use query::*;
 mod remove;
 pub use remove::*;
+mod validate;
+pub use validate::*;
