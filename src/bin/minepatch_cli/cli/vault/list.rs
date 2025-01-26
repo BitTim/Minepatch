@@ -6,7 +6,7 @@
  *
  * File:       list.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   26.01.25, 03:14
+ * Modified:   26.01.25, 22:00
  */
 use crate::output::detailed::{DetailedDisplayObject, DetailedOutput};
 use crate::output::list_items::vault::ModListItem;
@@ -29,7 +29,7 @@ pub(crate) fn list(
         true => {
             let displays = results
                 .iter()
-                .map(DetailedDisplayObject::from)
+                .map(|value| DetailedDisplayObject::from_mod(connection, value))
                 .collect::<Vec<DetailedDisplayObject>>();
 
             DetailedOutput::new(displays).print();
@@ -37,7 +37,7 @@ pub(crate) fn list(
         false => {
             let displays = results
                 .iter()
-                .map(ModListItem::from)
+                .map(|value| ModListItem::from(connection, value))
                 .collect::<Vec<ModListItem>>();
 
             TableOutput::new(displays).print();
