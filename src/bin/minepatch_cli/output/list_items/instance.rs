@@ -6,7 +6,7 @@
  *
  * File:       instance.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   22.01.25, 16:48
+ * Modified:   25.01.25, 19:46
  */
 use crate::output::format_bool;
 use minepatch::instance::Instance;
@@ -14,7 +14,7 @@ use std::fs;
 use tabled::Tabled;
 
 #[derive(Debug, Tabled)]
-pub(crate) struct InstanceDisplay {
+pub(crate) struct InstanceListItem {
     #[tabled(rename = "Name")]
     pub(crate) name: String,
     #[tabled(rename = "Path")]
@@ -23,15 +23,11 @@ pub(crate) struct InstanceDisplay {
     pub(crate) valid: String,
 }
 
-impl From<Instance> for InstanceDisplay {
+impl From<Instance> for InstanceListItem {
     fn from(value: Instance) -> Self {
-        let valid = if let Ok(value) = fs::exists(&value.path) {
-            value
-        } else {
-            false
-        };
+        let valid = fs::exists(&value.path).unwrap_or_default();
 
-        InstanceDisplay {
+        InstanceListItem {
             name: value.name.clone(),
             path: value.path.display().to_string(),
             valid: format_bool(&valid),

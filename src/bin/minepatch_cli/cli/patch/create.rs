@@ -6,7 +6,7 @@
  *
  * File:       create.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   22.01.25, 02:30
+ * Modified:   25.01.25, 19:54
  */
 use crate::output::status::{Status, StatusOutput};
 use crate::output::Output;
@@ -17,11 +17,11 @@ use rusqlite::Connection;
 pub(crate) fn create(
     connection: &Connection,
     name: &str,
+    pack: &str,
     dependency: &str,
     state_hash: &str,
-    pack: &str,
 ) -> minepatch::prelude::Result<()> {
-    patch::create(connection, name, dependency, state_hash, pack)?;
+    patch::create(connection, name, pack, dependency, state_hash)?;
 
     StatusOutput::new(
         Status::Success,

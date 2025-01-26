@@ -6,7 +6,7 @@
  *
  * File:       repo.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   22.01.25, 18:00
+ * Modified:   26.01.25, 02:43
  */
 
 use crate::pack::Pack;
@@ -22,4 +22,23 @@ pub(crate) fn insert(connection: &Connection, pack: Pack) -> Result<i64> {
     let mut statement =
         connection.prepare("INSERT INTO pack (name, description, template) VALUES (?1, ?2, ?3)")?;
     Ok(statement.insert(params![pack.name, pack.description, pack.template,])?)
+}
+
+pub(crate) fn query(connection: &Connection, name: &str) -> Result<Vec<Pack>> {
+    let mut statement =
+        connection.prepare("SELECT name, description, template FROM pack WHERE name = ?1")?;
+    let raw_results = statement.query_map(params![name], |row| {
+        Ok(Pack {
+            name: name.to_owned(),
+            description: row.get(1)?,
+            template: row.get(2)?,
+        })
+    })?;
+
+    let mut results = vec![];
+    for result in raw_results {
+        results.push(result?);
+    }
+
+    Ok(results)
 }

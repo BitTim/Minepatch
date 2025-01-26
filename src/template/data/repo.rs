@@ -6,17 +6,18 @@
  *
  * File:       repo.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   22.01.25, 18:00
+ * Modified:   26.01.25, 02:46
  */
+use crate::prelude::*;
 use crate::template::data::model::Template;
 use rusqlite::{params, Connection};
 
-pub(crate) fn exists(connection: &Connection, name: &str) -> crate::prelude::Result<bool> {
+pub(crate) fn exists(connection: &Connection, name: &str) -> Result<bool> {
     let mut statement = connection.prepare("SELECT * FROM template WHERE name = ?1")?;
     Ok(statement.exists(params![name])?)
 }
 
-pub(crate) fn insert(connection: &Connection, template: Template) -> crate::prelude::Result<i64> {
+pub(crate) fn insert(connection: &Connection, template: Template) -> Result<i64> {
     let mut statement = connection.prepare(
         "INSERT INTO template (name, loader, version, download) VALUES (?1, ?2, ?3, ?4)",
     )?;
@@ -27,4 +28,24 @@ pub(crate) fn insert(connection: &Connection, template: Template) -> crate::prel
         template.version,
         template.download,
     ])?)
+}
+
+pub(crate) fn query(connection: &Connection, name: &str) -> Result<Vec<Template>> {
+    let mut statement = connection
+        .prepare("SELECT name, loader, version, download FROM template WHERE name = ?1")?;
+    let raw_results = statement.query_map(params![name], |row| {
+        Ok(Template {
+            name: name.to_owned(),
+            loader: row.get(1)?,
+            version: row.get(2)?,
+            download: row.get(3)?,
+        })
+    })?;
+
+    let mut results = vec![];
+    for result in raw_results {
+        results.push(result?);
+    }
+
+    Ok(results)
 }

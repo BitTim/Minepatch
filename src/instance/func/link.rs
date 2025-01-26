@@ -6,7 +6,7 @@
  *
  * File:       link.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   23.01.25, 17:57
+ * Modified:   26.01.25, 21:26
  */
 use crate::common::file::error::FileError;
 use crate::common::file::filename_from_path;

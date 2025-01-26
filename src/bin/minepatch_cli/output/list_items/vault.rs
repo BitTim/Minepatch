@@ -6,17 +6,18 @@
  *
  * File:       vault.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.01.25, 13:47
+ * Modified:   26.01.25, 22:00
  */
 use crate::output::detailed::{DetailedDisplayObject, Entry};
 use crate::output::{format_bool, format_string_option};
 use colored::Colorize;
+use minepatch::vault;
 use minepatch::vault::Mod;
-use std::fs;
+use rusqlite::Connection;
 use tabled::Tabled;
 
 #[derive(Debug, Tabled)]
-pub struct ModDisplay {
+pub struct ModListItem {
     #[tabled(rename = "Hash")]
     pub short_hash: String,
     #[tabled(rename = "Mod ID")]
@@ -33,14 +34,14 @@ pub struct ModDisplay {
     pub valid: String,
 }
 
-impl From<&Mod> for ModDisplay {
-    fn from(value: &Mod) -> Self {
+impl ModListItem {
+    pub(crate) fn from(connection: &Connection, value: &Mod) -> Self {
         let mut short_hash = value.hash.to_owned();
         short_hash.truncate(8);
 
-        let valid = fs::exists(&value.path).unwrap_or_default();
+        let valid = vault::validate(connection, &value.hash);
 
-        ModDisplay {
+        ModListItem {
             short_hash,
             id: value.meta.id.to_owned(),
             name: value.meta.name.to_owned(),
@@ -52,9 +53,10 @@ impl From<&Mod> for ModDisplay {
     }
 }
 
-impl From<&Mod> for DetailedDisplayObject {
-    fn from(value: &Mod) -> Self {
+impl DetailedDisplayObject {
+    pub(crate) fn from_mod(connection: &Connection, value: &Mod) -> Self {
         let authors = value.meta.authors.as_deref().map(|value| value.join("\n"));
+        let valid = vault::validate(connection, &value.hash);
 
         DetailedDisplayObject::new(
             vec![
@@ -82,6 +84,7 @@ impl From<&Mod> for DetailedDisplayObject {
                     "Description",
                     &format_string_option(&value.meta.description),
                 ),
+                Entry::new("Valid", &format_bool(&valid)),
             ],
         )
     }

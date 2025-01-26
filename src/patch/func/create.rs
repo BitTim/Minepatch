@@ -6,7 +6,7 @@
  *
  * File:       create.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   22.01.25, 16:42
+ * Modified:   25.01.25, 19:53
  */
 use crate::error::Error;
 use crate::pack;
@@ -17,9 +17,9 @@ use rusqlite::Connection;
 pub fn create(
     connection: &Connection,
     name: &str,
+    pack: &str,
     dependency: &str,
     state_hash: &str,
-    pack: &str,
 ) -> crate::prelude::Result<()> {
     if data::exists(connection, name, pack)? {
         return Err(Error::Patch(PatchError::NameExists(
@@ -32,6 +32,6 @@ pub fn create(
         return Err(Error::Pack(PackError::NotFound(pack.to_owned())));
     }
 
-    data::insert(connection, Patch::new(name, dependency, state_hash, pack))?;
+    data::insert(connection, Patch::new(name, pack, dependency, state_hash))?;
     Ok(())
 }
