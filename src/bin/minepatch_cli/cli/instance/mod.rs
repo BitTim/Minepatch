@@ -6,18 +6,25 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   22.01.25, 17:02
+ * Modified:   27.01.25, 10:29
  */
 mod link;
 pub(crate) use link::*;
+mod list;
+pub(crate) use list::*;
 
 use clap::Subcommand;
 use std::path::PathBuf;
 
 #[derive(Debug, Subcommand)]
 pub enum InstanceCommands {
-    // /// List all linked instances
-    // List,
+    /// List all linked instances
+    List {
+        /// Specifies a name to filter for.
+        #[arg(short, long)]
+        name: Option<String>,
+    },
+
     /// Link an instance and assign a unique name
     Link {
         /// The path to the root folder of the instance

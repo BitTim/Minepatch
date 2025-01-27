@@ -6,22 +6,21 @@
  *
  * File:       list.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   27.01.25, 10:17
+ * Modified:   27.01.25, 10:27
  */
-use crate::output::list_items::pack::PackListItem;
+use crate::output::list_items::instance::InstanceListItem;
 use crate::output::table::TableOutput;
 use crate::output::Output;
-use minepatch::pack;
+use minepatch::instance;
 use minepatch::prelude::*;
 use rusqlite::Connection;
 
 pub(crate) fn list(connection: &Connection, name: &Option<String>) -> Result<()> {
-    let results = pack::query(connection, name.to_owned().as_deref())?;
-    let list_items = results
+    let instances = instance::query(connection, name.to_owned().as_deref())?
         .iter()
-        .map(|value| PackListItem::from(connection, value))
-        .collect::<Result<Vec<PackListItem>>>();
+        .map(|instance| InstanceListItem::from(connection, instance))
+        .collect::<Vec<InstanceListItem>>();
 
-    TableOutput::new(list_items?).print();
+    TableOutput::new(instances).print();
     Ok(())
 }

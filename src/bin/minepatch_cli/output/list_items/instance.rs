@@ -6,11 +6,12 @@
  *
  * File:       instance.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   25.01.25, 19:46
+ * Modified:   27.01.25, 10:52
  */
 use crate::output::format_bool;
+use minepatch::instance;
 use minepatch::instance::Instance;
-use std::fs;
+use rusqlite::Connection;
 use tabled::Tabled;
 
 #[derive(Debug, Tabled)]
@@ -19,17 +20,23 @@ pub(crate) struct InstanceListItem {
     pub(crate) name: String,
     #[tabled(rename = "Path")]
     pub(crate) path: String,
+    #[tabled(rename = "Pack")]
+    pub(crate) pack: String,
+    #[tabled(rename = "Patch")]
+    pub(crate) patch: String,
     #[tabled(rename = "Valid")]
     pub(crate) valid: String,
 }
 
-impl From<Instance> for InstanceListItem {
-    fn from(value: Instance) -> Self {
-        let valid = fs::exists(&value.path).unwrap_or_default();
+impl InstanceListItem {
+    pub(crate) fn from(connection: &Connection, instance: &Instance) -> Self {
+        let valid = instance::validate(connection, &instance.name, false);
 
-        InstanceListItem {
-            name: value.name.clone(),
-            path: value.path.display().to_string(),
+        Self {
+            name: instance.name.to_owned(),
+            path: instance.path.display().to_string(),
+            pack: instance.pack.to_owned(),
+            patch: instance.patch.to_owned(),
             valid: format_bool(&valid),
         }
     }

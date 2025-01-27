@@ -6,7 +6,7 @@
  *
  * File:       simulate.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   26.01.25, 02:55
+ * Modified:   27.01.25, 10:13
  */
 
 use crate::patch::{data, PatchError};
@@ -15,7 +15,7 @@ use crate::prelude::*;
 use rusqlite::Connection;
 
 pub fn simulate(connection: &Connection, name: &str, pack: &str) -> Result<Vec<String>> {
-    let results = data::query(connection, Some(name.to_owned()), Some(pack.to_owned()))?;
+    let results = data::query(connection, Some(name), Some(pack))?;
     let patch = results
         .first()
         .ok_or_else(|| Error::Patch(PatchError::NotFound(name.to_owned(), pack.to_owned())))?;

@@ -6,7 +6,7 @@
  *
  * File:       link.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   26.01.25, 21:26
+ * Modified:   27.01.25, 10:52
  */
 use crate::common::file::error::FileError;
 use crate::common::file::filename_from_path;
@@ -45,11 +45,11 @@ pub fn link(
         )));
     }
 
-    if !pack::data::exists(connection, pack)? {
+    if !pack::validate(connection, pack, true) {
         return Err(Error::Pack(PackError::NotFound(pack.to_owned())));
     }
 
-    if !patch::data::exists(connection, patch, pack)? {
+    if !patch::validate(connection, patch, pack, true) {
         return Err(Error::Patch(PatchError::NotFound(
             patch.to_owned(),
             pack.to_owned(),
@@ -82,7 +82,7 @@ pub fn link(
     // TODO: Create all symlinks first and only remove all jar files if all symlinks are created
     for mod_path in mod_paths {
         let hash = hash::hash_file(&mod_path)?;
-        let mod_entries = vault::query(connection, Some(hash.to_owned()), None, None)?;
+        let mod_entries = vault::query(connection, Some(&hash), None, None)?;
         let mod_entry = mod_entries
             .first()
             .ok_or(Error::Vault(VaultError::NotFound(hash)))?;

@@ -6,7 +6,7 @@
  *
  * File:       query.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   26.01.25, 02:53
+ * Modified:   27.01.25, 10:13
  */
 use crate::patch::{data, Patch};
 use crate::prelude::*;
@@ -14,8 +14,8 @@ use rusqlite::Connection;
 
 pub fn query(
     connection: &Connection,
-    name: Option<String>,
-    pack: Option<String>,
+    name: Option<&str>,
+    pack: Option<&str>,
 ) -> Result<Vec<Patch>> {
     data::query(connection, name, pack)
 }

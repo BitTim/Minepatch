@@ -6,7 +6,7 @@
  *
  * File:       remove.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   23.01.25, 16:49
+ * Modified:   27.01.25, 10:15
  */
 use crate::file;
 use crate::prelude::*;
@@ -40,7 +40,7 @@ where
     };
 
     for hash in hashes {
-        let matches = data::query(connection, Some(hash.to_owned()), None, None)?;
+        let matches = data::query(connection, Some(&hash), None, None)?;
         if matches.is_empty() {
             return Err(Error::Vault(VaultError::NotFound(hash)));
         }

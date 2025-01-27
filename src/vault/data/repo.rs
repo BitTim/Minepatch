@@ -6,7 +6,7 @@
  *
  * File:       repo.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   23.01.25, 16:53
+ * Modified:   27.01.25, 10:15
  */
 use crate::meta::data::Meta;
 use crate::prelude::*;
@@ -44,9 +44,9 @@ pub(crate) fn insert(connection: &Connection, value: Mod) -> Result<i64> {
 
 pub(crate) fn query(
     connection: &Connection,
-    hash: Option<String>,
-    id: Option<String>,
-    name: Option<String>,
+    hash: Option<&str>,
+    id: Option<&str>,
+    name: Option<&str>,
 ) -> Result<Vec<Mod>> {
     let mut statement = connection
         .prepare("SELECT * FROM mod WHERE hash LIKE ?1||'%' AND modid LIKE '%'||?2||'%' AND name LIKE '%'||?3||'%'")?;
