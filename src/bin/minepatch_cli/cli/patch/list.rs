@@ -6,7 +6,7 @@
  *
  * File:       list.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   26.01.25, 03:01
+ * Modified:   27.01.25, 10:17
  */
 use crate::output::list_items::patch::PatchListItem;
 use crate::output::table::TableOutput;
@@ -20,7 +20,11 @@ pub(crate) fn list(
     name: &Option<String>,
     pack: &Option<String>,
 ) -> Result<()> {
-    let results = query(connection, name.to_owned(), pack.to_owned())?;
+    let results = query(
+        connection,
+        name.to_owned().as_deref(),
+        pack.to_owned().as_deref(),
+    )?;
     let displays = results
         .iter()
         .map(|value| PatchListItem::from(connection, value))

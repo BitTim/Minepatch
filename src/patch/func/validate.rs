@@ -6,7 +6,7 @@
  *
  * File:       validate.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   26.01.25, 20:55
+ * Modified:   27.01.25, 10:50
  */
 use crate::patch::data::query;
 use crate::patch::Patch;
@@ -14,8 +14,8 @@ use crate::patch_with_mods::query_by_patch;
 use crate::{pack, vault};
 use rusqlite::Connection;
 
-pub fn validate(connection: &Connection, name: &str, pack: &str) -> bool {
-    let query_result = match query(connection, Some(name.to_owned()), Some(pack.to_owned())) {
+pub fn validate(connection: &Connection, name: &str, pack: &str, exist_only: bool) -> bool {
+    let query_result = match query(connection, Some(name), Some(pack)) {
         Ok(result) => result,
         Err(_) => return false,
     };
@@ -25,8 +25,12 @@ pub fn validate(connection: &Connection, name: &str, pack: &str) -> bool {
         None => return false,
     };
 
-    if !pack::validate(connection, pack)
-        || !validate_patch_dependency(connection, patch)
+    if exist_only {
+        return true;
+    }
+
+    if !pack::validate(connection, pack, true)
+        || validate_patch_dependency(connection, patch)
         || !validate_mods(connection, name, pack)
     {
         return false;
@@ -37,7 +41,7 @@ pub fn validate(connection: &Connection, name: &str, pack: &str) -> bool {
 
 fn validate_patch_dependency(connection: &Connection, patch: &Patch) -> bool {
     if !patch.dependency.is_empty() {
-        return validate(connection, &patch.dependency, &patch.pack);
+        return validate(connection, &patch.dependency, &patch.pack, false);
     }
     true
 }

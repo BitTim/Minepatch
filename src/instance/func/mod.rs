@@ -6,7 +6,11 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   22.01.25, 16:59
+ * Modified:   27.01.25, 10:25
  */
 mod link;
 pub use link::*;
+mod query;
+pub use query::*;
+mod validate;
+pub use validate::*;

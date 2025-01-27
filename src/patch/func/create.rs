@@ -6,7 +6,7 @@
  *
  * File:       create.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   25.01.25, 19:53
+ * Modified:   27.01.25, 10:51
  */
 use crate::error::Error;
 use crate::pack;
@@ -28,7 +28,7 @@ pub fn create(
         )));
     }
 
-    if !pack::data::exists(connection, pack)? {
+    if !pack::validate(connection, pack, true) {
         return Err(Error::Pack(PackError::NotFound(pack.to_owned())));
     }
 

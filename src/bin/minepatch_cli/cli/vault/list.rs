@@ -6,7 +6,7 @@
  *
  * File:       list.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   26.01.25, 22:00
+ * Modified:   27.01.25, 10:17
  */
 use crate::output::detailed::{DetailedDisplayObject, DetailedOutput};
 use crate::output::list_items::vault::ModListItem;
@@ -23,7 +23,12 @@ pub(crate) fn list(
     id: &Option<String>,
     name: &Option<String>,
 ) -> Result<()> {
-    let results = query(connection, hash.to_owned(), id.to_owned(), name.to_owned())?;
+    let results = query(
+        connection,
+        hash.to_owned().as_deref(),
+        id.to_owned().as_deref(),
+        name.to_owned().as_deref(),
+    )?;
 
     match *detailed {
         true => {

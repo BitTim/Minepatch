@@ -6,7 +6,7 @@
  *
  * File:       repo.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   26.01.25, 03:09
+ * Modified:   27.01.25, 10:13
  */
 
 use crate::patch::data::model::Patch;
@@ -33,8 +33,8 @@ pub(crate) fn insert(connection: &Connection, patch: Patch) -> Result<i64> {
 
 pub(crate) fn query(
     connection: &Connection,
-    name: Option<String>,
-    pack: Option<String>,
+    name: Option<&str>,
+    pack: Option<&str>,
 ) -> Result<Vec<Patch>> {
     let mut statement = connection.prepare(
         "SELECT name, dependency, src_dir_hash, pack FROM patch WHERE name LIKE ?1||'%' AND pack LIKE ?2||'%'",

@@ -6,7 +6,7 @@
  *
  * File:       repo.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   26.01.25, 22:17
+ * Modified:   27.01.25, 10:12
  */
 
 use crate::pack::Pack;
@@ -24,7 +24,7 @@ pub(crate) fn insert(connection: &Connection, pack: Pack) -> Result<i64> {
     Ok(statement.insert(params![pack.name, pack.description, pack.template,])?)
 }
 
-pub(crate) fn query(connection: &Connection, name: Option<String>) -> Result<Vec<Pack>> {
+pub(crate) fn query(connection: &Connection, name: Option<&str>) -> Result<Vec<Pack>> {
     let mut statement = connection
         .prepare("SELECT name, description, template FROM pack WHERE name LIKE ?1||'%'")?;
     let raw_results = statement.query_map(params![name.unwrap_or_default()], |row| {

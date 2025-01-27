@@ -6,9 +6,9 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   22.01.25, 16:41
+ * Modified:   27.01.25, 10:53
  */
-pub(crate) mod data;
+pub(super) mod data;
 pub use data::Pack;
 mod error;
 pub use error::*;
