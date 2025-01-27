@@ -6,7 +6,7 @@
  *
  * File:       remove.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   27.01.25, 10:15
+ * Modified:   27.01.25, 11:33
  */
 use crate::file;
 use crate::prelude::*;
@@ -17,18 +17,20 @@ use crate::vault::func::common::path::get_base_mod_dir_path;
 use rusqlite::Connection;
 use std::fs;
 
-pub fn remove<F>(
+pub fn remove<F, G>(
     connection: &Connection,
     hash: Option<&String>,
     all: bool,
     yes: bool,
     confirm: F,
+    resolve: G,
 ) -> Result<()>
 where
     F: Fn(&Mod) -> Result<bool>,
+    G: Fn(&[Mod]) -> Result<&Mod>,
 {
     let hashes: Vec<String> = if all {
-        data::query(connection, None, None, None)?
+        data::query_filtered(connection, None, None, None)?
             .iter()
             .map(|entry: &Mod| entry.hash.to_owned())
             .collect()
@@ -40,22 +42,21 @@ where
     };
 
     for hash in hashes {
-        let matches = data::query(connection, Some(&hash), None, None)?;
+        let matches = data::query_filtered(connection, Some(&hash), None, None)?;
         if matches.is_empty() {
             return Err(Error::Vault(VaultError::NotFound(hash)));
         }
 
-        for entry in matches {
-            if !yes && confirm(&entry)? {
-                continue;
-            }
-
-            file::check_exists(&entry.path)?;
-            fs::remove_file(&entry.path)?;
-            file::remove_empty_dirs(&get_base_mod_dir_path()?)?;
-
-            data::remove(connection, &entry.hash)?;
+        let value = resolve(&matches)?;
+        if !yes && confirm(value)? {
+            continue;
         }
+
+        file::check_exists(&value.path)?;
+        fs::remove_file(&value.path)?;
+        file::remove_empty_dirs(&get_base_mod_dir_path()?)?;
+
+        data::remove(connection, &value.hash)?;
     }
 
     Ok(())

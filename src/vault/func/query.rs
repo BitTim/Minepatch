@@ -6,7 +6,7 @@
  *
  * File:       query.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   27.01.25, 10:15
+ * Modified:   27.01.25, 11:41
  */
 use crate::prelude::*;
 use crate::vault::data;
@@ -19,5 +19,5 @@ pub fn query(
     id: Option<&str>,
     name: Option<&str>,
 ) -> Result<Vec<Mod>> {
-    data::query(connection, hash, id, name)
+    data::query_filtered(connection, hash, id, name)
 }

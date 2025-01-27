@@ -6,14 +6,14 @@
  *
  * File:       validate.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   27.01.25, 10:15
+ * Modified:   27.01.25, 11:41
  */
 use crate::vault::data;
 use rusqlite::Connection;
 use std::fs;
 
 pub fn validate(connection: &Connection, hash: &str) -> bool {
-    let query_result = match data::query(connection, Some(hash), None, None) {
+    let query_result = match data::query_filtered(connection, Some(hash), None, None) {
         Ok(result) => result,
         Err(_) => return false,
     };

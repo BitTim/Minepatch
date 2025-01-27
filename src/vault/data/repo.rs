@@ -6,7 +6,7 @@
  *
  * File:       repo.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   27.01.25, 10:15
+ * Modified:   27.01.25, 11:41
  */
 use crate::meta::data::Meta;
 use crate::prelude::*;
@@ -42,7 +42,7 @@ pub(crate) fn insert(connection: &Connection, value: Mod) -> Result<i64> {
     ])?)
 }
 
-pub(crate) fn query(
+pub(crate) fn query_filtered(
     connection: &Connection,
     hash: Option<&str>,
     id: Option<&str>,

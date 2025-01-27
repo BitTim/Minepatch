@@ -6,7 +6,7 @@
  *
  * File:       vault.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   26.01.25, 22:00
+ * Modified:   27.01.25, 11:39
  */
 use crate::output::detailed::{DetailedDisplayObject, Entry};
 use crate::output::{format_bool, format_string_option};
@@ -14,10 +14,13 @@ use colored::Colorize;
 use minepatch::vault;
 use minepatch::vault::Mod;
 use rusqlite::Connection;
+use std::fmt::{Display, Formatter};
 use tabled::Tabled;
 
 #[derive(Debug, Tabled)]
 pub struct ModListItem {
+    #[tabled(skip)]
+    pub hash: String,
     #[tabled(rename = "Hash")]
     pub short_hash: String,
     #[tabled(rename = "Mod ID")]
@@ -34,6 +37,16 @@ pub struct ModListItem {
     pub valid: String,
 }
 
+impl Display for ModListItem {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{} [{}, {}] ({} | {}, {})",
+            self.name, self.short_hash, self.id, self.version, self.loader, self.mc_version
+        )
+    }
+}
+
 impl ModListItem {
     pub(crate) fn from(connection: &Connection, value: &Mod) -> Self {
         let mut short_hash = value.hash.to_owned();
@@ -42,6 +55,7 @@ impl ModListItem {
         let valid = vault::validate(connection, &value.hash);
 
         ModListItem {
+            hash: value.hash.to_owned(),
             short_hash,
             id: value.meta.id.to_owned(),
             name: value.meta.name.to_owned(),
