@@ -6,7 +6,7 @@
  *
  * File:       repo.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   26.01.25, 02:46
+ * Modified:   27.01.25, 10:04
  */
 use crate::prelude::*;
 use crate::template::data::model::Template;
@@ -30,12 +30,12 @@ pub(crate) fn insert(connection: &Connection, template: Template) -> Result<i64>
     ])?)
 }
 
-pub(crate) fn query(connection: &Connection, name: &str) -> Result<Vec<Template>> {
+pub(crate) fn query(connection: &Connection, name: Option<&str>) -> Result<Vec<Template>> {
     let mut statement = connection
-        .prepare("SELECT name, loader, version, download FROM template WHERE name = ?1")?;
-    let raw_results = statement.query_map(params![name], |row| {
+        .prepare("SELECT name, loader, version, download FROM template WHERE name LIKE ?1||'%'")?;
+    let raw_results = statement.query_map(params![name.unwrap_or_default()], |row| {
         Ok(Template {
-            name: name.to_owned(),
+            name: row.get(0)?,
             loader: row.get(1)?,
             version: row.get(2)?,
             download: row.get(3)?,

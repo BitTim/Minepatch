@@ -6,7 +6,7 @@
  *
  * File:       main.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   26.01.25, 22:18
+ * Modified:   27.01.25, 09:59
  */
 use crate::cli::instance::InstanceCommands;
 use crate::cli::pack::PackCommands;
@@ -76,6 +76,7 @@ fn match_command(command: &Commands, connection: &Connection) -> Result<()> {
                 loader,
                 download,
             } => template::create(connection, name, version, loader, download)?,
+            TemplateCommands::List { name } => template::list(connection, name)?,
         },
         Commands::Patch {
             patch_commands: patch_command,

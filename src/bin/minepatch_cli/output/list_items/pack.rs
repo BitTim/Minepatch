@@ -6,7 +6,7 @@
  *
  * File:       pack.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   26.01.25, 22:13
+ * Modified:   27.01.25, 09:52
  */
 use crate::output::{format_bool, format_string_option};
 use minepatch::pack;
@@ -28,7 +28,7 @@ pub struct PackListItem {
 }
 
 impl PackListItem {
-    pub fn from(connection: &Connection, value: &Pack) -> Result<Self> {
+    pub(crate) fn from(connection: &Connection, value: &Pack) -> Result<Self> {
         let valid = pack::validate(connection, &value.name);
 
         Ok(PackListItem {
