@@ -6,16 +6,19 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.01.25, 16:56
+ * Modified:   27.01.25, 10:05
  */
 mod create;
 pub(crate) use create::*;
+
+mod list;
+pub(crate) use list::*;
 
 use clap::Subcommand;
 
 #[derive(Subcommand, Debug)]
 pub enum TemplateCommands {
-    /// Creates a new template to be used with packs
+    /// Creates a new template to be used with packs.
     Create {
         /// Name of the template. Must be unique.
         name: String,
@@ -31,5 +34,12 @@ pub enum TemplateCommands {
         /// A download link where the template can be downloaded from.
         #[arg(short, long)]
         download: Option<String>,
+    },
+
+    /// List all templates.
+    List {
+        /// Name of the template. Must be unique.
+        #[arg(short, long)]
+        name: Option<String>,
     },
 }

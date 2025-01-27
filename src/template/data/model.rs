@@ -6,16 +6,16 @@
  *
  * File:       model.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.01.25, 16:47
+ * Modified:   27.01.25, 09:54
  */
 use serde::{Deserialize, Serialize};
 
 #[derive(Eq, PartialEq, Debug, Clone, Serialize, Deserialize)]
 pub struct Template {
-    pub(crate) name: String,
-    pub(crate) version: Option<String>,
-    pub(crate) loader: Option<String>,
-    pub(crate) download: Option<String>,
+    pub name: String,
+    pub version: Option<String>,
+    pub loader: Option<String>,
+    pub download: Option<String>,
 }
 
 impl Template {

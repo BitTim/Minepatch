@@ -6,7 +6,7 @@
  *
  * File:       create.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   25.01.25, 19:54
+ * Modified:   27.01.25, 09:45
  */
 use crate::common::file;
 use crate::msg::Message;
@@ -43,7 +43,7 @@ where
         return Err(Error::Pack(PackError::NameTaken(name)));
     }
 
-    if template.is_some() && !template::data::exists(connection, template.as_ref().unwrap())? {
+    if template.is_some() && !template::validate(connection, template.as_ref().unwrap()) {
         return Err(Error::Template(TemplateError::NotFound(name)));
     }
 
