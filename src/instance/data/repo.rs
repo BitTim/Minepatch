@@ -6,9 +6,10 @@
  *
  * File:       repo.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   27.01.25, 10:10
+ * Modified:   01.02.25, 16:57
  */
 use crate::instance::data::Instance;
+use crate::instance::InstanceError;
 use crate::prelude::*;
 use rusqlite::{params, Connection};
 use std::path::PathBuf;
@@ -29,7 +30,7 @@ pub(crate) fn insert(connection: &Connection, instance: Instance) -> Result<i64>
     ])?)
 }
 
-pub(crate) fn query(connection: &Connection, name: Option<&str>) -> Result<Vec<Instance>> {
+pub(crate) fn query_filtered(connection: &Connection, name: Option<&str>) -> Result<Vec<Instance>> {
     let mut statement = connection
         .prepare("SELECT name, path, pack, patch FROM instance WHERE name LIKE ?1||'%'")?;
     let raw_results = statement.query_map(params![name.unwrap_or_default()], |row| {
@@ -50,4 +51,24 @@ pub(crate) fn query(connection: &Connection, name: Option<&str>) -> Result<Vec<I
     }
 
     Ok(results)
+}
+
+pub(crate) fn query_exact(connection: &Connection, name: &str) -> Result<Instance> {
+    let mut statement = connection
+        .prepare_cached("SELECT name, path, pack, patch FROM instance WHERE name = ?1")?; // TODO: Put queries into enums
+    let raw_results = statement.query_map(params![name], |row| Ok(Instance::from_row(row)))?;
+
+    // TODO: Refactor
+    let mut results = vec![];
+    for result in raw_results {
+        let result = result?;
+        results.push(result?);
+    }
+
+    Ok(results
+        .first()
+        .ok_or(Error::Instance(InstanceError::NameNotFound(
+            name.to_owned(),
+        )))?
+        .clone())
 }
