@@ -6,7 +6,7 @@
  *
  * File:       query.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   02.02.25, 19:32
+ * Modified:   02.02.25, 19:40
  */
 use crate::common::Query;
 use crate::instance::InstanceError;
@@ -14,17 +14,30 @@ use crate::prelude::Error;
 use rusqlite::ToSql;
 
 pub(crate) enum InstanceQuery {
-    GeneralFilter { name: String },
-    ByName { name: String },
+    Insert {
+        name: String,
+        path: String,
+        pack: String,
+        patch: String,
+    },
+    QuerySimilarName {
+        name: String,
+    },
+    QueryExactName {
+        name: String,
+    },
 }
 
 impl Query for InstanceQuery {
     fn value(&self) -> String {
         match self {
-            InstanceQuery::GeneralFilter { .. } => {
+            InstanceQuery::Insert { .. } => {
+                "INSERT INTO instance (name, path, pack, patch) VALUES (?1, ?2, ?3, ?4)"
+            }
+            InstanceQuery::QuerySimilarName { .. } => {
                 "SELECT name, path, pack, patch FROM instance WHERE name LIKE ?1||'%'"
             }
-            InstanceQuery::ByName { .. } => {
+            InstanceQuery::QueryExactName { .. } => {
                 "SELECT name, path, pack, patch FROM instance WHERE name = ?1"
             }
         }
@@ -33,17 +46,31 @@ impl Query for InstanceQuery {
 
     fn params(&self) -> Vec<&(dyn ToSql + '_)> {
         match self {
-            InstanceQuery::GeneralFilter { name } => vec![name as &(dyn ToSql + '_)],
-            InstanceQuery::ByName { name } => vec![name as &(dyn ToSql + '_)],
+            InstanceQuery::Insert {
+                name,
+                path,
+                patch,
+                pack,
+            } => vec![
+                name as &(dyn ToSql + '_),
+                path as &(dyn ToSql + '_),
+                patch as &(dyn ToSql + '_),
+                pack as &(dyn ToSql + '_),
+            ],
+            InstanceQuery::QuerySimilarName { name } => vec![name as &(dyn ToSql + '_)],
+            InstanceQuery::QueryExactName { name } => vec![name as &(dyn ToSql + '_)],
         }
     }
 
     fn error(&self) -> Error {
         match self {
-            InstanceQuery::GeneralFilter { name } => {
+            InstanceQuery::Insert { name, .. } => {
+                Error::Instance(InstanceError::NameTaken(name.to_owned()))
+            }
+            InstanceQuery::QuerySimilarName { name } => {
                 Error::Instance(InstanceError::NameNotFound(name.to_owned()))
             }
-            InstanceQuery::ByName { name } => {
+            InstanceQuery::QueryExactName { name } => {
                 Error::Instance(InstanceError::NameNotFound(name.to_owned()))
             }
         }
