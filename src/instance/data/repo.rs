@@ -6,12 +6,13 @@
  *
  * File:       repo.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   01.02.25, 16:57
+ * Modified:   02.02.25, 01:24
  */
+use crate::instance::data::queries::InstanceQuery;
 use crate::instance::data::Instance;
 use crate::instance::InstanceError;
 use crate::prelude::*;
-use rusqlite::{params, Connection};
+use rusqlite::{params, params_from_iter, Connection};
 use std::path::PathBuf;
 
 pub(crate) fn exists(connection: &Connection, name: &str) -> Result<bool> {
@@ -30,9 +31,31 @@ pub(crate) fn insert(connection: &Connection, instance: Instance) -> Result<i64>
     ])?)
 }
 
+pub(crate) fn query_single(
+    connection: &Connection,
+    query: InstanceQuery,
+    params: Vec<String>,
+) -> Result<Instance> {
+    let mut statement = connection.prepare(&query.value())?;
+    let raw_results =
+        statement.query_map(params_from_iter(params), |row| Ok(Instance::from_row(row)))?;
+
+    // TODO: Refactor
+    let mut results = vec![];
+    for result in raw_results {
+        let result = result?;
+        results.push(result?);
+    }
+
+    // TODO: Find better error type
+    Ok(results
+        .first()
+        .ok_or(Error::Instance(InstanceError::NameNotFound("".to_owned())))?
+        .clone())
+}
+
 pub(crate) fn query_filtered(connection: &Connection, name: Option<&str>) -> Result<Vec<Instance>> {
-    let mut statement = connection
-        .prepare("SELECT name, path, pack, patch FROM instance WHERE name LIKE ?1||'%'")?;
+    let mut statement = connection.prepare(&InstanceQuery::GeneralFilter.value())?;
     let raw_results = statement.query_map(params![name.unwrap_or_default()], |row| {
         let path: String = row.get(1)?;
         let path = PathBuf::from(path);
@@ -54,8 +77,7 @@ pub(crate) fn query_filtered(connection: &Connection, name: Option<&str>) -> Res
 }
 
 pub(crate) fn query_exact(connection: &Connection, name: &str) -> Result<Instance> {
-    let mut statement = connection
-        .prepare_cached("SELECT name, path, pack, patch FROM instance WHERE name = ?1")?; // TODO: Put queries into enums
+    let mut statement = connection.prepare_cached(&InstanceQuery::ByName.value())?; // TODO: Put queries into enums
     let raw_results = statement.query_map(params![name], |row| Ok(Instance::from_row(row)))?;
 
     // TODO: Refactor
