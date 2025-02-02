@@ -6,14 +6,13 @@
  *
  * File:       repo.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   02.02.25, 01:24
+ * Modified:   02.02.25, 19:25
  */
-use crate::instance::data::queries::InstanceQuery;
+use crate::common::Query;
+use crate::instance::data::query::InstanceQuery;
 use crate::instance::data::Instance;
-use crate::instance::InstanceError;
 use crate::prelude::*;
 use rusqlite::{params, params_from_iter, Connection};
-use std::path::PathBuf;
 
 pub(crate) fn exists(connection: &Connection, name: &str) -> Result<bool> {
     let mut statement = connection.prepare("SELECT * FROM instance WHERE name = ?1")?;
@@ -31,66 +30,30 @@ pub(crate) fn insert(connection: &Connection, instance: Instance) -> Result<i64>
     ])?)
 }
 
-pub(crate) fn query_single(
-    connection: &Connection,
-    query: InstanceQuery,
-    params: Vec<String>,
-) -> Result<Instance> {
+pub(crate) fn query_single(connection: &Connection, query: InstanceQuery) -> Result<Instance> {
     let mut statement = connection.prepare(&query.value())?;
-    let raw_results =
-        statement.query_map(params_from_iter(params), |row| Ok(Instance::from_row(row)))?;
+    let result = statement
+        .query_row(params_from_iter(query.params()), |row| {
+            Ok(Instance::from_row(row))
+        })?
+        .map_err(|_| query.error());
 
-    // TODO: Refactor
-    let mut results = vec![];
-    for result in raw_results {
-        let result = result?;
-        results.push(result?);
-    }
-
-    // TODO: Find better error type
-    Ok(results
-        .first()
-        .ok_or(Error::Instance(InstanceError::NameNotFound("".to_owned())))?
-        .clone())
+    Ok(result?.clone())
 }
 
-pub(crate) fn query_filtered(connection: &Connection, name: Option<&str>) -> Result<Vec<Instance>> {
-    let mut statement = connection.prepare(&InstanceQuery::GeneralFilter.value())?;
-    let raw_results = statement.query_map(params![name.unwrap_or_default()], |row| {
-        let path: String = row.get(1)?;
-        let path = PathBuf::from(path);
-
-        Ok(Instance {
-            name: row.get(0)?,
-            path,
-            pack: row.get(2)?,
-            patch: row.get(3)?,
-        })
+pub(crate) fn query_multiple(
+    connection: &Connection,
+    query: InstanceQuery,
+) -> Result<Vec<Instance>> {
+    let mut statement = connection.prepare(&query.value())?;
+    let raw_results = statement.query_map(params_from_iter(query.params()), |row| {
+        Ok(Instance::from_row(row))
     })?;
 
     let mut results = vec![];
     for result in raw_results {
-        results.push(result?);
+        results.push(result??);
     }
 
     Ok(results)
-}
-
-pub(crate) fn query_exact(connection: &Connection, name: &str) -> Result<Instance> {
-    let mut statement = connection.prepare_cached(&InstanceQuery::ByName.value())?; // TODO: Put queries into enums
-    let raw_results = statement.query_map(params![name], |row| Ok(Instance::from_row(row)))?;
-
-    // TODO: Refactor
-    let mut results = vec![];
-    for result in raw_results {
-        let result = result?;
-        results.push(result?);
-    }
-
-    Ok(results
-        .first()
-        .ok_or(Error::Instance(InstanceError::NameNotFound(
-            name.to_owned(),
-        )))?
-        .clone())
 }

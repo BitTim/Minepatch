@@ -6,7 +6,7 @@
  *
  * File:       model.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   31.01.25, 02:57
+ * Modified:   02.02.25, 17:59
  */
 
 use crate::prelude::*;
@@ -36,7 +36,7 @@ impl Instance {
         let path: String = value.get(1)?;
         let path = PathBuf::from(path);
 
-        Ok::<Instance, Error>(Instance {
+        Ok(Instance {
             name: value.get(0)?,
             path,
             pack: value.get(2)?,

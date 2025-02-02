@@ -6,12 +6,16 @@
  *
  * File:       query.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   31.01.25, 02:37
+ * Modified:   02.02.25, 18:08
  */
+use crate::instance::data::InstanceQuery;
 use crate::instance::{data, Instance};
 use crate::prelude::*;
 use rusqlite::Connection;
 
 pub fn query(connection: &Connection, name: Option<&str>) -> Result<Vec<Instance>> {
-    data::query_filtered(connection, name)
+    let query = InstanceQuery::GeneralFilter {
+        name: name.unwrap_or_default().to_owned(),
+    };
+    data::query_multiple(connection, query)
 }

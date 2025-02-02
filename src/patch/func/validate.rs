@@ -6,7 +6,7 @@
  *
  * File:       validate.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   27.01.25, 10:50
+ * Modified:   02.02.25, 19:29
  */
 use crate::patch::data::query;
 use crate::patch::Patch;
@@ -30,7 +30,7 @@ pub fn validate(connection: &Connection, name: &str, pack: &str, exist_only: boo
     }
 
     if !pack::validate(connection, pack, true)
-        || validate_patch_dependency(connection, patch)
+        || !validate_patch_dependency(connection, patch)
         || !validate_mods(connection, name, pack)
     {
         return false;
