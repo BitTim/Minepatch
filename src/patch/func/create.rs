@@ -6,12 +6,14 @@
  *
  * File:       create.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   27.01.25, 10:51
+ * Modified:   04.02.25, 22:10
  */
+use crate::common::Repo;
 use crate::error::Error;
 use crate::pack;
 use crate::pack::PackError;
-use crate::patch::{data, Patch, PatchError};
+use crate::patch::data::{PatchQueries, PatchRepo};
+use crate::patch::{Patch, PatchError};
 use rusqlite::Connection;
 
 pub fn create(
@@ -21,7 +23,11 @@ pub fn create(
     dependency: &str,
     state_hash: &str,
 ) -> crate::prelude::Result<()> {
-    if data::exists(connection, name, pack)? {
+    let exists_query = PatchQueries::QueryNameAndPackExact {
+        name: name.to_owned(),
+        pack: pack.to_owned(),
+    };
+    if PatchRepo::exists(connection, &exists_query)? {
         return Err(Error::Patch(PatchError::NameExists(
             name.to_owned(),
             pack.to_owned(),
@@ -32,6 +38,6 @@ pub fn create(
         return Err(Error::Pack(PackError::NotFound(pack.to_owned())));
     }
 
-    data::insert(connection, Patch::new(name, pack, dependency, state_hash))?;
+    PatchRepo::insert(connection, Patch::new(name, pack, dependency, state_hash))?;
     Ok(())
 }

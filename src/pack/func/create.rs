@@ -6,12 +6,11 @@
  *
  * File:       create.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   27.01.25, 09:45
+ * Modified:   04.02.25, 22:13
  */
-use crate::common::file;
+use crate::common::{file, Repo};
 use crate::msg::Message;
-use crate::pack::data;
-use crate::pack::data::Pack;
+use crate::pack::data::{Pack, PackQueries, PackRepo};
 use crate::pack::error::PackError;
 use crate::prelude::*;
 use crate::template::TemplateError;
@@ -38,8 +37,11 @@ where
 {
     let name = pack.name.to_owned();
     let template = pack.template.to_owned();
+    let exists_query = PackQueries::QueryExactName {
+        name: name.to_owned(),
+    };
 
-    if data::exists(connection, &name)? {
+    if PackRepo::exists(connection, &exists_query)? {
         return Err(Error::Pack(PackError::NameTaken(name)));
     }
 
@@ -47,7 +49,7 @@ where
         return Err(Error::Template(TemplateError::NotFound(name)));
     }
 
-    data::insert(connection, pack)?;
+    PackRepo::insert(connection, pack)?;
 
     if let Some(from) = from {
         file::check_exists(from.as_ref())?;

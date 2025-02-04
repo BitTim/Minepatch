@@ -6,21 +6,21 @@
  *
  * File:       validate.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   27.01.25, 10:51
+ * Modified:   04.02.25, 22:14
  */
-use crate::pack::data::query;
+use crate::common::Repo;
+use crate::pack::data::{PackQueries, PackRepo};
 use crate::{patch, template};
 use rusqlite::Connection;
 
 pub fn validate(connection: &Connection, name: &str, exist_only: bool) -> bool {
-    let query_result = match query(connection, Some(name)) {
-        Ok(result) => result,
-        Err(_) => return false,
+    let query = PackQueries::QueryExactName {
+        name: name.to_owned(),
     };
 
-    let pack = match query_result.first() {
-        Some(pack) => pack,
-        None => return false,
+    let pack = match PackRepo::query_single(connection, &query) {
+        Ok(result) => result,
+        Err(_) => return false,
     };
 
     if exist_only {

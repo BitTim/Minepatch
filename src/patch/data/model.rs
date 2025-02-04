@@ -6,8 +6,11 @@
  *
  * File:       model.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   25.01.25, 19:59
+ * Modified:   04.02.25, 19:13
  */
+use crate::common::QueryModel;
+use crate::prelude::*;
+use rusqlite::{Row, ToSql};
 use serde::{Deserialize, Serialize};
 
 #[derive(Eq, PartialEq, Debug, Clone, Serialize, Deserialize)]
@@ -26,5 +29,25 @@ impl Patch {
             dependency: dependency.to_owned(),
             src_dir_hash: src_dir_hash.to_owned(),
         }
+    }
+}
+
+impl QueryModel for Patch {
+    fn from_row(row: &Row) -> Result<Box<Self>> {
+        Ok(Box::new(Self {
+            name: row.get(0)?,
+            pack: row.get(1)?,
+            dependency: row.get(2)?,
+            src_dir_hash: row.get(3)?,
+        }))
+    }
+
+    fn to_params(&self) -> Vec<Box<dyn ToSql>> {
+        vec![
+            Box::new(self.name.to_owned()),
+            Box::new(self.pack.to_owned()),
+            Box::new(self.dependency.to_owned()),
+            Box::new(self.src_dir_hash.to_owned()),
+        ]
     }
 }

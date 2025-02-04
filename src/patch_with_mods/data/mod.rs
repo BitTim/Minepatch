@@ -6,9 +6,11 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   23.01.25, 16:50
+ * Modified:   04.02.25, 21:46
  */
 pub(crate) mod model;
 pub use model::*;
+mod query;
+pub(crate) use query::*;
 mod repo;
 pub(crate) use repo::*;

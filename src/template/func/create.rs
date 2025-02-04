@@ -6,10 +6,12 @@
  *
  * File:       create.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   22.01.25, 16:40
+ * Modified:   04.02.25, 23:31
  */
+use crate::common::Repo;
 use crate::prelude::*;
-use crate::template::{data, Template, TemplateError};
+use crate::template::data::{TemplateQueries, TemplateRepo};
+use crate::template::{Template, TemplateError};
 use rusqlite::Connection;
 
 pub fn create(
@@ -19,10 +21,13 @@ pub fn create(
     version: Option<String>,
     download: Option<String>,
 ) -> Result<()> {
-    if data::exists(connection, name)? {
+    let exists_query = TemplateQueries::QueryNameExact {
+        name: name.to_owned(),
+    };
+    if TemplateRepo::exists(connection, &exists_query)? {
         return Err(Error::Template(TemplateError::NameTaken(name.to_owned())));
     }
 
-    data::insert(connection, Template::new(name, loader, version, download))?;
+    TemplateRepo::insert(connection, Template::new(name, loader, version, download))?;
     Ok(())
 }

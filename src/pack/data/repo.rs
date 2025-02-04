@@ -6,39 +6,13 @@
  *
  * File:       repo.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   27.01.25, 10:12
+ * Modified:   04.02.25, 18:24
  */
 
+use crate::common::Repo;
+use crate::pack::data::query::PackQueries;
 use crate::pack::Pack;
-use crate::prelude::*;
-use rusqlite::{params, Connection};
 
-pub(crate) fn exists(connection: &Connection, name: &str) -> Result<bool> {
-    let mut statement = connection.prepare("SELECT * FROM pack WHERE name = ?1")?;
-    Ok(statement.exists(params![name])?)
-}
+pub(crate) struct PackRepo {}
 
-pub(crate) fn insert(connection: &Connection, pack: Pack) -> Result<i64> {
-    let mut statement =
-        connection.prepare("INSERT INTO pack (name, description, template) VALUES (?1, ?2, ?3)")?;
-    Ok(statement.insert(params![pack.name, pack.description, pack.template,])?)
-}
-
-pub(crate) fn query(connection: &Connection, name: Option<&str>) -> Result<Vec<Pack>> {
-    let mut statement = connection
-        .prepare("SELECT name, description, template FROM pack WHERE name LIKE ?1||'%'")?;
-    let raw_results = statement.query_map(params![name.unwrap_or_default()], |row| {
-        Ok(Pack {
-            name: row.get(0)?,
-            description: row.get(1)?,
-            template: row.get(2)?,
-        })
-    })?;
-
-    let mut results = vec![];
-    for result in raw_results {
-        results.push(result?);
-    }
-
-    Ok(results)
-}
+impl Repo<PackQueries, Pack> for PackRepo {}

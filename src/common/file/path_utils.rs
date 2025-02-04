@@ -6,7 +6,7 @@
  *
  * File:       path_utils.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   26.01.25, 21:23
+ * Modified:   04.02.25, 17:02
  */
 use crate::file::error::FileError;
 use crate::file::file_utils::check_exists;

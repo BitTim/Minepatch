@@ -6,12 +6,17 @@
  *
  * File:       query.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   27.01.25, 10:12
+ * Modified:   04.02.25, 22:13
  */
-use crate::pack::{data, Pack};
+use crate::common::Repo;
+use crate::pack::data::{PackQueries, PackRepo};
+use crate::pack::Pack;
 use crate::prelude::*;
 use rusqlite::Connection;
 
 pub fn query(connection: &Connection, name: Option<&str>) -> Result<Vec<Pack>> {
-    data::query(connection, name)
+    let query = PackQueries::QuerySimilarName {
+        name: name.unwrap_or_default().to_owned(),
+    };
+    PackRepo::query_multiple(connection, &query)
 }

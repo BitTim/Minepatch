@@ -6,12 +6,17 @@
  *
  * File:       query.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   27.01.25, 10:21
+ * Modified:   04.02.25, 22:16
  */
-use crate::instance::{data, Instance};
+use crate::common::Repo;
+use crate::instance::data::{InstanceQuery, InstanceRepo};
+use crate::instance::Instance;
 use crate::prelude::*;
 use rusqlite::Connection;
 
 pub fn query(connection: &Connection, name: Option<&str>) -> Result<Vec<Instance>> {
-    data::query(connection, name)
+    let query = InstanceQuery::QuerySimilarName {
+        name: name.unwrap_or_default().to_owned(),
+    };
+    InstanceRepo::query_multiple(connection, &query)
 }

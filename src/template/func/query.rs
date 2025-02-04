@@ -6,12 +6,17 @@
  *
  * File:       query.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   27.01.25, 09:43
+ * Modified:   04.02.25, 22:37
  */
+use crate::common::Repo;
 use crate::prelude::*;
-use crate::template::{data, Template};
+use crate::template::data::{TemplateQueries, TemplateRepo};
+use crate::template::Template;
 use rusqlite::Connection;
 
 pub fn query(connection: &Connection, name: Option<&str>) -> Result<Vec<Template>> {
-    data::query(connection, name)
+    let query = TemplateQueries::QueryNameSimilar {
+        name: name.unwrap_or_default().to_owned(),
+    };
+    TemplateRepo::query_multiple(connection, &query)
 }
