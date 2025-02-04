@@ -6,19 +6,21 @@
  *
  * File:       simulate.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   27.01.25, 10:13
+ * Modified:   04.02.25, 19:19
  */
 
-use crate::patch::{data, PatchError};
+use crate::common::Repo;
+use crate::patch::data::{PatchQueries, PatchRepo};
 use crate::patch_with_mods;
 use crate::prelude::*;
 use rusqlite::Connection;
 
 pub fn simulate(connection: &Connection, name: &str, pack: &str) -> Result<Vec<String>> {
-    let results = data::query(connection, Some(name), Some(pack))?;
-    let patch = results
-        .first()
-        .ok_or_else(|| Error::Patch(PatchError::NotFound(name.to_owned(), pack.to_owned())))?;
+    let query = PatchQueries::QueryNameAndPackExact {
+        name: name.to_owned(),
+        pack: pack.to_owned(),
+    };
+    let patch = PatchRepo::query_single(connection, query)?;
 
     let mut mod_hashes = vec![];
     if !patch.dependency.is_empty() {

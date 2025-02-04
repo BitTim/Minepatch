@@ -6,23 +6,23 @@
  *
  * File:       validate.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   02.02.25, 19:29
+ * Modified:   04.02.25, 19:19
  */
-use crate::patch::data::query;
+use crate::common::Repo;
+use crate::patch::data::{PatchQueries, PatchRepo};
 use crate::patch::Patch;
 use crate::patch_with_mods::query_by_patch;
 use crate::{pack, vault};
 use rusqlite::Connection;
 
 pub fn validate(connection: &Connection, name: &str, pack: &str, exist_only: bool) -> bool {
-    let query_result = match query(connection, Some(name), Some(pack)) {
+    let query = PatchQueries::QueryNameAndPackExact {
+        name: name.to_owned(),
+        pack: pack.to_owned(),
+    };
+    let patch = match PatchRepo::query_single(connection, query) {
         Ok(result) => result,
         Err(_) => return false,
-    };
-
-    let patch = match query_result.first() {
-        Some(patch) => patch,
-        None => return false,
     };
 
     if exist_only {
@@ -30,7 +30,7 @@ pub fn validate(connection: &Connection, name: &str, pack: &str, exist_only: boo
     }
 
     if !pack::validate(connection, pack, true)
-        || !validate_patch_dependency(connection, patch)
+        || !validate_patch_dependency(connection, &patch)
         || !validate_mods(connection, name, pack)
     {
         return false;

@@ -6,7 +6,7 @@
  *
  * File:       query.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   04.02.25, 18:33
+ * Modified:   04.02.25, 19:11
  */
 use crate::common::{Query, QueryInsert, QueryModel};
 use crate::instance::{Instance, InstanceError};
@@ -48,10 +48,7 @@ impl Query for InstanceQuery {
             InstanceQuery::Insert { instance } => {
                 Error::Instance(InstanceError::NameTaken(instance.name.to_owned()))
             }
-            InstanceQuery::QuerySimilarName { name } => {
-                Error::Instance(InstanceError::NameNotFound(name.to_owned()))
-            }
-            InstanceQuery::QueryExactName { name } => {
+            InstanceQuery::QuerySimilarName { name } | InstanceQuery::QueryExactName { name } => {
                 Error::Instance(InstanceError::NameNotFound(name.to_owned()))
             }
         }

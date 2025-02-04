@@ -6,7 +6,7 @@
  *
  * File:       query.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   04.02.25, 18:33
+ * Modified:   04.02.25, 19:11
  */
 use crate::common::{Query, QueryInsert, QueryModel};
 use crate::error::Error;
@@ -44,10 +44,7 @@ impl Query for PackQueries {
     fn error(&self) -> Error {
         match self {
             PackQueries::Insert { pack } => Error::Pack(PackError::NameTaken(pack.name.to_owned())),
-            PackQueries::QueryExactName { name } => {
-                Error::Pack(PackError::NotFound(name.to_owned()))
-            }
-            PackQueries::QuerySimilarName { name } => {
+            PackQueries::QueryExactName { name } | PackQueries::QuerySimilarName { name } => {
                 Error::Pack(PackError::NotFound(name.to_owned()))
             }
         }

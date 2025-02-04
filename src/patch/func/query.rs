@@ -6,9 +6,11 @@
  *
  * File:       query.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   27.01.25, 10:13
+ * Modified:   04.02.25, 19:16
  */
-use crate::patch::{data, Patch};
+use crate::common::Repo;
+use crate::patch::data::{PatchQueries, PatchRepo};
+use crate::patch::Patch;
 use crate::prelude::*;
 use rusqlite::Connection;
 
@@ -17,5 +19,9 @@ pub fn query(
     name: Option<&str>,
     pack: Option<&str>,
 ) -> Result<Vec<Patch>> {
-    data::query(connection, name, pack)
+    let query = PatchQueries::QueryNameAndPackSimilar {
+        name: name.unwrap_or_default().to_owned(),
+        pack: pack.unwrap_or_default().to_owned(),
+    };
+    PatchRepo::query_multiple(connection, query)
 }
