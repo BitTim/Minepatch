@@ -6,11 +6,12 @@
  *
  * File:       model.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   02.02.25, 17:59
+ * Modified:   04.02.25, 18:08
  */
 
+use crate::common::QueryModel;
 use crate::prelude::*;
-use rusqlite::Row;
+use rusqlite::{Row, ToSql};
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
 
@@ -31,16 +32,27 @@ impl Instance {
             patch: patch.to_owned(),
         }
     }
+}
 
-    pub fn from_row(value: &Row) -> Result<Self> {
+impl QueryModel for Instance {
+    fn from_row(value: &Row) -> Result<Box<Self>> {
         let path: String = value.get(1)?;
         let path = PathBuf::from(path);
 
-        Ok(Instance {
+        Ok(Box::new(Self {
             name: value.get(0)?,
             path,
             pack: value.get(2)?,
             patch: value.get(3)?,
-        })
+        }))
+    }
+
+    fn to_params(&self) -> Vec<Box<dyn ToSql>> {
+        vec![
+            Box::new(self.name.to_owned()),
+            Box::new(self.path.display().to_string()),
+            Box::new(self.pack.to_owned()),
+            Box::new(self.patch.to_owned()),
+        ]
     }
 }

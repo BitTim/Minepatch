@@ -6,26 +6,17 @@
  *
  * File:       query.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   02.02.25, 19:40
+ * Modified:   04.02.25, 18:33
  */
-use crate::common::Query;
-use crate::instance::InstanceError;
+use crate::common::{Query, QueryInsert, QueryModel};
+use crate::instance::{Instance, InstanceError};
 use crate::prelude::Error;
 use rusqlite::ToSql;
 
 pub(crate) enum InstanceQuery {
-    Insert {
-        name: String,
-        path: String,
-        pack: String,
-        patch: String,
-    },
-    QuerySimilarName {
-        name: String,
-    },
-    QueryExactName {
-        name: String,
-    },
+    Insert { instance: Instance },
+    QuerySimilarName { name: String },
+    QueryExactName { name: String },
 }
 
 impl Query for InstanceQuery {
@@ -44,28 +35,18 @@ impl Query for InstanceQuery {
         .to_owned()
     }
 
-    fn params(&self) -> Vec<&(dyn ToSql + '_)> {
+    fn params(&self) -> Vec<Box<dyn ToSql>> {
         match self {
-            InstanceQuery::Insert {
-                name,
-                path,
-                patch,
-                pack,
-            } => vec![
-                name as &(dyn ToSql + '_),
-                path as &(dyn ToSql + '_),
-                patch as &(dyn ToSql + '_),
-                pack as &(dyn ToSql + '_),
-            ],
-            InstanceQuery::QuerySimilarName { name } => vec![name as &(dyn ToSql + '_)],
-            InstanceQuery::QueryExactName { name } => vec![name as &(dyn ToSql + '_)],
+            InstanceQuery::Insert { instance } => instance.to_params(),
+            InstanceQuery::QuerySimilarName { name } => vec![Box::new(name.to_owned())],
+            InstanceQuery::QueryExactName { name } => vec![Box::new(name.to_owned())],
         }
     }
 
     fn error(&self) -> Error {
         match self {
-            InstanceQuery::Insert { name, .. } => {
-                Error::Instance(InstanceError::NameTaken(name.to_owned()))
+            InstanceQuery::Insert { instance } => {
+                Error::Instance(InstanceError::NameTaken(instance.name.to_owned()))
             }
             InstanceQuery::QuerySimilarName { name } => {
                 Error::Instance(InstanceError::NameNotFound(name.to_owned()))
@@ -74,5 +55,11 @@ impl Query for InstanceQuery {
                 Error::Instance(InstanceError::NameNotFound(name.to_owned()))
             }
         }
+    }
+}
+
+impl QueryInsert<Instance> for InstanceQuery {
+    fn insert(value: Instance) -> Self {
+        Self::Insert { instance: value }
     }
 }

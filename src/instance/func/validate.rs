@@ -6,10 +6,10 @@
  *
  * File:       validate.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   02.02.25, 19:43
+ * Modified:   04.02.25, 18:04
  */
-use crate::instance::data;
-use crate::instance::data::InstanceQuery;
+use crate::common::Repo;
+use crate::instance::data::{InstanceQuery, InstanceRepo};
 use crate::{pack, patch};
 use rusqlite::Connection;
 
@@ -17,7 +17,7 @@ pub fn validate(connection: &Connection, name: &str, exist_only: bool) -> bool {
     let query = InstanceQuery::QueryExactName {
         name: name.to_owned(),
     };
-    let instance = match data::query_single(connection, query) {
+    let instance = match InstanceRepo::query_single(connection, query) {
         Ok(result) => result,
         Err(_) => return false,
     };

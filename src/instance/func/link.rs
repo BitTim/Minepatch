@@ -6,12 +6,13 @@
  *
  * File:       link.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   27.01.25, 10:52
+ * Modified:   04.02.25, 18:33
  */
 use crate::common::file::error::FileError;
 use crate::common::file::filename_from_path;
-use crate::common::hash;
-use crate::instance::{data, Instance, InstanceError};
+use crate::common::{hash, Repo};
+use crate::instance::data::{InstanceQuery, InstanceRepo};
+use crate::instance::{Instance, InstanceError};
 use crate::pack::PackError;
 use crate::patch::PatchError;
 use crate::prelude::*;
@@ -39,7 +40,12 @@ pub fn link(
         None => filename_from_path(path)?,
     };
 
-    if data::exists(connection, actual_name)? {
+    if InstanceRepo::exists(
+        connection,
+        InstanceQuery::QueryExactName {
+            name: actual_name.to_owned(),
+        },
+    )? {
         return Err(Error::Instance(InstanceError::NameTaken(
             actual_name.to_owned(),
         )));
@@ -56,7 +62,7 @@ pub fn link(
         )));
     }
 
-    data::insert(connection, Instance::new(actual_name, path, pack, patch))?;
+    InstanceRepo::insert(connection, Instance::new(actual_name, path, pack, patch))?;
 
     let mod_paths = file::mod_paths_from_instance_path(path)?;
     let hashes: Result<Vec<String>> = mod_paths
