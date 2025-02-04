@@ -6,11 +6,11 @@
  *
  * File:       query.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   27.01.25, 11:41
+ * Modified:   04.02.25, 23:24
  */
+use crate::common::Repo;
 use crate::prelude::*;
-use crate::vault::data;
-use crate::vault::data::Mod;
+use crate::vault::data::{Mod, VaultQueries, VaultRepo};
 use rusqlite::Connection;
 
 pub fn query(
@@ -19,5 +19,10 @@ pub fn query(
     id: Option<&str>,
     name: Option<&str>,
 ) -> Result<Vec<Mod>> {
-    data::query_filtered(connection, hash, id, name)
+    let query = VaultQueries::QueryHashAndIDAndNameSimilar {
+        hash: hash.unwrap_or_default().to_owned(),
+        mod_id: id.unwrap_or_default().to_owned(),
+        name: name.unwrap_or_default().to_owned(),
+    };
+    VaultRepo::query_multiple(connection, &query)
 }

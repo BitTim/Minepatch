@@ -6,7 +6,7 @@
  *
  * File:       validate.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   04.02.25, 18:04
+ * Modified:   04.02.25, 22:16
  */
 use crate::common::Repo;
 use crate::instance::data::{InstanceQuery, InstanceRepo};
@@ -17,7 +17,7 @@ pub fn validate(connection: &Connection, name: &str, exist_only: bool) -> bool {
     let query = InstanceQuery::QueryExactName {
         name: name.to_owned(),
     };
-    let instance = match InstanceRepo::query_single(connection, query) {
+    let instance = match InstanceRepo::query_single(connection, &query) {
         Ok(result) => result,
         Err(_) => return false,
     };

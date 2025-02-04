@@ -6,7 +6,7 @@
  *
  * File:       query.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   04.02.25, 18:04
+ * Modified:   04.02.25, 22:16
  */
 use crate::common::Repo;
 use crate::instance::data::{InstanceQuery, InstanceRepo};
@@ -18,5 +18,5 @@ pub fn query(connection: &Connection, name: Option<&str>) -> Result<Vec<Instance
     let query = InstanceQuery::QuerySimilarName {
         name: name.unwrap_or_default().to_owned(),
     };
-    InstanceRepo::query_multiple(connection, query)
+    InstanceRepo::query_multiple(connection, &query)
 }

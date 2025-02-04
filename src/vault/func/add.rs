@@ -6,14 +6,13 @@
  *
  * File:       add.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   23.01.25, 17:57
+ * Modified:   04.02.25, 23:23
  */
 
-use crate::common::{file, hash};
+use crate::common::{file, hash, Repo};
 use crate::msg::Message;
 use crate::prelude::*;
-use crate::vault::data;
-use crate::vault::data::Mod;
+use crate::vault::data::{Mod, VaultQueries, VaultRepo};
 use crate::vault::func::common::meta::{detect_loader, extract_meta};
 use rusqlite::Connection;
 use std::fs;
@@ -31,7 +30,11 @@ where
     file::check_exists(path)?;
     let hash = hash::hash_file(path)?;
 
-    if data::exists(connection, &hash)? && !overwrite {
+    let exists_query = VaultQueries::QueryHashExact {
+        hash: hash.to_owned(),
+    };
+
+    if VaultRepo::exists(connection, &exists_query)? && !overwrite {
         handle_warning(
             Message::new("Mod is already registered in vault")
                 .context("Path", &path.display().to_string())
@@ -52,7 +55,7 @@ where
     let (meta, mod_file_path) = extract_meta(loader_result, filename)?;
 
     fs::copy(path, &mod_file_path)?;
-    data::insert(connection, Mod::new(&hash, &mod_file_path, meta))?;
+    VaultRepo::insert(connection, Mod::new(&hash, &mod_file_path, meta))?;
 
     Ok(hash)
 }

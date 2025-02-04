@@ -6,7 +6,7 @@
  *
  * File:       validate.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   04.02.25, 18:31
+ * Modified:   04.02.25, 22:14
  */
 use crate::common::Repo;
 use crate::pack::data::{PackQueries, PackRepo};
@@ -14,12 +14,11 @@ use crate::{patch, template};
 use rusqlite::Connection;
 
 pub fn validate(connection: &Connection, name: &str, exist_only: bool) -> bool {
-    let pack = match PackRepo::query_single(
-        connection,
-        PackQueries::QueryExactName {
-            name: name.to_owned(),
-        },
-    ) {
+    let query = PackQueries::QueryExactName {
+        name: name.to_owned(),
+    };
+
+    let pack = match PackRepo::query_single(connection, &query) {
         Ok(result) => result,
         Err(_) => return false,
     };

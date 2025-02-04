@@ -6,7 +6,7 @@
  *
  * File:       repo.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   04.02.25, 18:24
+ * Modified:   04.02.25, 21:54
  */
 use crate::common::{Query, QueryInsert, QueryModel};
 use crate::prelude::*;
@@ -23,12 +23,12 @@ where
         Ok(statement.insert(params_from_iter(query.params()))?)
     }
 
-    fn exists(connection: &Connection, query: Q) -> Result<bool> {
+    fn exists(connection: &Connection, query: &Q) -> Result<bool> {
         let mut statement = connection.prepare(&query.value())?;
         Ok(statement.exists(params_from_iter(query.params()))?)
     }
 
-    fn query_single(connection: &Connection, query: Q) -> Result<T> {
+    fn query_single(connection: &Connection, query: &Q) -> Result<T> {
         let mut statement = connection.prepare(&query.value())?;
         let result = statement
             .query_row(params_from_iter(query.params()), |row| Ok(T::from_row(row)))?
@@ -37,7 +37,7 @@ where
         Ok(*result?)
     }
 
-    fn query_multiple(connection: &Connection, query: Q) -> Result<Vec<T>> {
+    fn query_multiple(connection: &Connection, query: &Q) -> Result<Vec<T>> {
         let mut statement = connection.prepare(&query.value())?;
         let raw_results =
             statement.query_map(params_from_iter(query.params()), |row| Ok(T::from_row(row)))?;
@@ -50,7 +50,7 @@ where
         Ok(results)
     }
 
-    fn remove(connection: &Connection, query: Q) -> Result<usize> {
+    fn remove(connection: &Connection, query: &Q) -> Result<usize> {
         Ok(connection.execute(&query.value(), params_from_iter(query.params()))?)
     }
 }

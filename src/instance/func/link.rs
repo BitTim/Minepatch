@@ -6,7 +6,7 @@
  *
  * File:       link.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   04.02.25, 18:33
+ * Modified:   04.02.25, 22:16
  */
 use crate::common::file::error::FileError;
 use crate::common::file::filename_from_path;
@@ -40,12 +40,10 @@ pub fn link(
         None => filename_from_path(path)?,
     };
 
-    if InstanceRepo::exists(
-        connection,
-        InstanceQuery::QueryExactName {
-            name: actual_name.to_owned(),
-        },
-    )? {
+    let query = InstanceQuery::QueryExactName {
+        name: actual_name.to_owned(),
+    };
+    if InstanceRepo::exists(connection, &query)? {
         return Err(Error::Instance(InstanceError::NameTaken(
             actual_name.to_owned(),
         )));

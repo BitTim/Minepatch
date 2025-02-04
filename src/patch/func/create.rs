@@ -6,7 +6,7 @@
  *
  * File:       create.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   04.02.25, 19:15
+ * Modified:   04.02.25, 22:10
  */
 use crate::common::Repo;
 use crate::error::Error;
@@ -27,7 +27,7 @@ pub fn create(
         name: name.to_owned(),
         pack: pack.to_owned(),
     };
-    if PatchRepo::exists(connection, exists_query)? {
+    if PatchRepo::exists(connection, &exists_query)? {
         return Err(Error::Patch(PatchError::NameExists(
             name.to_owned(),
             pack.to_owned(),

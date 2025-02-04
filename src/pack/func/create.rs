@@ -6,7 +6,7 @@
  *
  * File:       create.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   04.02.25, 18:29
+ * Modified:   04.02.25, 22:13
  */
 use crate::common::{file, Repo};
 use crate::msg::Message;
@@ -41,7 +41,7 @@ where
         name: name.to_owned(),
     };
 
-    if PackRepo::exists(connection, exists_query)? {
+    if PackRepo::exists(connection, &exists_query)? {
         return Err(Error::Pack(PackError::NameTaken(name)));
     }
 

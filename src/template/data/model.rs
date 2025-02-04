@@ -6,8 +6,11 @@
  *
  * File:       model.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   27.01.25, 09:54
+ * Modified:   04.02.25, 22:24
  */
+use crate::common::QueryModel;
+use crate::prelude::*;
+use rusqlite::{Row, ToSql};
 use serde::{Deserialize, Serialize};
 
 #[derive(Eq, PartialEq, Debug, Clone, Serialize, Deserialize)]
@@ -31,5 +34,25 @@ impl Template {
             loader,
             download,
         }
+    }
+}
+
+impl QueryModel for Template {
+    fn from_row(row: &Row) -> Result<Box<Self>> {
+        Ok(Box::new(Self {
+            name: row.get(0)?,
+            version: row.get(1)?,
+            loader: row.get(2)?,
+            download: row.get(3)?,
+        }))
+    }
+
+    fn to_params(&self) -> Vec<Box<dyn ToSql>> {
+        vec![
+            Box::new(self.name.to_owned()),
+            Box::new(self.version.to_owned()),
+            Box::new(self.loader.to_owned()),
+            Box::new(self.download.to_owned()),
+        ]
     }
 }

@@ -6,12 +6,12 @@
  *
  * File:       validate.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   04.02.25, 19:19
+ * Modified:   04.02.25, 22:13
  */
 use crate::common::Repo;
 use crate::patch::data::{PatchQueries, PatchRepo};
 use crate::patch::Patch;
-use crate::patch_with_mods::query_by_patch;
+use crate::patch_with_mods::{PatchModRelQueries, PatchModRelRepo};
 use crate::{pack, vault};
 use rusqlite::Connection;
 
@@ -20,7 +20,7 @@ pub fn validate(connection: &Connection, name: &str, pack: &str, exist_only: boo
         name: name.to_owned(),
         pack: pack.to_owned(),
     };
-    let patch = match PatchRepo::query_single(connection, query) {
+    let patch = match PatchRepo::query_single(connection, &query) {
         Ok(result) => result,
         Err(_) => return false,
     };
@@ -47,7 +47,11 @@ fn validate_patch_dependency(connection: &Connection, patch: &Patch) -> bool {
 }
 
 fn validate_mods(connection: &Connection, name: &str, pack: &str) -> bool {
-    let mods = match query_by_patch(connection, name, pack) {
+    let query = PatchModRelQueries::QueryByPatchAndPackExact {
+        patch: name.to_owned(),
+        pack: pack.to_owned(),
+    };
+    let mods = match PatchModRelRepo::query_multiple(connection, &query) {
         Ok(mods) => mods,
         Err(_) => return false,
     };

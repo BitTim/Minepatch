@@ -6,12 +6,12 @@
  *
  * File:       remove.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   27.01.25, 11:33
+ * Modified:   04.02.25, 23:28
  */
+use crate::common::Repo;
 use crate::file;
 use crate::prelude::*;
-use crate::vault::data;
-use crate::vault::data::Mod;
+use crate::vault::data::{Mod, VaultQueries, VaultRepo};
 use crate::vault::error::VaultError;
 use crate::vault::func::common::path::get_base_mod_dir_path;
 use rusqlite::Connection;
@@ -30,7 +30,8 @@ where
     G: Fn(&[Mod]) -> Result<&Mod>,
 {
     let hashes: Vec<String> = if all {
-        data::query_filtered(connection, None, None, None)?
+        let query_all = VaultQueries::QueryAll;
+        VaultRepo::query_multiple(connection, &query_all)?
             .iter()
             .map(|entry: &Mod| entry.hash.to_owned())
             .collect()
@@ -42,7 +43,10 @@ where
     };
 
     for hash in hashes {
-        let matches = data::query_filtered(connection, Some(&hash), None, None)?;
+        let query = VaultQueries::QueryHashExact {
+            hash: hash.to_owned(),
+        };
+        let matches = VaultRepo::query_multiple(connection, &query)?;
         if matches.is_empty() {
             return Err(Error::Vault(VaultError::NotFound(hash)));
         }
@@ -56,7 +60,10 @@ where
         fs::remove_file(&value.path)?;
         file::remove_empty_dirs(&get_base_mod_dir_path()?)?;
 
-        data::remove(connection, &value.hash)?;
+        let remove_query = VaultQueries::QueryHashExact {
+            hash: value.hash.to_owned(),
+        };
+        VaultRepo::remove(connection, &remove_query)?;
     }
 
     Ok(())

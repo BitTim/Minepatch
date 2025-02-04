@@ -6,7 +6,7 @@
  *
  * File:       query.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   04.02.25, 19:16
+ * Modified:   04.02.25, 22:10
  */
 use crate::common::Repo;
 use crate::patch::data::{PatchQueries, PatchRepo};
@@ -23,5 +23,5 @@ pub fn query(
         name: name.unwrap_or_default().to_owned(),
         pack: pack.unwrap_or_default().to_owned(),
     };
-    PatchRepo::query_multiple(connection, query)
+    PatchRepo::query_multiple(connection, &query)
 }
