@@ -6,13 +6,14 @@
  *
  * File:       add.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   04.02.25, 23:23
+ * Modified:   06.02.25, 02:01
  */
 
-use crate::common::{file, hash, Repo};
+use crate::common::{file, hash};
+use crate::db::Repo;
 use crate::msg::Message;
 use crate::prelude::*;
-use crate::vault::data::{Mod, VaultQueries, VaultRepo};
+use crate::vault::data::{Mod, ModFilter, VaultRepo};
 use crate::vault::func::common::meta::{detect_loader, extract_meta};
 use rusqlite::Connection;
 use std::fs;
@@ -30,7 +31,7 @@ where
     file::check_exists(path)?;
     let hash = hash::hash_file(path)?;
 
-    let exists_query = VaultQueries::QueryHashExact {
+    let exists_query = ModFilter::QueryHashExact {
         hash: hash.to_owned(),
     };
 

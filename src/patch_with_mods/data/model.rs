@@ -6,9 +6,9 @@
  *
  * File:       model.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   04.02.25, 23:31
+ * Modified:   06.02.25, 01:58
  */
-use crate::common::QueryModel;
+use crate::common::db::Entity;
 use crate::prelude::*;
 use rusqlite::{Row, ToSql};
 
@@ -30,7 +30,11 @@ impl PatchWithMods {
     }
 }
 
-impl QueryModel for PatchWithMods {
+impl Entity for PatchWithMods {
+    fn table_name() -> String {
+        "patch_with_mods".to_owned()
+    }
+
     fn from_row(row: &Row) -> Result<Box<Self>> {
         Ok(Box::new(Self {
             patch: row.get(0)?,

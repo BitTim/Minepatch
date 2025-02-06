@@ -6,16 +6,21 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   26.01.25, 03:04
+ * Modified:   05.02.25, 21:44
  */
 use clap::Subcommand;
 
 mod create;
-pub(crate) use create::*;
+mod exclude;
 mod include;
-pub(crate) use include::*;
 mod list;
+mod view;
+
+pub(crate) use create::*;
+pub(crate) use exclude::*;
+pub(crate) use include::*;
 pub(crate) use list::*;
+pub(crate) use view::*;
 
 #[derive(Subcommand, Debug)]
 pub enum PatchCommands {
@@ -38,8 +43,23 @@ pub enum PatchCommands {
         pack: String,
     },
 
-    /// Includes a mod into a patch.
+    /// Includes a mod with a patch.
     Include {
+        /// Name of the patch.
+        #[arg(short, long)]
+        name: String,
+
+        /// The pack this patch belongs to.
+        #[arg(short, long)]
+        pack: String,
+
+        /// The hash of the mod that should be added to this patch.
+        #[arg(short, long)]
+        mod_hash: String,
+    },
+
+    /// Excludes a mod with a patch.
+    Exclude {
         /// Name of the patch.
         #[arg(short, long)]
         name: String,
@@ -62,5 +82,16 @@ pub enum PatchCommands {
         /// The pack this patch belongs to.
         #[arg(short, long)]
         pack: Option<String>,
+    },
+
+    /// Shows all details of a specific patch.
+    View {
+        /// Name of the patch.
+        #[arg(short, long)]
+        name: String,
+
+        /// The pack this patch belongs to.
+        #[arg(short, long)]
+        pack: String,
     },
 }

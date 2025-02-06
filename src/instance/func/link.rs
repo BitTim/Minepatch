@@ -6,12 +6,13 @@
  *
  * File:       link.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   04.02.25, 22:16
+ * Modified:   06.02.25, 01:56
  */
 use crate::common::file::error::FileError;
 use crate::common::file::filename_from_path;
-use crate::common::{hash, Repo};
-use crate::instance::data::{InstanceQuery, InstanceRepo};
+use crate::common::hash;
+use crate::db::Repo;
+use crate::instance::data::{InstanceFilter, InstanceRepo};
 use crate::instance::{Instance, InstanceError};
 use crate::pack::PackError;
 use crate::patch::PatchError;
@@ -40,7 +41,7 @@ pub fn link(
         None => filename_from_path(path)?,
     };
 
-    let query = InstanceQuery::QueryExactName {
+    let query = InstanceFilter::QueryExactName {
         name: actual_name.to_owned(),
     };
     if InstanceRepo::exists(connection, &query)? {
@@ -86,7 +87,7 @@ pub fn link(
     // TODO: Create all symlinks first and only remove all jar files if all symlinks are created
     for mod_path in mod_paths {
         let hash = hash::hash_file(&mod_path)?;
-        let mod_entries = vault::query(connection, Some(&hash), None, None)?;
+        let mod_entries = vault::query_multiple(connection, Some(&hash), None, None)?;
         let mod_entry = mod_entries
             .first()
             .ok_or(Error::Vault(VaultError::NotFound(hash)))?;

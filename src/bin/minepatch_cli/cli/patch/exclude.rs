@@ -4,9 +4,9 @@
  * Project:    Minepatch
  * License:    GPLv3
  *
- * File:       include.rs
+ * File:       exclude.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   05.02.25, 18:11
+ * Modified:   06.02.25, 02:18
  */
 use crate::output::status::{Status, StatusOutput};
 use crate::output::Output;
@@ -15,17 +15,17 @@ use minepatch::patch;
 use minepatch::prelude::*;
 use rusqlite::Connection;
 
-pub(crate) fn include(
+pub(crate) fn exclude(
     connection: &Connection,
     name: &str,
     pack: &str,
     mod_hash: &str,
 ) -> Result<()> {
-    patch::include(connection, name, pack, mod_hash)?;
+    patch::exclude(connection, name, pack, mod_hash)?;
 
     StatusOutput::new(
         Status::Success,
-        Message::new("Included mod with patch")
+        Message::new("Excluded mod with patch")
             .context("Mod", mod_hash)
             .context("Patch", name)
             .context("Pack", pack),

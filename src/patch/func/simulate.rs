@@ -6,32 +6,32 @@
  *
  * File:       simulate.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   04.02.25, 22:11
+ * Modified:   06.02.25, 02:18
  */
 
-use crate::common::Repo;
-use crate::patch::data::{PatchQueries, PatchRepo};
-use crate::patch_with_mods::{PatchModRelQueries, PatchModRelRepo};
+use crate::db::Repo;
+use crate::patch::data::{PatchFilter, PatchRepo};
+use crate::patch_with_mods::{PatchModRelFilter, PatchModRelRepo};
 use crate::prelude::*;
 use rusqlite::Connection;
 
 pub fn simulate(connection: &Connection, name: &str, pack: &str) -> Result<Vec<String>> {
-    let patch_query = PatchQueries::QueryNameAndPackExact {
+    let patch_filter = PatchFilter::ByNameAndPackExact {
         name: name.to_owned(),
         pack: pack.to_owned(),
     };
-    let patch = PatchRepo::query_single(connection, &patch_query)?;
+    let patch = PatchRepo::query_single(connection, &patch_filter)?;
 
     let mut mod_hashes = vec![];
     if !patch.dependency.is_empty() {
         mod_hashes.append(&mut simulate(connection, &patch.dependency, pack)?);
     }
 
-    let rel_query = PatchModRelQueries::QueryByPatchAndPackExact {
+    let rel_filter = PatchModRelFilter::QueryByPatchAndPackExact {
         patch: name.to_owned(),
         pack: pack.to_owned(),
     };
-    let mod_relations = PatchModRelRepo::query_multiple(connection, &rel_query)?;
+    let mod_relations = PatchModRelRepo::query_multiple(connection, &rel_filter)?;
     for relation in mod_relations {
         let result = mod_hashes
             .iter()

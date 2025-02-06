@@ -6,10 +6,10 @@
  *
  * File:       model.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   04.02.25, 18:08
+ * Modified:   06.02.25, 01:55
  */
 
-use crate::common::QueryModel;
+use crate::common::db::Entity;
 use crate::prelude::*;
 use rusqlite::{Row, ToSql};
 use serde::{Deserialize, Serialize};
@@ -34,7 +34,11 @@ impl Instance {
     }
 }
 
-impl QueryModel for Instance {
+impl Entity for Instance {
+    fn table_name() -> String {
+        "instance".to_owned()
+    }
+
     fn from_row(value: &Row) -> Result<Box<Self>> {
         let path: String = value.get(1)?;
         let path = PathBuf::from(path);

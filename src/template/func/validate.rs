@@ -6,14 +6,14 @@
  *
  * File:       validate.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   04.02.25, 22:40
+ * Modified:   06.02.25, 01:59
  */
-use crate::common::Repo;
-use crate::template::data::{TemplateQueries, TemplateRepo};
+use crate::db::Repo;
+use crate::template::data::{TemplateFilter, TemplateRepo};
 use rusqlite::Connection;
 
 pub fn validate(connection: &Connection, name: &str) -> bool {
-    let query = TemplateQueries::QueryNameExact {
+    let query = TemplateFilter::QueryNameExact {
         name: name.to_owned(),
     };
 

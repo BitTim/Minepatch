@@ -6,7 +6,7 @@
  *
  * File:       main.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   27.01.25, 10:29
+ * Modified:   05.02.25, 21:44
  */
 use crate::cli::instance::InstanceCommands;
 use crate::cli::pack::PackCommands;
@@ -90,7 +90,13 @@ fn match_command(command: &Commands, connection: &Connection) -> Result<()> {
                 pack,
                 mod_hash,
             } => patch::include(connection, name, pack, mod_hash)?,
+            PatchCommands::Exclude {
+                name,
+                pack,
+                mod_hash,
+            } => patch::exclude(connection, name, pack, mod_hash)?,
             PatchCommands::List { name, pack } => patch::list(connection, name, pack)?,
+            PatchCommands::View { name, pack } => patch::view(connection, name, pack)?,
         },
         Commands::Pack {
             pack_commands: pack_command,

@@ -6,13 +6,13 @@
  *
  * File:       create.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   04.02.25, 22:10
+ * Modified:   06.02.25, 02:18
  */
-use crate::common::Repo;
+use crate::db::Repo;
 use crate::error::Error;
 use crate::pack;
 use crate::pack::PackError;
-use crate::patch::data::{PatchQueries, PatchRepo};
+use crate::patch::data::{PatchFilter, PatchRepo};
 use crate::patch::{Patch, PatchError};
 use rusqlite::Connection;
 
@@ -23,7 +23,7 @@ pub fn create(
     dependency: &str,
     state_hash: &str,
 ) -> crate::prelude::Result<()> {
-    let exists_query = PatchQueries::QueryNameAndPackExact {
+    let exists_query = PatchFilter::ByNameAndPackExact {
         name: name.to_owned(),
         pack: pack.to_owned(),
     };

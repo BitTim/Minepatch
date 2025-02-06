@@ -6,9 +6,9 @@
  *
  * File:       model.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   04.02.25, 19:13
+ * Modified:   06.02.25, 01:52
  */
-use crate::common::QueryModel;
+use crate::common::db::Entity;
 use crate::prelude::*;
 use rusqlite::{Row, ToSql};
 use serde::{Deserialize, Serialize};
@@ -32,7 +32,11 @@ impl Patch {
     }
 }
 
-impl QueryModel for Patch {
+impl Entity for Patch {
+    fn table_name() -> String {
+        "patch".to_owned()
+    }
+
     fn from_row(row: &Row) -> Result<Box<Self>> {
         Ok(Box::new(Self {
             name: row.get(0)?,

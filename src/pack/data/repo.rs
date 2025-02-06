@@ -6,13 +6,13 @@
  *
  * File:       repo.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   04.02.25, 18:24
+ * Modified:   06.02.25, 01:57
  */
 
-use crate::common::Repo;
-use crate::pack::data::query::PackQueries;
+use crate::db::Repo;
+use crate::pack::data::filter::PackFilter;
 use crate::pack::Pack;
 
 pub(crate) struct PackRepo {}
 
-impl Repo<PackQueries, Pack> for PackRepo {}
+impl Repo<PackFilter, Pack> for PackRepo {}

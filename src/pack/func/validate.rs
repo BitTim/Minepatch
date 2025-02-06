@@ -6,15 +6,15 @@
  *
  * File:       validate.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   04.02.25, 22:14
+ * Modified:   06.02.25, 01:57
  */
-use crate::common::Repo;
-use crate::pack::data::{PackQueries, PackRepo};
+use crate::db::Repo;
+use crate::pack::data::{PackFilter, PackRepo};
 use crate::{patch, template};
 use rusqlite::Connection;
 
 pub fn validate(connection: &Connection, name: &str, exist_only: bool) -> bool {
-    let query = PackQueries::QueryExactName {
+    let query = PackFilter::QueryExactName {
         name: name.to_owned(),
     };
 
@@ -42,7 +42,7 @@ fn validate_template(connection: &Connection, template: &Option<String>) -> bool
 }
 
 fn validate_patches(connection: &Connection, name: &str) -> bool {
-    let patches = match patch::query(connection, None, Some(name)) {
+    let patches = match patch::query_multiple(connection, None, Some(name)) {
         Ok(patches) => patches,
         Err(_) => return false,
     };
