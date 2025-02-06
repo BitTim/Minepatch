@@ -6,7 +6,7 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   05.02.25, 21:44
+ * Modified:   06.02.25, 02:47
  */
 use clap::Subcommand;
 
@@ -14,12 +14,14 @@ mod create;
 mod exclude;
 mod include;
 mod list;
+mod simulate;
 mod view;
 
 pub(crate) use create::*;
 pub(crate) use exclude::*;
 pub(crate) use include::*;
 pub(crate) use list::*;
+pub(crate) use simulate::*;
 pub(crate) use view::*;
 
 #[derive(Subcommand, Debug)]
@@ -82,6 +84,17 @@ pub enum PatchCommands {
         /// The pack this patch belongs to.
         #[arg(short, long)]
         pack: Option<String>,
+    },
+
+    /// Simulates all patches up to and including the selected one.
+    Simulate {
+        /// Name of the patch.
+        #[arg(short, long)]
+        name: String,
+
+        /// The pack this patch belongs to.
+        #[arg(short, long)]
+        pack: String,
     },
 
     /// Shows all details of a specific patch.

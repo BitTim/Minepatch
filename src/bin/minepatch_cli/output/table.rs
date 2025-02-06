@@ -6,9 +6,10 @@
  *
  * File:       table.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   05.02.25, 21:12
+ * Modified:   06.02.25, 02:43
  */
 use crate::output::Output;
+use colored::Colorize;
 use minepatch::msg::Message;
 use std::fmt::{Display, Formatter};
 use tabled::grid::records::vec_records::{Text, VecRecords};
@@ -19,7 +20,7 @@ use tabled::{Table, Tabled};
 #[derive(Debug)]
 pub struct TableOutput {
     table: Table,
-    empty: bool,
+    count: usize,
     empty_msg: Message,
 }
 
@@ -35,7 +36,7 @@ impl TableOutput {
 
         Self {
             table,
-            empty: values.is_empty(),
+            count: values.len(),
             empty_msg,
         }
     }
@@ -53,10 +54,15 @@ impl TableOutput {
 
 impl Display for TableOutput {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        if self.empty {
+        if self.count < 1 {
             write!(f, "{}", self.empty_msg)
         } else {
-            write!(f, "{}", self.table)
+            write!(
+                f,
+                "{}\nNumber of items: {}",
+                self.table,
+                self.count.to_string().bold().purple()
+            )
         }
     }
 }
