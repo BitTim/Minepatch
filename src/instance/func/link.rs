@@ -6,18 +6,15 @@
  *
  * File:       link.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   06.02.25, 01:56
+ * Modified:   08.02.25, 11:19
  */
 use crate::common::file::error::FileError;
 use crate::common::file::filename_from_path;
 use crate::common::hash;
 use crate::db::Repo;
 use crate::instance::data::{InstanceFilter, InstanceRepo};
-use crate::instance::{Instance, InstanceError};
-use crate::pack::PackError;
-use crate::patch::PatchError;
+use crate::instance::{validate, Instance, InstanceError};
 use crate::prelude::*;
-use crate::vault::VaultError;
 use crate::{file, pack, patch, vault};
 use rusqlite::Connection;
 use std::fs;
@@ -50,47 +47,18 @@ pub fn link(
         )));
     }
 
-    if !pack::validate(connection, pack, true) {
-        return Err(Error::Pack(PackError::NotFound(pack.to_owned())));
-    }
-
-    if !patch::validate(connection, patch, pack, true) {
-        return Err(Error::Patch(PatchError::NotFound(
-            patch.to_owned(),
-            pack.to_owned(),
-        )));
-    }
+    pack::validate(connection, pack, true)?;
+    patch::validate(connection, patch, pack, true)?;
 
     InstanceRepo::insert(connection, Instance::new(actual_name, path, pack, patch))?;
+    validate(connection, &actual_name, false)?;
 
     let mod_paths = file::mod_paths_from_instance_path(path)?;
-    let hashes: Result<Vec<String>> = mod_paths
-        .iter()
-        .map(|mod_path| hash::hash_file(mod_path))
-        .collect();
-
-    let mut hashes = hashes?;
-    hashes.sort();
-    let present_state_hash = hash::hash_state(&hashes);
-
-    let mut simulated_hashes = patch::simulate(connection, patch, pack)?;
-    simulated_hashes.sort();
-    let simulated_state_hash = hash::hash_state(&simulated_hashes);
-
-    if present_state_hash != simulated_state_hash {
-        return Err(Error::Instance(InstanceError::StateMismatch(
-            present_state_hash,
-            simulated_state_hash,
-        )));
-    }
 
     // TODO: Create all symlinks first and only remove all jar files if all symlinks are created
     for mod_path in mod_paths {
         let hash = hash::hash_file(&mod_path)?;
-        let mod_entries = vault::query_multiple(connection, Some(&hash), None, None)?;
-        let mod_entry = mod_entries
-            .first()
-            .ok_or(Error::Vault(VaultError::NotFound(hash)))?;
+        let mod_entry = vault::query_single(connection, &hash)?;
 
         if !fs::exists(&mod_entry.path)? {
             return Err(Error::File(FileError::PathNotFound(

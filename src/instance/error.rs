@@ -6,7 +6,7 @@
  *
  * File:       error.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   23.01.25, 17:57
+ * Modified:   08.02.25, 02:37
  */
 use thiserror::Error;
 
@@ -18,7 +18,8 @@ pub enum InstanceError {
     NameTaken(String),
     #[error("New name cannot be the same as old name")]
     NameNotChanged,
-    #[error("Cannot link instance to specified patch, required state does not match.\n\tPresent state: '{0}'\n\tSimulated state: '{1}'"
+    #[error(
+        "States of the mod folder do not match.\n\tPresent state: '{0}'\n\tSimulated state: '{1}'"
     )]
     StateMismatch(String, String),
     #[error("Failed to create symlink: '{0}' -> '{1}'")]

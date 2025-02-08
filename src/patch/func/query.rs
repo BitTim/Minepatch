@@ -6,13 +6,14 @@
  *
  * File:       query.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   06.02.25, 02:18
+ * Modified:   08.02.25, 01:15
  */
 use crate::db::Repo;
 use crate::patch::data::{PatchFilter, PatchRepo};
 use crate::patch::Patch;
 use crate::prelude::*;
 use rusqlite::Connection;
+use std::collections::HashSet;
 
 pub fn query_single(connection: &Connection, name: &str, pack: &str) -> Result<Patch> {
     let query = PatchFilter::ByNameAndPackExact {
@@ -26,7 +27,7 @@ pub fn query_multiple(
     connection: &Connection,
     name: Option<&str>,
     pack: Option<&str>,
-) -> Result<Vec<Patch>> {
+) -> Result<HashSet<Patch>> {
     let query = PatchFilter::QueryByNameAndPackSimilar {
         name: name.unwrap_or_default().to_owned(),
         pack: pack.unwrap_or_default().to_owned(),

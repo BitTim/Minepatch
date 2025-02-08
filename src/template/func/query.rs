@@ -6,15 +6,16 @@
  *
  * File:       query.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   06.02.25, 01:59
+ * Modified:   08.02.25, 01:59
  */
 use crate::db::Repo;
 use crate::prelude::*;
 use crate::template::data::{TemplateFilter, TemplateRepo};
 use crate::template::Template;
 use rusqlite::Connection;
+use std::collections::HashSet;
 
-pub fn query(connection: &Connection, name: Option<&str>) -> Result<Vec<Template>> {
+pub fn query(connection: &Connection, name: Option<&str>) -> Result<HashSet<Template>> {
     let query = TemplateFilter::QueryNameSimilar {
         name: name.unwrap_or_default().to_owned(),
     };

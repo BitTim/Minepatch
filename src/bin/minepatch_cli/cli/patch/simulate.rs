@@ -6,7 +6,7 @@
  *
  * File:       simulate.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   06.02.25, 02:49
+ * Modified:   08.02.25, 11:19
  */
 use crate::output::list_items::vault::ModListItem;
 use crate::output::table::TableOutput;
@@ -18,7 +18,26 @@ use minepatch::vault::Mod;
 use minepatch::{patch, vault};
 use rusqlite::Connection;
 
-pub(crate) fn simulate(connection: &Connection, name: &str, pack: &str) -> Result<()> {
+pub(crate) fn simulate(
+    connection: &Connection,
+    name: &str,
+    pack: &str,
+    dir_hash: &bool,
+) -> Result<()> {
+    let header_line = format!(
+        "Simulation result for patch '{}' for pack '{}'",
+        name.cyan(),
+        pack.blue()
+    )
+    .bold();
+    println!("{}", header_line);
+
+    if *dir_hash {
+        let hash = patch::simulate_dir_hash(connection, name, pack)?;
+        println!("Dir Hash: '{}'", hash.purple());
+        return Ok(());
+    }
+
     let mods = patch::simulate(connection, name, pack)?
         .iter()
         .map(|hash| vault::query_single(connection, hash))
@@ -27,15 +46,6 @@ pub(crate) fn simulate(connection: &Connection, name: &str, pack: &str) -> Resul
         .iter()
         .map(|value| ModListItem::from(connection, value))
         .collect::<Vec<ModListItem>>();
-
-    let header_line = format!(
-        "Simulation result for patch '{}' for pack '{}'",
-        name.cyan(),
-        pack.blue()
-    )
-    .bold();
-
-    println!("{}", header_line);
 
     TableOutput::new(
         displays,

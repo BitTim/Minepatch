@@ -6,7 +6,7 @@
  *
  * File:       list.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   05.02.25, 21:42
+ * Modified:   08.02.25, 11:19
  */
 use crate::output::list_items::instance::InstanceListItem;
 use crate::output::table::TableOutput;
@@ -17,7 +17,7 @@ use minepatch::prelude::*;
 use rusqlite::Connection;
 
 pub(crate) fn list(connection: &Connection, name: &Option<String>) -> Result<()> {
-    let instances = instance::query(connection, name.to_owned().as_deref())?
+    let instances = instance::query_multiple(connection, name.to_owned().as_deref())?
         .iter()
         .map(|instance| InstanceListItem::from(connection, instance))
         .collect::<Vec<InstanceListItem>>();

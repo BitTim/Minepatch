@@ -6,7 +6,7 @@
  *
  * File:       vault.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   27.01.25, 11:39
+ * Modified:   07.02.25, 17:41
  */
 use crate::output::detailed::{DetailedDisplayObject, Entry};
 use crate::output::{format_bool, format_string_option};
@@ -52,7 +52,7 @@ impl ModListItem {
         let mut short_hash = value.hash.to_owned();
         short_hash.truncate(8);
 
-        let valid = vault::validate(connection, &value.hash);
+        let valid = vault::validate(connection, &value.hash).is_ok();
 
         ModListItem {
             hash: value.hash.to_owned(),
@@ -70,7 +70,7 @@ impl ModListItem {
 impl DetailedDisplayObject {
     pub(crate) fn from_mod(connection: &Connection, value: &Mod) -> Self {
         let authors = value.meta.authors.as_deref().map(|value| value.join("\n"));
-        let valid = vault::validate(connection, &value.hash);
+        let valid = vault::validate(connection, &value.hash).is_ok();
 
         DetailedDisplayObject::new(
             vec![

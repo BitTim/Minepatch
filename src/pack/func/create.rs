@@ -6,18 +6,16 @@
  *
  * File:       create.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   06.02.25, 01:58
+ * Modified:   08.02.25, 01:57
  */
 use crate::common::file;
 use crate::db::Repo;
-use crate::msg::Message;
 use crate::pack::data::{Pack, PackFilter, PackRepo};
 use crate::pack::error::PackError;
 use crate::prelude::*;
-use crate::template::TemplateError;
 use crate::{instance, patch, template, vault};
 use rusqlite::Connection;
-use sha256::Sha256Digest;
+use std::collections::HashSet;
 use std::path::Path;
 
 const INIT_PATCH_NAME: &str = "init";
@@ -27,14 +25,14 @@ pub fn create<F, G, H>(
     pack: Pack,
     from: Option<String>,
     instance: Option<String>,
-    init_progress: F,
-    tick_progress: G,
-    handle_warnings: H,
+    init_progress: &F,
+    tick_progress: &G,
+    handle_warning: &H,
 ) -> Result<()>
 where
     F: Fn(u64),
     G: Fn(&str, &Path),
-    H: FnOnce(Vec<Message>),
+    H: Fn(Error),
 {
     let name = pack.name.to_owned();
     let template = pack.template.to_owned();
@@ -46,8 +44,8 @@ where
         return Err(Error::Pack(PackError::NameTaken(name)));
     }
 
-    if template.is_some() && !template::validate(connection, template.as_ref().unwrap()) {
-        return Err(Error::Template(TemplateError::NotFound(name)));
+    if template.is_some() {
+        template::validate(connection, template.as_ref().unwrap())?;
     }
 
     PackRepo::insert(connection, pack)?;
@@ -57,21 +55,21 @@ where
         let mod_paths = file::mod_paths_from_instance_path(from.as_ref())?;
         init_progress(mod_paths.len() as u64);
 
-        patch::create(connection, INIT_PATCH_NAME, &name, "", &"".digest())?;
-
-        let mut warnings = vec![];
-        let mut hashes = vec![];
+        let mut hashes = HashSet::new();
         for mod_path in mod_paths {
-            let hash = vault::add(connection, &mod_path, false, |warning| {
-                warnings.push(warning)
-            })?;
-            patch::include(connection, INIT_PATCH_NAME, &name, &hash)?;
-
+            let hash = vault::add(connection, &mod_path, false, handle_warning)?;
             tick_progress(&hash, &mod_path);
-            hashes.push(hash);
+            hashes.insert(hash);
         }
 
-        handle_warnings(warnings);
+        patch::create(
+            connection,
+            INIT_PATCH_NAME,
+            &name,
+            "",
+            &hashes,
+            &HashSet::new(),
+        )?;
 
         if let Some(instance) = instance {
             let instance_name = match instance.is_empty() {

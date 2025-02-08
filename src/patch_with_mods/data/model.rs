@@ -6,12 +6,14 @@
  *
  * File:       model.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   06.02.25, 01:58
+ * Modified:   08.02.25, 01:06
  */
 use crate::common::db::Entity;
 use crate::prelude::*;
 use rusqlite::{Row, ToSql};
+use serde::{Deserialize, Serialize};
 
+#[derive(Eq, PartialEq, Hash, Debug, Clone, Serialize, Deserialize)]
 pub struct PatchWithMods {
     pub patch: String,
     pub pack: String,

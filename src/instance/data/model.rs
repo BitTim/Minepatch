@@ -6,7 +6,7 @@
  *
  * File:       model.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   06.02.25, 01:55
+ * Modified:   08.02.25, 01:04
  */
 
 use crate::common::db::Entity;
@@ -15,7 +15,7 @@ use rusqlite::{Row, ToSql};
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
 
-#[derive(Clone, Eq, PartialEq, Debug, Serialize, Deserialize)]
+#[derive(Clone, Eq, PartialEq, Hash, Debug, Serialize, Deserialize)]
 pub struct Instance {
     pub name: String,
     pub path: PathBuf,

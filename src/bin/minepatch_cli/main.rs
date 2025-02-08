@@ -6,7 +6,7 @@
  *
  * File:       main.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   06.02.25, 02:49
+ * Modified:   08.02.25, 11:14
  */
 use crate::cli::instance::InstanceCommands;
 use crate::cli::pack::PackCommands;
@@ -40,12 +40,7 @@ fn match_command(command: &Commands, connection: &Connection) -> Result<()> {
                 patch,
             } => {
                 instance::link(connection, path, name, pack, patch)?;
-            } // InstanceCommands::Rename { name, new_name } => {
-              //     //instance::rename(name, new_name)?;
-              // }
-              // InstanceCommands::Unlink { name, all, yes } => {
-              //     //instance::unlink(name, all, yes)?;
-              // }
+            }
         },
         Commands::Vault {
             vault_commands: vault_command,
@@ -82,21 +77,27 @@ fn match_command(command: &Commands, connection: &Connection) -> Result<()> {
             PatchCommands::Create {
                 name,
                 dependency,
-                state_hash,
                 pack,
-            } => patch::create(connection, name, pack, dependency, state_hash)?,
-            PatchCommands::Include {
-                name,
-                pack,
-                mod_hash,
-            } => patch::include(connection, name, pack, mod_hash)?,
+            } => patch::create(connection, name, pack, dependency)?,
             PatchCommands::Exclude {
                 name,
                 pack,
                 mod_hash,
             } => patch::exclude(connection, name, pack, mod_hash)?,
+            PatchCommands::Generate { name, instance } => {
+                patch::generate(connection, name, instance)?
+            }
+            PatchCommands::Include {
+                name,
+                pack,
+                mod_hash,
+            } => patch::include(connection, name, pack, mod_hash)?,
             PatchCommands::List { name, pack } => patch::list(connection, name, pack)?,
-            PatchCommands::Simulate { name, pack } => patch::simulate(connection, name, pack)?,
+            PatchCommands::Simulate {
+                name,
+                pack,
+                dir_hash,
+            } => patch::simulate(connection, name, pack, dir_hash)?,
             PatchCommands::View { name, pack } => patch::view(connection, name, pack)?,
         },
         Commands::Pack {

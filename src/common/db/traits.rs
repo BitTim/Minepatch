@@ -6,13 +6,14 @@
  *
  * File:       traits.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   06.02.25, 02:18
+ * Modified:   08.02.25, 01:04
  */
 use crate::error::Error;
 use crate::prelude;
 use rusqlite::{Row, ToSql};
+use std::hash::Hash;
 
-pub(crate) trait Entity {
+pub(crate) trait Entity: Eq + PartialEq + Hash {
     fn table_name() -> String;
     fn from_row(row: &Row) -> prelude::Result<Box<Self>>;
     fn to_params(&self) -> Vec<Box<dyn ToSql>>;

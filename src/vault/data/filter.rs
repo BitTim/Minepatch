@@ -6,7 +6,7 @@
  *
  * File:       filter.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   06.02.25, 02:18
+ * Modified:   08.02.25, 00:32
  */
 use crate::common::db::{Entity, Filter, InsertableFilter};
 use crate::error::Error;
@@ -56,13 +56,15 @@ impl Filter for ModFilter {
 
     fn error(&self) -> Error {
         match self {
-            ModFilter::Insert { entry } => {
-                Error::Vault(VaultError::HashTaken(entry.hash.to_owned()))
-            }
-            ModFilter::QueryAll => Error::Vault(VaultError::NotFound("".to_owned())),
+            ModFilter::Insert { entry } => Error::Vault(VaultError::HashTaken {
+                hash: entry.hash.to_owned(),
+            }),
+            ModFilter::QueryAll => Error::Generic("Error during vault query".to_owned()),
             ModFilter::QueryHashExact { hash }
             | ModFilter::QueryHashAndIDAndNameSimilar { hash, .. } => {
-                Error::Vault(VaultError::NotFound(hash.to_owned()))
+                Error::Vault(VaultError::NotFound {
+                    hash: hash.to_owned(),
+                })
             }
         }
     }

@@ -6,18 +6,16 @@
  *
  * File:       init.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   06.02.25, 01:45
+ * Modified:   08.02.25, 11:08
  */
-use crate::file::PathBuilder;
 use crate::{file, prelude};
 use rusqlite::Connection;
 
 const DB_FILENAME: &str = "minepatch.db";
 
 fn connect() -> prelude::Result<Connection> {
-    let path = PathBuilder::new(&file::get_data_path()?)
-        .push(DB_FILENAME)
-        .build();
+    let mut path = file::get_data_path()?;
+    path.push(DB_FILENAME);
 
     Ok(Connection::open(path)?)
 }

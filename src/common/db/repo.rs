@@ -6,13 +6,14 @@
  *
  * File:       repo.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   06.02.25, 01:55
+ * Modified:   08.02.25, 01:04
  */
 use crate::common::db::SqlAction;
 use crate::common::db::{Entity, Filter, InsertableFilter};
 use crate::db::build_statement_sql;
 use crate::prelude::*;
 use rusqlite::{params_from_iter, Connection};
+use std::collections::HashSet;
 
 pub(crate) trait Repo<F, T>
 where
@@ -54,7 +55,7 @@ where
         Ok(*result?)
     }
 
-    fn query_multiple(connection: &Connection, filter: &F) -> Result<Vec<T>> {
+    fn query_multiple(connection: &Connection, filter: &F) -> Result<HashSet<T>> {
         let mut statement = connection.prepare(&build_statement_sql(
             SqlAction::Select,
             &T::table_name(),
@@ -65,9 +66,9 @@ where
             Ok(T::from_row(row))
         })?;
 
-        let mut results = vec![];
+        let mut results = HashSet::new();
         for result in raw_results {
-            results.push(*result??);
+            results.insert(*result??);
         }
 
         Ok(results)

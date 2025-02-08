@@ -6,12 +6,13 @@
  *
  * File:       query.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   06.02.25, 02:18
+ * Modified:   08.02.25, 01:59
  */
 use crate::db::Repo;
 use crate::patch_with_mods::{PatchModRelFilter, PatchModRelRepo, PatchWithMods};
 use crate::prelude::*;
 use rusqlite::Connection;
+use std::collections::HashSet;
 
 pub fn query_single(
     connection: &Connection,
@@ -31,7 +32,7 @@ pub fn query_multiple(
     connection: &Connection,
     name: &str,
     pack: &str,
-) -> Result<Vec<PatchWithMods>> {
+) -> Result<HashSet<PatchWithMods>> {
     let query = PatchModRelFilter::QueryByPatchAndPackExact {
         patch: name.to_owned(),
         pack: pack.to_owned(),

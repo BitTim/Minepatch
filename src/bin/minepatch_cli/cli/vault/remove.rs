@@ -6,7 +6,7 @@
  *
  * File:       remove.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   27.01.25, 11:41
+ * Modified:   08.02.25, 02:12
  */
 use crate::output::list_items::vault::ModListItem;
 use inquire::{Confirm, Select};
@@ -46,7 +46,9 @@ pub(crate) fn remove(
             matches
                 .iter()
                 .find(|entry| entry.hash == result.hash)
-                .ok_or(Error::Vault(VaultError::NotFound(result.hash.to_owned())))
+                .ok_or(Error::Vault(VaultError::NotFound {
+                    hash: result.hash.to_owned(),
+                }))
         },
     )
 }
