@@ -6,7 +6,7 @@
  *
  * File:       generate.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   08.02.25, 02:38
+ * Modified:   08.02.25, 20:12
  */
 use crate::hash::hash_file;
 use crate::prelude::*;
@@ -54,8 +54,6 @@ where
         &removed,
     )?;
 
-    // TODO: Add apply function
-    //instance::apply(connection, &instance.name, name)?;
-
+    instance::apply(connection, &instance.name, name)?;
     Ok(())
 }

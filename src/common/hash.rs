@@ -6,7 +6,7 @@
  *
  * File:       hash.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   08.02.25, 02:19
+ * Modified:   08.02.25, 22:17
  */
 use crate::prelude::*;
 use sha256::Sha256Digest;
@@ -32,7 +32,7 @@ pub(crate) fn hash_file(path: &Path) -> Result<String> {
     Ok(data.digest())
 }
 
-pub(crate) fn hash_files(paths: &[PathBuf]) -> Result<String> {
+pub(crate) fn hash_state_from_path(paths: &[PathBuf]) -> Result<String> {
     let hashes: HashSet<String> = paths
         .iter()
         .map(|mod_path| hash_file(mod_path))

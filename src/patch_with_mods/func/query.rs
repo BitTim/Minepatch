@@ -6,7 +6,7 @@
  *
  * File:       query.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   08.02.25, 01:59
+ * Modified:   08.02.25, 14:29
  */
 use crate::db::Repo;
 use crate::patch_with_mods::{PatchModRelFilter, PatchModRelRepo, PatchWithMods};
@@ -33,7 +33,7 @@ pub fn query_multiple(
     name: &str,
     pack: &str,
 ) -> Result<HashSet<PatchWithMods>> {
-    let query = PatchModRelFilter::QueryByPatchAndPackExact {
+    let query = PatchModRelFilter::ByPatchAndPackExact {
         patch: name.to_owned(),
         pack: pack.to_owned(),
     };

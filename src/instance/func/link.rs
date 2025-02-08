@@ -6,7 +6,7 @@
  *
  * File:       link.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   08.02.25, 11:19
+ * Modified:   08.02.25, 22:14
  */
 use crate::common::file::error::FileError;
 use crate::common::file::filename_from_path;
@@ -15,17 +15,16 @@ use crate::db::Repo;
 use crate::instance::data::{InstanceFilter, InstanceRepo};
 use crate::instance::{validate, Instance, InstanceError};
 use crate::prelude::*;
-use crate::{file, pack, patch, vault};
+use crate::{file, instance, pack, patch};
 use rusqlite::Connection;
 use std::fs;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 pub fn link(
     connection: &Connection,
     path: &Path,
     name: &Option<String>,
     pack: &str,
-    patch: &str,
 ) -> Result<String> {
     if !fs::exists(path)? {
         return Err(Error::File(FileError::PathNotFound(
@@ -38,48 +37,35 @@ pub fn link(
         None => filename_from_path(path)?,
     };
 
-    let query = InstanceFilter::QueryExactName {
+    let query = InstanceFilter::ByExactName {
         name: actual_name.to_owned(),
     };
     if InstanceRepo::exists(connection, &query)? {
-        return Err(Error::Instance(InstanceError::NameTaken(
-            actual_name.to_owned(),
-        )));
+        return Err(Error::Instance(InstanceError::NameTaken {
+            name: actual_name.to_owned(),
+        }));
     }
 
     pack::validate(connection, pack, true)?;
-    patch::validate(connection, patch, pack, true)?;
-
-    InstanceRepo::insert(connection, Instance::new(actual_name, path, pack, patch))?;
-    validate(connection, &actual_name, false)?;
 
     let mod_paths = file::mod_paths_from_instance_path(path)?;
+    let src_dir_hash = hash::hash_state_from_path(&mod_paths)?;
+    let patch = patch::query_by_src_dir_hash_single(connection, &src_dir_hash, pack)?;
+    let dependency = &patch.dependency;
 
-    // TODO: Create all symlinks first and only remove all jar files if all symlinks are created
-    for mod_path in mod_paths {
-        let hash = hash::hash_file(&mod_path)?;
-        let mod_entry = vault::query_single(connection, &hash)?;
-
-        if !fs::exists(&mod_entry.path)? {
-            return Err(Error::File(FileError::PathNotFound(
-                mod_entry.path.display().to_string(),
-            )));
-        }
-
-        let tmp_mod_path = PathBuf::from(mod_path.display().to_string() + ".tmp");
-        fs::rename(&mod_path, &tmp_mod_path)?;
-        symlink::symlink_file(&mod_entry.path, &mod_path)?;
-
-        if !fs::exists(&mod_path)? {
-            fs::rename(&tmp_mod_path, &mod_path)?;
-            return Err(Error::Instance(InstanceError::SymlinkFailed(
-                mod_entry.path.display().to_string(),
-                mod_path.display().to_string(),
-            )));
-        }
-
-        fs::remove_file(&tmp_mod_path)?;
+    if dependency.is_empty() {
+        return Err(Error::Instance(InstanceError::NoPatchFound {
+            pack: pack.to_owned(),
+            src_dir_hash,
+        }));
     }
 
+    InstanceRepo::insert(
+        connection,
+        Instance::new(actual_name, path, pack, dependency),
+    )?;
+    validate(connection, actual_name, false)?;
+
+    instance::apply(connection, actual_name, dependency)?;
     Ok(actual_name.to_owned())
 }

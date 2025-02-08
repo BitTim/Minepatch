@@ -6,7 +6,7 @@
  *
  * File:       validate.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   07.02.25, 17:23
+ * Modified:   08.02.25, 14:29
  */
 use crate::db::Repo;
 use crate::patch::data::{PatchFilter, PatchRepo};
@@ -43,7 +43,7 @@ fn validate_patch_dependency(connection: &Connection, patch: &Patch) -> Result<(
 }
 
 fn validate_mods(connection: &Connection, name: &str, pack: &str) -> Result<()> {
-    let query = PatchModRelFilter::QueryByPatchAndPackExact {
+    let query = PatchModRelFilter::ByPatchAndPackExact {
         patch: name.to_owned(),
         pack: pack.to_owned(),
     };

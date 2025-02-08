@@ -6,7 +6,7 @@
  *
  * File:       exclude.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   06.02.25, 02:15
+ * Modified:   08.02.25, 14:23
  */
 use crate::db::Repo;
 use crate::error::Error;
@@ -25,20 +25,20 @@ pub fn exclude(connection: &Connection, name: &str, pack: &str, mod_hash: &str) 
 
     let mods = simulate(connection, name, pack)?;
     if !mods.contains(&mod_hash.to_owned()) {
-        return Err(Error::Patch(PatchError::ModExcluded(
-            mod_hash.to_owned(),
-            pack.to_owned(),
-            name.to_owned(),
-        )));
+        return Err(Error::Patch(PatchError::ModExcluded {
+            hash: mod_hash.to_owned(),
+            pack: pack.to_owned(),
+            name: name.to_owned(),
+        }));
     }
 
     if let Ok(relation) = relation {
         if relation.removed {
-            Err(Error::Patch(PatchError::RelTaken(
-                mod_hash.to_owned(),
-                name.to_owned(),
-                pack.to_owned(),
-            )))
+            Err(Error::Patch(PatchError::RelTaken {
+                hash: mod_hash.to_owned(),
+                name: name.to_owned(),
+                pack: pack.to_owned(),
+            }))
         } else {
             PatchModRelRepo::remove(connection, &query)?;
             Ok(())

@@ -6,7 +6,7 @@
  *
  * File:       filter.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   08.02.25, 11:08
+ * Modified:   08.02.25, 22:17
  */
 use crate::common::db::{Filter, InsertableFilter};
 use crate::error::Error;
@@ -16,8 +16,10 @@ use rusqlite::ToSql;
 pub(crate) enum PatchFilter {
     Insert { patch: Patch },
     ByNameAndPackExact { name: String, pack: String },
-    QueryByNameAndPackSimilar { name: String, pack: String },
-    QueryByDepAndPackExact { dependency: String, pack: String },
+    ByNameAndPackSimilar { name: String, pack: String },
+    ByDepAndPackExact { dependency: String, pack: String },
+    ByPackExact { pack: String },
+    BySrcDirHashAndPackExact { src_dir_hash: String, pack: String },
 }
 
 impl Filter for PatchFilter {
@@ -25,10 +27,12 @@ impl Filter for PatchFilter {
         match self {
             PatchFilter::Insert { .. } => "VALUES (?1, ?2, ?3, ?4)",
             PatchFilter::ByNameAndPackExact { .. } => "WHERE name = ?1 AND pack = ?2",
-            PatchFilter::QueryByNameAndPackSimilar { .. } => {
+            PatchFilter::ByNameAndPackSimilar { .. } => {
                 "WHERE name LIKE ?1||'%' AND pack LIKE ?2||'%'"
             }
-            PatchFilter::QueryByDepAndPackExact { .. } => "WHERE dependency = ?1 AND pack = ?2",
+            PatchFilter::ByDepAndPackExact { .. } => "WHERE dependency = ?1 AND pack = ?2",
+            PatchFilter::ByPackExact { .. } => "WHERE pack = ?1",
+            PatchFilter::BySrcDirHashAndPackExact { .. } => "WHERE src_dir_hash = ?1 AND pack = ?2",
         }
         .to_owned()
     }
@@ -42,28 +46,49 @@ impl Filter for PatchFilter {
                 Box::new(patch.src_dir_hash.to_owned()),
             ],
             PatchFilter::ByNameAndPackExact { name, pack }
-            | PatchFilter::QueryByNameAndPackSimilar { name, pack } => {
+            | PatchFilter::ByNameAndPackSimilar { name, pack } => {
                 vec![Box::new(name.to_owned()), Box::new(pack.to_owned())]
             }
-            PatchFilter::QueryByDepAndPackExact { dependency, pack } => {
+            PatchFilter::ByDepAndPackExact { dependency, pack } => {
                 vec![Box::new(dependency.to_owned()), Box::new(pack.to_owned())]
+            }
+            PatchFilter::ByPackExact { pack } => {
+                vec![Box::new(pack.to_owned())]
+            }
+            PatchFilter::BySrcDirHashAndPackExact { src_dir_hash, pack } => {
+                vec![Box::new(src_dir_hash.to_owned()), Box::new(pack.to_owned())]
             }
         }
     }
 
     fn error(&self) -> Error {
         match self {
-            PatchFilter::Insert { patch } => Error::Patch(PatchError::NameExists(
-                patch.name.to_owned(),
-                patch.pack.to_owned(),
-            )),
+            PatchFilter::Insert { patch } => Error::Patch(PatchError::NameExists {
+                name: patch.name.to_owned(),
+                pack: patch.pack.to_owned(),
+            }),
             PatchFilter::ByNameAndPackExact { name, pack }
-            | PatchFilter::QueryByNameAndPackSimilar { name, pack } => {
-                Error::Patch(PatchError::NotFound(name.to_owned(), pack.to_owned()))
+            | PatchFilter::ByNameAndPackSimilar { name, pack } => {
+                Error::Patch(PatchError::NotFound {
+                    name: name.to_owned(),
+                    pack: pack.to_owned(),
+                })
             }
-            PatchFilter::QueryByDepAndPackExact { dependency, pack } => Error::Patch(
-                PatchError::DepNotFound(dependency.to_owned(), pack.to_owned()),
-            ),
+            PatchFilter::ByDepAndPackExact { dependency, pack } => {
+                Error::Patch(PatchError::DepNotFound {
+                    dependency: dependency.to_owned(),
+                    pack: pack.to_owned(),
+                })
+            }
+            PatchFilter::ByPackExact { pack } => Error::Patch(PatchError::PackNotFound {
+                pack: pack.to_owned(),
+            }),
+            PatchFilter::BySrcDirHashAndPackExact { src_dir_hash, pack } => {
+                Error::Patch(PatchError::SrcDirHashNotFound {
+                    src_dir_hash: src_dir_hash.to_owned(),
+                    pack: pack.to_owned(),
+                })
+            }
         }
     }
 }

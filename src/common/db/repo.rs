@@ -6,7 +6,7 @@
  *
  * File:       repo.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   08.02.25, 01:04
+ * Modified:   08.02.25, 21:43
  */
 use crate::common::db::SqlAction;
 use crate::common::db::{Entity, Filter, InsertableFilter};
@@ -49,8 +49,11 @@ where
         let result = statement
             .query_row(params_from_iter(filter.params()), |row| {
                 Ok(T::from_row(row))
-            })?
-            .map_err(|_| filter.error());
+            })
+            .map_err(|err| match err {
+                rusqlite::Error::QueryReturnedNoRows => filter.error(),
+                _ => Error::from(err),
+            })?;
 
         Ok(*result?)
     }
@@ -62,9 +65,14 @@ where
             &filter.value(),
         ))?;
 
-        let raw_results = statement.query_map(params_from_iter(filter.params()), |row| {
-            Ok(T::from_row(row))
-        })?;
+        let raw_results = statement
+            .query_map(params_from_iter(filter.params()), |row| {
+                Ok(T::from_row(row))
+            })
+            .map_err(|err| match err {
+                rusqlite::Error::QueryReturnedNoRows => filter.error(),
+                _ => Error::from(err),
+            })?;
 
         let mut results = HashSet::new();
         for result in raw_results {

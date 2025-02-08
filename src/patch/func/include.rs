@@ -6,7 +6,7 @@
  *
  * File:       include.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   06.02.25, 02:15
+ * Modified:   08.02.25, 14:23
  */
 
 use crate::db::Repo;
@@ -25,11 +25,11 @@ pub fn include(connection: &Connection, name: &str, pack: &str, mod_hash: &str) 
 
     let mods = simulate(connection, name, pack)?;
     if mods.contains(&mod_hash.to_owned()) {
-        return Err(Error::Patch(PatchError::ModIncluded(
-            mod_hash.to_owned(),
-            pack.to_owned(),
-            name.to_owned(),
-        )));
+        return Err(Error::Patch(PatchError::ModIncluded {
+            hash: mod_hash.to_owned(),
+            pack: pack.to_owned(),
+            name: name.to_owned(),
+        }));
     }
 
     if let Ok(relation) = relation {
@@ -37,11 +37,11 @@ pub fn include(connection: &Connection, name: &str, pack: &str, mod_hash: &str) 
             PatchModRelRepo::remove(connection, &rel_filter)?;
             Ok(())
         } else {
-            Err(Error::Patch(PatchError::RelTaken(
-                mod_hash.to_owned(),
-                name.to_owned(),
-                pack.to_owned(),
-            )))
+            Err(Error::Patch(PatchError::RelTaken {
+                hash: mod_hash.to_owned(),
+                name: name.to_owned(),
+                pack: pack.to_owned(),
+            }))
         }
     } else {
         PatchModRelRepo::insert(connection, PatchWithMods::new(name, pack, mod_hash, false))?;

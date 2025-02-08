@@ -6,22 +6,30 @@
  *
  * File:       error.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   08.02.25, 02:37
+ * Modified:   08.02.25, 22:17
  */
 use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum InstanceError {
-    #[error("No instance with name '{0}' was found.")]
-    NameNotFound(String),
-    #[error("Name '{0}' is already taken by another instance.")]
-    NameTaken(String),
+    #[error("No instance with name '{name}' was found.")]
+    NameNotFound { name: String },
+    #[error("Name '{name}' is already taken by another instance.")]
+    NameTaken { name: String },
     #[error("New name cannot be the same as old name")]
     NameNotChanged,
     #[error(
-        "States of the mod folder do not match.\n\tPresent state: '{0}'\n\tSimulated state: '{1}'"
+        "States of the mod folder do not match.\n\tPresent dir hash: '{present_hash}'\n\tSimulated dir hash: '{sim_hash}'"
     )]
-    StateMismatch(String, String),
-    #[error("Failed to create symlink: '{0}' -> '{1}'")]
-    SymlinkFailed(String, String),
+    StateMismatch {
+        present_hash: String,
+        sim_hash: String,
+    },
+    #[error("Failed to create symlink: '{src}' -> '{dest}'")]
+    SymlinkFailed { src: String, dest: String },
+    #[error("No patch has been found in pack '{pack}' that matches the instances dir state '{src_dir_hash}'"
+    )]
+    NoPatchFound { pack: String, src_dir_hash: String },
+    #[error("Failed to update instance '{name}' to patch '{patch}'.")]
+    PatchUpdateFailed { name: String, patch: String },
 }

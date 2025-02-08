@@ -6,11 +6,10 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   08.02.25, 14:13
+ * Modified:   08.02.25, 16:02
  */
-mod data;
-pub use data::*;
-mod error;
-pub use error::*;
-mod func;
-pub use func::*;
+mod patch;
+mod patch_diff;
+
+pub use patch::*;
+pub use patch_diff::*;

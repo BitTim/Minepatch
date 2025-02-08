@@ -4,10 +4,11 @@
  * Project:    Minepatch
  * License:    GPLv3
  *
- * File:       model.rs
+ * File:       patch.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   08.02.25, 11:08
+ * Modified:   08.02.25, 16:02
  */
+
 use crate::common::db::Entity;
 use crate::prelude::*;
 use rusqlite::{Row, ToSql};

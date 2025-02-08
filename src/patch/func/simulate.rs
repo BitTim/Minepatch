@@ -6,7 +6,7 @@
  *
  * File:       simulate.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   08.02.25, 02:32
+ * Modified:   08.02.25, 22:17
  */
 use crate::db::Repo;
 use crate::hash;
@@ -30,7 +30,7 @@ pub fn simulate(connection: &Connection, name: &str, pack: &str) -> Result<HashS
     let mut mod_hashes = HashSet::new();
     mod_hashes.extend(simulate(connection, &patch.dependency, pack)?);
 
-    let rel_filter = PatchModRelFilter::QueryByPatchAndPackExact {
+    let rel_filter = PatchModRelFilter::ByPatchAndPackExact {
         patch: name.to_owned(),
         pack: pack.to_owned(),
     };

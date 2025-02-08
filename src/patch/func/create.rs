@@ -6,7 +6,7 @@
  *
  * File:       create.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   08.02.25, 11:08
+ * Modified:   08.02.25, 14:22
  */
 use crate::db::Repo;
 use crate::error::Error;
@@ -30,10 +30,10 @@ pub fn create(
         pack: pack.to_owned(),
     };
     if PatchRepo::exists(connection, &exists_query)? {
-        return Err(Error::Patch(PatchError::NameExists(
-            name.to_owned(),
-            pack.to_owned(),
-        )));
+        return Err(Error::Patch(PatchError::NameExists {
+            name: name.to_owned(),
+            pack: pack.to_owned(),
+        }));
     }
 
     let src_dir_hash = patch::simulate_dir_hash(connection, dependency, pack)?;

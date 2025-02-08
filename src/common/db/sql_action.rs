@@ -6,7 +6,7 @@
  *
  * File:       sql_action.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   06.02.25, 02:18
+ * Modified:   08.02.25, 21:43
  */
 pub(crate) enum SqlAction {
     Insert,

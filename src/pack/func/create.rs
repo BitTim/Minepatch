@@ -6,7 +6,7 @@
  *
  * File:       create.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   08.02.25, 01:57
+ * Modified:   08.02.25, 22:00
  */
 use crate::common::file;
 use crate::db::Repo;
@@ -77,13 +77,7 @@ where
                 false => Some(instance.to_owned()),
             };
 
-            instance::link(
-                connection,
-                from.as_ref(),
-                &instance_name,
-                &name,
-                INIT_PATCH_NAME,
-            )?;
+            instance::link(connection, from.as_ref(), &instance_name, &name)?;
         };
     }
 

@@ -6,7 +6,7 @@
  *
  * File:       main.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   08.02.25, 11:14
+ * Modified:   08.02.25, 22:01
  */
 use crate::cli::instance::InstanceCommands;
 use crate::cli::pack::PackCommands;
@@ -32,14 +32,10 @@ fn match_command(command: &Commands, connection: &Connection) -> Result<()> {
         Commands::Instance {
             instance_commands: instance_command,
         } => match instance_command {
+            InstanceCommands::Apply { name, patch } => instance::apply(connection, name, patch)?,
             InstanceCommands::List { name } => instance::list(connection, name)?,
-            InstanceCommands::Link {
-                path,
-                name,
-                pack,
-                patch,
-            } => {
-                instance::link(connection, path, name, pack, patch)?;
+            InstanceCommands::Link { path, name, pack } => {
+                instance::link(connection, path, name, pack)?;
             }
         },
         Commands::Vault {

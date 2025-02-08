@@ -6,7 +6,7 @@
  *
  * File:       view.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   08.02.25, 11:08
+ * Modified:   08.02.25, 22:17
  */
 use crate::output::list_items::vault::ModListItem;
 use crate::output::table::TableOutput;
@@ -20,9 +20,9 @@ use minepatch::{patch, patch_with_mods, vault};
 use rusqlite::Connection;
 
 pub(crate) fn view(connection: &Connection, name: &str, pack: &str) -> Result<()> {
-    let patch = patch::query_single(connection, name, pack)?;
+    let patch = patch::query_by_src_dir_hash_single(connection, name, pack)?;
     let relations = patch_with_mods::query_multiple(connection, name, pack)?;
-    let next_patch = patch::query_dependency_single(connection, name, pack).ok();
+    let next_patch = patch::query_by_dependency_single(connection, name, pack).ok();
 
     let (added_mod_relations, removed_mod_relations): (Vec<_>, Vec<_>) =
         relations.iter().partition(|rel| !rel.removed);

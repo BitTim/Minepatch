@@ -6,9 +6,10 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   08.02.25, 02:14
+ * Modified:   08.02.25, 16:54
  */
 mod create;
+mod diff;
 mod exclude;
 mod generate;
 mod include;
@@ -17,6 +18,7 @@ mod simulate;
 mod validate;
 
 pub use create::*;
+pub use diff::*;
 pub use exclude::*;
 pub use generate::*;
 pub use include::*;
