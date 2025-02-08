@@ -6,9 +6,11 @@
  *
  * File:       table.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.01.25, 22:20
+ * Modified:   06.02.25, 02:43
  */
 use crate::output::Output;
+use colored::Colorize;
+use minepatch::msg::Message;
 use std::fmt::{Display, Formatter};
 use tabled::grid::records::vec_records::{Text, VecRecords};
 use tabled::settings::object::{Object, Rows};
@@ -18,11 +20,13 @@ use tabled::{Table, Tabled};
 #[derive(Debug)]
 pub struct TableOutput {
     table: Table,
+    count: usize,
+    empty_msg: Message,
 }
 
 impl TableOutput {
-    pub fn new<T: Tabled>(values: Vec<T>) -> Self {
-        let table = Table::new(values)
+    pub fn new<T: Tabled>(values: Vec<T>, empty_msg: Message) -> Self {
+        let table = Table::new(&values)
             .with(Style::rounded().remove_horizontals())
             .modify(
                 Rows::new(0..1),
@@ -30,7 +34,11 @@ impl TableOutput {
             )
             .to_owned();
 
-        Self { table }
+        Self {
+            table,
+            count: values.len(),
+            empty_msg,
+        }
     }
 
     pub fn _center<T: Object<VecRecords<Text<String>>>>(mut self, target: T) -> Self {
@@ -46,7 +54,16 @@ impl TableOutput {
 
 impl Display for TableOutput {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.table)
+        if self.count < 1 {
+            write!(f, "{}", self.empty_msg)
+        } else {
+            write!(
+                f,
+                "{}\nNumber of items: {}",
+                self.table,
+                self.count.to_string().bold().purple()
+            )
+        }
     }
 }
 

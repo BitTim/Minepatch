@@ -6,13 +6,22 @@
  *
  * File:       hash.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   23.01.25, 17:11
+ * Modified:   08.02.25, 22:17
  */
 use crate::prelude::*;
 use sha256::Sha256Digest;
+use std::collections::HashSet;
 use std::fs;
 use std::io::Read;
-use std::path::Path;
+use std::path::{Path, PathBuf};
+
+pub(crate) fn hash_state(hashes: &HashSet<String>) -> String {
+    let mut hashes = Vec::from_iter(hashes.to_owned());
+    hashes.sort();
+
+    let data = hashes.join("\n");
+    data.digest()
+}
 
 pub(crate) fn hash_file(path: &Path) -> Result<String> {
     let mut file = fs::OpenOptions::new().read(true).open(&path)?;
@@ -23,7 +32,11 @@ pub(crate) fn hash_file(path: &Path) -> Result<String> {
     Ok(data.digest())
 }
 
-pub(crate) fn hash_state(hashes: &[String]) -> String {
-    let data = hashes.join("\n");
-    data.digest()
+pub(crate) fn hash_state_from_path(paths: &[PathBuf]) -> Result<String> {
+    let hashes: HashSet<String> = paths
+        .iter()
+        .map(|mod_path| hash_file(mod_path))
+        .collect::<Result<HashSet<String>>>()?;
+
+    Ok(hash_state(&hashes))
 }

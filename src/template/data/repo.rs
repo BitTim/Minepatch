@@ -6,11 +6,11 @@
  *
  * File:       repo.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   04.02.25, 22:33
+ * Modified:   06.02.25, 01:59
  */
-use crate::common::Repo;
+use crate::db::Repo;
+use crate::template::data::filter::TemplateFilter;
 use crate::template::data::model::Template;
-use crate::template::data::query::TemplateQueries;
 
 pub(crate) struct TemplateRepo {}
-impl Repo<TemplateQueries, Template> for TemplateRepo {}
+impl Repo<TemplateFilter, Template> for TemplateRepo {}

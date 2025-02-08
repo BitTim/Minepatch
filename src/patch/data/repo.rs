@@ -6,12 +6,12 @@
  *
  * File:       repo.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   04.02.25, 19:14
+ * Modified:   06.02.25, 02:18
  */
 
-use crate::common::Repo;
+use crate::db::Repo;
+use crate::patch::data::filter::PatchFilter;
 use crate::patch::data::model::Patch;
-use crate::patch::data::query::PatchQueries;
 
 pub(crate) struct PatchRepo {}
-impl Repo<PatchQueries, Patch> for PatchRepo {}
+impl Repo<PatchFilter, Patch> for PatchRepo {}

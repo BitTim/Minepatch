@@ -6,7 +6,7 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   25.01.25, 19:46
+ * Modified:   05.02.25, 21:00
  */
 use colored::Colorize;
 use std::fmt::{Debug, Display};
@@ -26,6 +26,12 @@ pub fn format_bool(value: &bool) -> String {
     match value {
         true => "✓ Yes".green().to_string(),
         false => "✗  No".red().to_string(),
+    }
+}
+pub fn format_bool_valid(value: &bool) -> String {
+    match value {
+        true => "✓   Valid".green().to_string(),
+        false => "✗ Invalid".red().to_string(),
     }
 }
 

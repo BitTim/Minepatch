@@ -6,16 +6,10 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   04.02.25, 17:55
+ * Modified:   06.02.25, 02:18
  */
 pub mod db;
 pub mod file;
 pub mod hash;
 pub mod meta;
 pub mod msg;
-mod query;
-mod repo;
-
-pub(crate) use query::*;
-
-pub(crate) use repo::*;

@@ -6,14 +6,15 @@
  *
  * File:       add.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   04.02.25, 23:23
+ * Modified:   08.02.25, 00:34
  */
 
-use crate::common::{file, hash, Repo};
-use crate::msg::Message;
+use crate::common::{file, hash};
+use crate::db::Repo;
 use crate::prelude::*;
-use crate::vault::data::{Mod, VaultQueries, VaultRepo};
+use crate::vault::data::{Mod, ModFilter, VaultRepo};
 use crate::vault::func::common::meta::{detect_loader, extract_meta};
+use crate::vault::VaultError;
 use rusqlite::Connection;
 use std::fs;
 use std::path::Path;
@@ -22,33 +23,31 @@ pub fn add<F>(
     connection: &Connection,
     path: &Path,
     overwrite: bool,
-    handle_warning: F,
+    handle_warning: &F,
 ) -> Result<String>
 where
-    F: FnOnce(Message),
+    F: Fn(Error),
 {
     file::check_exists(path)?;
     let hash = hash::hash_file(path)?;
 
-    let exists_query = VaultQueries::QueryHashExact {
+    let exists_query = ModFilter::QueryHashExact {
         hash: hash.to_owned(),
     };
 
     if VaultRepo::exists(connection, &exists_query)? && !overwrite {
-        handle_warning(
-            Message::new("Mod is already registered in vault")
-                .context("Path", &path.display().to_string())
-                .context("Hash", &hash),
-        );
+        handle_warning(Error::Vault(VaultError::AlreadyExists {
+            path: path.display().to_string(),
+            hash: hash.to_owned(),
+        }));
         return Ok(hash);
     }
 
     let loader_result = detect_loader(path)?;
     if loader_result.is_none() {
-        handle_warning(
-            Message::new("No compatible loader detected for the provided file")
-                .context("Path", &path.display().to_string()),
-        )
+        handle_warning(Error::Vault(VaultError::NoLoaderDetected {
+            path: path.display().to_string(),
+        }))
     }
 
     let filename = file::filename_from_path(path)?;

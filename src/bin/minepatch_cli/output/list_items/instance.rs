@@ -6,7 +6,7 @@
  *
  * File:       instance.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   27.01.25, 10:52
+ * Modified:   07.02.25, 17:40
  */
 use crate::output::format_bool;
 use minepatch::instance;
@@ -30,7 +30,7 @@ pub(crate) struct InstanceListItem {
 
 impl InstanceListItem {
     pub(crate) fn from(connection: &Connection, instance: &Instance) -> Self {
-        let valid = instance::validate(connection, &instance.name, false);
+        let valid = instance::validate(connection, &instance.name, false).is_ok();
 
         Self {
             name: instance.name.to_owned(),

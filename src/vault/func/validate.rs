@@ -6,21 +6,27 @@
  *
  * File:       validate.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   04.02.25, 23:29
+ * Modified:   08.02.25, 00:29
  */
-use crate::common::Repo;
-use crate::vault::data::{VaultQueries, VaultRepo};
+use crate::db::Repo;
+use crate::prelude::*;
+use crate::vault::data::{ModFilter, VaultRepo};
+use crate::vault::VaultError;
 use rusqlite::Connection;
 use std::fs;
 
-pub fn validate(connection: &Connection, hash: &str) -> bool {
-    let query = VaultQueries::QueryHashExact {
+pub fn validate(connection: &Connection, hash: &str) -> Result<()> {
+    let query = ModFilter::QueryHashExact {
         hash: hash.to_owned(),
     };
-    let value = match VaultRepo::query_single(connection, &query) {
-        Ok(result) => result,
-        Err(_) => return false,
-    };
+    let value = VaultRepo::query_single(connection, &query)?;
 
-    fs::exists(&value.path).unwrap_or(false)
+    if !fs::exists(&value.path)? {
+        return Err(Error::Vault(VaultError::PathNotExist {
+            hash: hash.to_owned(),
+            path: value.path.display().to_string(),
+        }));
+    }
+
+    Ok(())
 }

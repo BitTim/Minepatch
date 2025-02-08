@@ -6,16 +6,23 @@
  *
  * File:       error.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   04.02.25, 23:19
+ * Modified:   08.02.25, 00:31
  */
 use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum VaultError {
-    #[error("No supported mod loader detected for '{0}'")]
-    NoLoaderDetected(String),
-    #[error("No mod found with hash '{0}'")]
-    NotFound(String),
-    #[error("Hash '{0}' is already used by a mod.")]
-    HashTaken(String),
+    #[error("No mod found with hash '{hash}'.")]
+    NotFound { hash: String },
+    #[error("No hash has been provided.")]
+    NoHashProvided,
+    #[error("Hash '{hash}' is already used by a mod.")]
+    HashTaken { hash: String },
+    #[error("Linked file for hash '{hash}' at path '{path}' does not exist.")]
+    PathNotExist { hash: String, path: String },
+
+    #[error("No supported mod loader detected for file '{path}'.")]
+    NoLoaderDetected { path: String },
+    #[error("Mod at '{path}' with hash '{hash}' is already registered in vault.")]
+    AlreadyExists { path: String, hash: String },
 }

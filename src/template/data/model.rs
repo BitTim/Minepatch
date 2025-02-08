@@ -6,14 +6,14 @@
  *
  * File:       model.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   04.02.25, 22:24
+ * Modified:   08.02.25, 01:06
  */
-use crate::common::QueryModel;
+use crate::common::db::Entity;
 use crate::prelude::*;
 use rusqlite::{Row, ToSql};
 use serde::{Deserialize, Serialize};
 
-#[derive(Eq, PartialEq, Debug, Clone, Serialize, Deserialize)]
+#[derive(Eq, PartialEq, Hash, Debug, Clone, Serialize, Deserialize)]
 pub struct Template {
     pub name: String,
     pub version: Option<String>,
@@ -37,7 +37,11 @@ impl Template {
     }
 }
 
-impl QueryModel for Template {
+impl Entity for Template {
+    fn table_name() -> String {
+        "template".to_owned()
+    }
+
     fn from_row(row: &Row) -> Result<Box<Self>> {
         Ok(Box::new(Self {
             name: row.get(0)?,

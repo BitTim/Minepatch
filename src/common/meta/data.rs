@@ -6,14 +6,14 @@
  *
  * File:       data.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.01.25, 03:05
+ * Modified:   08.02.25, 01:05
  */
 use crate::common::meta::{fabric, forge, forge_legacy};
 use crate::prelude::*;
 use serde::{Deserialize, Serialize};
 use strum_macros::EnumIter;
 
-#[derive(Eq, PartialEq, Debug, Serialize, Deserialize)]
+#[derive(Eq, PartialEq, Hash, Debug, Serialize, Deserialize)]
 pub struct Meta {
     pub id: String,
     pub name: String,

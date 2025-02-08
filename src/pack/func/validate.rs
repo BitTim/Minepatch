@@ -6,52 +6,44 @@
  *
  * File:       validate.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   04.02.25, 22:14
+ * Modified:   07.02.25, 17:17
  */
-use crate::common::Repo;
-use crate::pack::data::{PackQueries, PackRepo};
+use crate::db::Repo;
+use crate::pack::data::{PackFilter, PackRepo};
+use crate::prelude::*;
 use crate::{patch, template};
 use rusqlite::Connection;
 
-pub fn validate(connection: &Connection, name: &str, exist_only: bool) -> bool {
-    let query = PackQueries::QueryExactName {
+pub fn validate(connection: &Connection, name: &str, exist_only: bool) -> Result<()> {
+    let query = PackFilter::QueryExactName {
         name: name.to_owned(),
     };
 
-    let pack = match PackRepo::query_single(connection, &query) {
-        Ok(result) => result,
-        Err(_) => return false,
-    };
+    let pack = PackRepo::query_single(connection, &query)?;
 
     if exist_only {
-        return true;
+        return Ok(());
     }
 
-    if !validate_template(connection, &pack.template) || !validate_patches(connection, &pack.name) {
-        return false;
-    }
+    validate_template(connection, &pack.template)?;
+    validate_patches(connection, &pack.name)?;
 
-    true
+    Ok(())
 }
 
-fn validate_template(connection: &Connection, template: &Option<String>) -> bool {
+fn validate_template(connection: &Connection, template: &Option<String>) -> Result<()> {
     match template {
         Some(template) => template::validate(connection, template),
-        None => true,
+        None => Ok(()),
     }
 }
 
-fn validate_patches(connection: &Connection, name: &str) -> bool {
-    let patches = match patch::query(connection, None, Some(name)) {
-        Ok(patches) => patches,
-        Err(_) => return false,
-    };
+fn validate_patches(connection: &Connection, name: &str) -> Result<()> {
+    let patches = patch::query_multiple(connection, None, Some(name))?;
 
     for patch in patches {
-        if !patch::validate(connection, &patch.name, &patch.pack, false) {
-            return false;
-        }
+        patch::validate(connection, &patch.name, &patch.pack, false)?
     }
 
-    true
+    Ok(())
 }

@@ -4,26 +4,23 @@
  * Project:    Minepatch
  * License:    GPLv3
  *
- * File:       db.rs
+ * File:       init.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   26.01.25, 21:28
+ * Modified:   08.02.25, 11:08
  */
-use crate::common::file;
-use crate::common::file::PathBuilder;
-use crate::prelude::*;
+use crate::{file, prelude};
 use rusqlite::Connection;
 
 const DB_FILENAME: &str = "minepatch.db";
 
-fn connect() -> Result<Connection> {
-    let path = PathBuilder::new(&file::get_data_path()?)
-        .push(DB_FILENAME)
-        .build();
+fn connect() -> prelude::Result<Connection> {
+    let mut path = file::get_data_path()?;
+    path.push(DB_FILENAME);
 
     Ok(Connection::open(path)?)
 }
 
-fn create_tables(connection: &Connection) -> Result<()> {
+fn create_tables(connection: &Connection) -> prelude::Result<()> {
     Ok(connection.execute_batch(
         "
         BEGIN;
@@ -42,8 +39,8 @@ fn create_tables(connection: &Connection) -> Result<()> {
 
         CREATE TABLE IF NOT EXISTS template (
             name TEXT NOT NULL PRIMARY KEY,
-            loader TEXT,
             version TEXT,
+            loader TEXT,
             download TEXT
         );
 
@@ -57,9 +54,9 @@ fn create_tables(connection: &Connection) -> Result<()> {
 
         CREATE TABLE IF NOT EXISTS patch (
             name TEXT NOT NULL,
+            pack TEXT NOT NULL,
             dependency TEXT,
             src_dir_hash TEXT NOT NULL,
-            pack TEXT NOT NULL,
 
             PRIMARY KEY (name, pack),
             FOREIGN KEY (pack) REFERENCES pack(name)
@@ -91,7 +88,7 @@ fn create_tables(connection: &Connection) -> Result<()> {
     )?)
 }
 
-pub fn init() -> Result<Connection> {
+pub fn init() -> prelude::Result<Connection> {
     let connection = connect()?;
     create_tables(&connection)?;
 

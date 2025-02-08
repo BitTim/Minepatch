@@ -6,7 +6,7 @@
  *
  * File:       add.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.01.25, 22:20
+ * Modified:   08.02.25, 02:11
  */
 use crate::output::status::{Status, StatusOutput};
 use crate::output::Output;
@@ -17,8 +17,8 @@ use rusqlite::Connection;
 use std::path::Path;
 
 pub(crate) fn add(connection: &Connection, path: &Path, overwrite: &bool) -> Result<()> {
-    let hash = vault::add(connection, path, *overwrite, |warning| {
-        StatusOutput::new(Status::Warning, warning).print();
+    let hash = vault::add(connection, path, *overwrite, &|warning| {
+        StatusOutput::new(Status::Warning, Message::new(&warning.to_string())).print();
     })?;
 
     StatusOutput::new(

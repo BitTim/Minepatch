@@ -6,7 +6,7 @@
  *
  * File:       create.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   22.01.25, 16:13
+ * Modified:   08.02.25, 02:11
  */
 use crate::output::status::{Status, StatusOutput};
 use crate::output::Output;
@@ -35,18 +35,18 @@ pub(crate) fn create(
         Pack::new(name, description.to_owned(), template.to_owned()),
         from.to_owned(),
         instance.to_owned(),
-        |size| {
+        &|size| {
             progress_bar.set_draw_target(ProgressDrawTarget::stderr());
             progress_bar.set_length(size);
         },
-        |hash, path| {
+        &|hash, path| {
             progress_bar.set_message(format!("File\t'{}'\nHash\t'{}'", path.display(), hash));
             progress_bar.inc(1);
         },
-        |warnings| {
-            for warning in warnings {
-                progress_bar.suspend(|| StatusOutput::new(Status::Warning, warning).print());
-            }
+        &|warning| {
+            progress_bar.println(
+                StatusOutput::new(Status::Warning, Message::new(&warning.to_string())).to_string(),
+            )
         },
     )?;
 

@@ -6,8 +6,9 @@
  *
  * File:       msg.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.01.25, 12:53
+ * Modified:   05.02.25, 21:12
  */
+use std::fmt::{Display, Formatter};
 
 #[derive(Debug)]
 pub struct Context {
@@ -41,5 +42,17 @@ impl Message {
     pub fn context(mut self, title: &str, content: &str) -> Self {
         self.context.push(Context::new(title, content));
         self
+    }
+}
+
+impl Display for Message {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.msg)?;
+
+        for context in &self.context {
+            write!(f, "\n\t{}: {}", context.title, context.content)?;
+        }
+
+        Ok(())
     }
 }

@@ -6,7 +6,7 @@
  *
  * File:       include.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   22.01.25, 03:55
+ * Modified:   05.02.25, 18:11
  */
 use crate::output::status::{Status, StatusOutput};
 use crate::output::Output;
@@ -25,7 +25,7 @@ pub(crate) fn include(
 
     StatusOutput::new(
         Status::Success,
-        Message::new("Added mod to patch")
+        Message::new("Included mod with patch")
             .context("Mod", mod_hash)
             .context("Patch", name)
             .context("Pack", pack),

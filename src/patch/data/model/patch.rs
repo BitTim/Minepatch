@@ -4,16 +4,17 @@
  * Project:    Minepatch
  * License:    GPLv3
  *
- * File:       model.rs
+ * File:       patch.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   04.02.25, 19:13
+ * Modified:   08.02.25, 16:02
  */
-use crate::common::QueryModel;
+
+use crate::common::db::Entity;
 use crate::prelude::*;
 use rusqlite::{Row, ToSql};
 use serde::{Deserialize, Serialize};
 
-#[derive(Eq, PartialEq, Debug, Clone, Serialize, Deserialize)]
+#[derive(Eq, PartialEq, Hash, Debug, Clone, Serialize, Deserialize)]
 pub struct Patch {
     pub name: String,
     pub pack: String,
@@ -32,7 +33,11 @@ impl Patch {
     }
 }
 
-impl QueryModel for Patch {
+impl Entity for Patch {
+    fn table_name() -> String {
+        "patch".to_owned()
+    }
+
     fn from_row(row: &Row) -> Result<Box<Self>> {
         Ok(Box::new(Self {
             name: row.get(0)?,

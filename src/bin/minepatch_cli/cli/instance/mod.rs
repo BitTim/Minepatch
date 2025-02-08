@@ -6,11 +6,14 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   27.01.25, 10:29
+ * Modified:   08.02.25, 22:02
  */
+mod apply;
 mod link;
-pub(crate) use link::*;
 mod list;
+
+pub(crate) use apply::*;
+pub(crate) use link::*;
 pub(crate) use list::*;
 
 use clap::Subcommand;
@@ -18,7 +21,18 @@ use std::path::PathBuf;
 
 #[derive(Debug, Subcommand)]
 pub enum InstanceCommands {
-    /// List all linked instances
+    /// Apply a specific patch to the specified instance.
+    Apply {
+        /// The instance the patch is applied to.
+        #[arg(short, long)]
+        name: String,
+
+        /// The patch that should be applied.
+        #[arg(short, long)]
+        patch: String,
+    },
+
+    /// List all linked instances.
     List {
         /// Specifies a name to filter for.
         #[arg(short, long)]
@@ -28,6 +42,7 @@ pub enum InstanceCommands {
     /// Link an instance and assign a unique name
     Link {
         /// The path to the root folder of the instance
+        #[arg(short = 'f', long)]
         path: PathBuf,
 
         /// Use this flag to assign a unique name. Defaults to the directory name.
@@ -37,10 +52,6 @@ pub enum InstanceCommands {
         /// The pack this instance belongs to.
         #[arg(short = 'p', long)]
         pack: String,
-
-        /// The currently applied patch of the specified pack.
-        #[arg(short = 'a', long)]
-        patch: String,
     },
     // /// Change the unique name of an already linked instance
     // Rename {

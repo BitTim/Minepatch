@@ -6,7 +6,7 @@
  *
  * File:       link.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   22.01.25, 19:10
+ * Modified:   08.02.25, 22:00
  */
 use crate::output::status::{Status, StatusOutput};
 use crate::output::Output;
@@ -21,17 +21,15 @@ pub(crate) fn link(
     path: &Path,
     name: &Option<String>,
     pack: &str,
-    patch: &str,
 ) -> Result<()> {
-    let name = instance::link(connection, path, name, pack, patch)?;
+    let name = instance::link(connection, path, name, pack)?;
 
     StatusOutput::new(
         Status::Success,
-        Message::new("Linked instance to pack with specified patch")
+        Message::new("Linked instance to pack")
             .context("Name", &name)
             .context("Path", &path.display().to_string())
-            .context("Pack", pack)
-            .context("Patch", patch),
+            .context("Pack", pack),
     )
     .print();
 

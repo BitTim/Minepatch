@@ -6,61 +6,52 @@
  *
  * File:       validate.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   04.02.25, 22:13
+ * Modified:   08.02.25, 14:29
  */
-use crate::common::Repo;
-use crate::patch::data::{PatchQueries, PatchRepo};
+use crate::db::Repo;
+use crate::patch::data::{PatchFilter, PatchRepo};
 use crate::patch::Patch;
-use crate::patch_with_mods::{PatchModRelQueries, PatchModRelRepo};
+use crate::patch_with_mods::{PatchModRelFilter, PatchModRelRepo};
+use crate::prelude::*;
 use crate::{pack, vault};
 use rusqlite::Connection;
 
-pub fn validate(connection: &Connection, name: &str, pack: &str, exist_only: bool) -> bool {
-    let query = PatchQueries::QueryNameAndPackExact {
+pub fn validate(connection: &Connection, name: &str, pack: &str, exist_only: bool) -> Result<()> {
+    let query = PatchFilter::ByNameAndPackExact {
         name: name.to_owned(),
         pack: pack.to_owned(),
     };
-    let patch = match PatchRepo::query_single(connection, &query) {
-        Ok(result) => result,
-        Err(_) => return false,
-    };
+    let patch = PatchRepo::query_single(connection, &query)?;
 
     if exist_only {
-        return true;
+        return Ok(());
     }
 
-    if !pack::validate(connection, pack, true)
-        || !validate_patch_dependency(connection, &patch)
-        || !validate_mods(connection, name, pack)
-    {
-        return false;
-    }
+    pack::validate(connection, pack, true)?;
+    validate_patch_dependency(connection, &patch)?;
+    validate_mods(connection, name, pack)?;
 
-    true
+    Ok(())
 }
 
-fn validate_patch_dependency(connection: &Connection, patch: &Patch) -> bool {
+fn validate_patch_dependency(connection: &Connection, patch: &Patch) -> Result<()> {
     if !patch.dependency.is_empty() {
-        return validate(connection, &patch.dependency, &patch.pack, false);
+        validate(connection, &patch.dependency, &patch.pack, false)?;
     }
-    true
+
+    Ok(())
 }
 
-fn validate_mods(connection: &Connection, name: &str, pack: &str) -> bool {
-    let query = PatchModRelQueries::QueryByPatchAndPackExact {
+fn validate_mods(connection: &Connection, name: &str, pack: &str) -> Result<()> {
+    let query = PatchModRelFilter::ByPatchAndPackExact {
         patch: name.to_owned(),
         pack: pack.to_owned(),
     };
-    let mods = match PatchModRelRepo::query_multiple(connection, &query) {
-        Ok(mods) => mods,
-        Err(_) => return false,
-    };
 
-    for value in mods {
-        if !vault::validate(connection, &value.mod_hash) {
-            return false;
-        }
-    }
+    PatchModRelRepo::query_multiple(connection, &query)?
+        .iter()
+        .map(|value| vault::validate(connection, &value.mod_hash))
+        .collect::<Result<()>>()?;
 
-    true
+    Ok(())
 }

@@ -6,16 +6,25 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   26.01.25, 03:04
+ * Modified:   08.02.25, 11:12
  */
 use clap::Subcommand;
 
 mod create;
-pub(crate) use create::*;
+mod exclude;
+mod generate;
 mod include;
-pub(crate) use include::*;
 mod list;
+mod simulate;
+mod view;
+
+pub(crate) use create::*;
+pub(crate) use exclude::*;
+pub(crate) use generate::*;
+pub(crate) use include::*;
 pub(crate) use list::*;
+pub(crate) use simulate::*;
+pub(crate) use view::*;
 
 #[derive(Subcommand, Debug)]
 pub enum PatchCommands {
@@ -29,16 +38,38 @@ pub enum PatchCommands {
         #[arg(short, long)]
         dependency: String,
 
-        /// The hash of the folder after all changes from this patch.
-        #[arg(short, long)]
-        state_hash: String,
-
         /// The pack this patch belongs to.
         #[arg(short, long)]
         pack: String,
     },
 
-    /// Includes a mod into a patch.
+    /// Excludes a mod with a patch.
+    Exclude {
+        /// Name of the patch.
+        #[arg(short, long)]
+        name: String,
+
+        /// The pack this patch belongs to.
+        #[arg(short, long)]
+        pack: String,
+
+        /// The hash of the mod that should be added to this patch.
+        #[arg(short, long)]
+        mod_hash: String,
+    },
+
+    /// Generate and apply a patch from changes on the file system for a specific instance.
+    Generate {
+        /// Name of the patch.
+        #[arg(short, long)]
+        name: String,
+
+        /// The instance from which this patch will be generated.
+        #[arg(short, long)]
+        instance: String,
+    },
+
+    /// Includes a mod with a patch.
     Include {
         /// Name of the patch.
         #[arg(short, long)]
@@ -62,5 +93,31 @@ pub enum PatchCommands {
         /// The pack this patch belongs to.
         #[arg(short, long)]
         pack: Option<String>,
+    },
+
+    /// Simulates all patches up to and including the selected one.
+    Simulate {
+        /// Name of the patch.
+        #[arg(short, long)]
+        name: String,
+
+        /// The pack this patch belongs to.
+        #[arg(short, long)]
+        pack: String,
+
+        /// Set this flag if you want to only know the resulting dir hash.
+        #[arg(short, long)]
+        dir_hash: bool,
+    },
+
+    /// Shows all details of a specific patch.
+    View {
+        /// Name of the patch.
+        #[arg(short, long)]
+        name: String,
+
+        /// The pack this patch belongs to.
+        #[arg(short, long)]
+        pack: String,
     },
 }

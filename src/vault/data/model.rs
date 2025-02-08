@@ -6,16 +6,16 @@
  *
  * File:       model.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   04.02.25, 23:17
+ * Modified:   08.02.25, 01:05
  */
+use crate::common::db::Entity;
 use crate::common::meta::data::Meta;
-use crate::common::QueryModel;
 use crate::prelude::*;
 use rusqlite::{Row, ToSql};
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
 
-#[derive(Eq, PartialEq, Debug, Serialize, Deserialize)]
+#[derive(Eq, PartialEq, Hash, Debug, Serialize, Deserialize)]
 pub struct Mod {
     pub hash: String,
     pub path: PathBuf,
@@ -32,7 +32,11 @@ impl Mod {
     }
 }
 
-impl QueryModel for Mod {
+impl Entity for Mod {
+    fn table_name() -> String {
+        "mod".to_owned()
+    }
+
     fn from_row(row: &Row) -> Result<Box<Self>> {
         let path: String = row.get(1)?;
         let path = PathBuf::from(path);
@@ -70,6 +74,7 @@ impl QueryModel for Mod {
             Box::new(self.path.display().to_string()),
             Box::new(self.meta.id.to_owned()),
             Box::new(self.meta.name.to_owned()),
+            Box::new(self.meta.version.to_owned()),
             Box::new(self.meta.description.to_owned()),
             Box::new(authors),
             Box::new(self.meta.loader.to_owned()),

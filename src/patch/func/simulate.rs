@@ -6,49 +6,46 @@
  *
  * File:       simulate.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   04.02.25, 22:11
+ * Modified:   08.02.25, 22:17
  */
-
-use crate::common::Repo;
-use crate::patch::data::{PatchQueries, PatchRepo};
-use crate::patch_with_mods::{PatchModRelQueries, PatchModRelRepo};
+use crate::db::Repo;
+use crate::hash;
+use crate::patch::data::{PatchFilter, PatchRepo};
+use crate::patch_with_mods::{PatchModRelFilter, PatchModRelRepo};
 use crate::prelude::*;
 use rusqlite::Connection;
+use std::collections::HashSet;
 
-pub fn simulate(connection: &Connection, name: &str, pack: &str) -> Result<Vec<String>> {
-    let patch_query = PatchQueries::QueryNameAndPackExact {
+pub fn simulate(connection: &Connection, name: &str, pack: &str) -> Result<HashSet<String>> {
+    if name.is_empty() {
+        return Ok(HashSet::new());
+    }
+
+    let patch_filter = PatchFilter::ByNameAndPackExact {
         name: name.to_owned(),
         pack: pack.to_owned(),
     };
-    let patch = PatchRepo::query_single(connection, &patch_query)?;
+    let patch = PatchRepo::query_single(connection, &patch_filter)?;
 
-    let mut mod_hashes = vec![];
-    if !patch.dependency.is_empty() {
-        mod_hashes.append(&mut simulate(connection, &patch.dependency, pack)?);
-    }
+    let mut mod_hashes = HashSet::new();
+    mod_hashes.extend(simulate(connection, &patch.dependency, pack)?);
 
-    let rel_query = PatchModRelQueries::QueryByPatchAndPackExact {
+    let rel_filter = PatchModRelFilter::ByPatchAndPackExact {
         patch: name.to_owned(),
         pack: pack.to_owned(),
     };
-    let mod_relations = PatchModRelRepo::query_multiple(connection, &rel_query)?;
+    let mod_relations = PatchModRelRepo::query_multiple(connection, &rel_filter)?;
     for relation in mod_relations {
-        let result = mod_hashes
-            .iter()
-            .enumerate()
-            .find(|(_, hash)| **hash == relation.mod_hash);
-
         match relation.removed {
-            true => match result {
-                None => continue,
-                Some((index, _)) => _ = mod_hashes.swap_remove(index),
-            },
-            false => match result {
-                None => mod_hashes.push(relation.mod_hash),
-                Some(_) => continue,
-            },
-        }
+            true => mod_hashes.remove(&relation.mod_hash),
+            false => mod_hashes.insert(relation.mod_hash.to_owned()),
+        };
     }
 
     Ok(mod_hashes)
+}
+
+pub fn simulate_dir_hash(connection: &Connection, name: &str, pack: &str) -> Result<String> {
+    let sim_hashes = simulate(connection, name, pack)?;
+    Ok(hash::hash_state(&sim_hashes))
 }

@@ -6,23 +6,31 @@
  *
  * File:       query.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   04.02.25, 23:24
+ * Modified:   08.02.25, 02:00
  */
-use crate::common::Repo;
+use crate::db::Repo;
 use crate::prelude::*;
-use crate::vault::data::{Mod, VaultQueries, VaultRepo};
+use crate::vault::data::{Mod, ModFilter, VaultRepo};
 use rusqlite::Connection;
+use std::collections::HashSet;
 
-pub fn query(
+pub fn query_multiple(
     connection: &Connection,
     hash: Option<&str>,
     id: Option<&str>,
     name: Option<&str>,
-) -> Result<Vec<Mod>> {
-    let query = VaultQueries::QueryHashAndIDAndNameSimilar {
+) -> Result<HashSet<Mod>> {
+    let query = ModFilter::QueryHashAndIDAndNameSimilar {
         hash: hash.unwrap_or_default().to_owned(),
         mod_id: id.unwrap_or_default().to_owned(),
         name: name.unwrap_or_default().to_owned(),
     };
     VaultRepo::query_multiple(connection, &query)
+}
+
+pub fn query_single(connection: &Connection, hash: &str) -> Result<Mod> {
+    let query = ModFilter::QueryHashExact {
+        hash: hash.to_owned(),
+    };
+    VaultRepo::query_single(connection, &query)
 }

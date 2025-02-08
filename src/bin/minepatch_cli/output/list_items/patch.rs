@@ -6,7 +6,7 @@
  *
  * File:       patch.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   27.01.25, 10:52
+ * Modified:   07.02.25, 17:40
  */
 use crate::output::format_bool;
 use minepatch::patch;
@@ -29,7 +29,7 @@ pub struct PatchListItem {
 
 impl PatchListItem {
     pub(crate) fn from(connection: &Connection, value: &Patch) -> Result<Self> {
-        let valid = patch::validate(connection, &value.name, &value.pack, false);
+        let valid = patch::validate(connection, &value.name, &value.pack, false).is_ok();
 
         Ok(PatchListItem {
             name: value.name.to_owned(),

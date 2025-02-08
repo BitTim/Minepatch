@@ -6,11 +6,11 @@
  *
  * File:       create.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   04.02.25, 23:31
+ * Modified:   06.02.25, 01:59
  */
-use crate::common::Repo;
+use crate::db::Repo;
 use crate::prelude::*;
-use crate::template::data::{TemplateQueries, TemplateRepo};
+use crate::template::data::{TemplateFilter, TemplateRepo};
 use crate::template::{Template, TemplateError};
 use rusqlite::Connection;
 
@@ -21,7 +21,7 @@ pub fn create(
     version: Option<String>,
     download: Option<String>,
 ) -> Result<()> {
-    let exists_query = TemplateQueries::QueryNameExact {
+    let exists_query = TemplateFilter::QueryNameExact {
         name: name.to_owned(),
     };
     if TemplateRepo::exists(connection, &exists_query)? {
