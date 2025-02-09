@@ -6,7 +6,7 @@
  *
  * File:       main.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   09.02.25, 18:57
+ * Modified:   09.02.25, 22:29
  */
 use crate::cli::instance::InstanceCommands;
 use crate::cli::pack::PackCommands;
@@ -20,9 +20,9 @@ use cli::vault::VaultCommands;
 use colored::Colorize;
 use indicatif::{MultiProgress, ProgressBar, ProgressStyle};
 use minepatch::db;
-use minepatch::event::Event;
 use minepatch::msg::Message;
 use minepatch::prelude::*;
+use minepatch::progress::event::Event;
 use minepatch::update::func;
 use rusqlite::Connection;
 use std::collections::HashMap;

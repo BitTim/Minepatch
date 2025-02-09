@@ -6,13 +6,13 @@
  *
  * File:       add.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   09.02.25, 18:31
+ * Modified:   09.02.25, 22:29
  */
 use crate::output::status::{Status, StatusOutput};
 use crate::output::Output;
-use minepatch::event::Event;
 use minepatch::msg::Message;
 use minepatch::prelude::*;
+use minepatch::progress::event::Event;
 use minepatch::vault;
 use rusqlite::Connection;
 use std::path::Path;

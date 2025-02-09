@@ -6,9 +6,9 @@
  *
  * File:       generate.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   09.02.25, 18:30
+ * Modified:   09.02.25, 22:29
  */
-use crate::event::Event;
+use crate::common::progress::event::Event;
 use crate::hash::hash_file;
 use crate::prelude::*;
 use crate::{file, instance, patch, vault};

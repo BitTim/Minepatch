@@ -6,15 +6,15 @@
  *
  * File:       create.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   09.02.25, 18:30
+ * Modified:   09.02.25, 22:29
  */
 use crate::output::status::{Status, StatusOutput};
 use crate::output::Output;
-use minepatch::event::Event;
 use minepatch::msg::Message;
 use minepatch::pack;
 use minepatch::pack::Pack;
 use minepatch::prelude::*;
+use minepatch::progress::event::Event;
 use rusqlite::Connection;
 use std::sync::mpsc::Sender;
 

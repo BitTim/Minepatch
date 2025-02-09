@@ -6,7 +6,7 @@
  *
  * File:       event.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   09.02.25, 18:27
+ * Modified:   09.02.25, 22:29
  */
 use crate::msg::Message;
 use crate::prelude::Error;

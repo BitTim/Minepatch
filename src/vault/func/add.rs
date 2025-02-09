@@ -6,12 +6,12 @@
  *
  * File:       add.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   09.02.25, 18:28
+ * Modified:   09.02.25, 22:29
  */
 
+use crate::common::progress::event::Event;
 use crate::common::{file, hash};
 use crate::db::Repo;
-use crate::event::Event;
 use crate::prelude::*;
 use crate::vault::data::{Mod, ModFilter, VaultRepo};
 use crate::vault::func::common::meta::{detect_loader, extract_meta};
