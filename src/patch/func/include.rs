@@ -6,7 +6,7 @@
  *
  * File:       include.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   08.02.25, 14:23
+ * Modified:   09.02.25, 23:59
  */
 
 use crate::db::Repo;
@@ -24,7 +24,7 @@ pub fn include(connection: &Connection, name: &str, pack: &str, mod_hash: &str) 
     let relation = PatchModRelRepo::query_single(connection, &rel_filter);
 
     let mods = simulate(connection, name, pack)?;
-    if mods.contains(&mod_hash.to_owned()) {
+    if mods.contains(mod_hash) {
         return Err(Error::Patch(PatchError::ModIncluded {
             hash: mod_hash.to_owned(),
             pack: pack.to_owned(),

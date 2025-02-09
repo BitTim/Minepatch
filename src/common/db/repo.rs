@@ -6,7 +6,7 @@
  *
  * File:       repo.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   08.02.25, 21:43
+ * Modified:   09.02.25, 23:59
  */
 use crate::common::db::SqlAction;
 use crate::common::db::{Entity, Filter, InsertableFilter};
@@ -80,6 +80,13 @@ where
         }
 
         Ok(results)
+    }
+
+    fn update(connection: &Connection, filter: &F, value: T) -> Result<()> {
+        Self::remove(connection, filter)?;
+        Self::insert(connection, value)?;
+
+        Ok(())
     }
 
     fn remove(connection: &Connection, filter: &F) -> Result<usize> {
