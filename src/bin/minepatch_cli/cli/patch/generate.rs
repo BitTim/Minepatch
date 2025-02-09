@@ -6,19 +6,24 @@
  *
  * File:       generate.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   08.02.25, 11:19
+ * Modified:   09.02.25, 18:31
  */
 use crate::output::status::{Status, StatusOutput};
 use crate::output::Output;
+use minepatch::event::Event;
 use minepatch::msg::Message;
 use minepatch::patch;
 use minepatch::prelude::*;
 use rusqlite::Connection;
+use std::sync::mpsc::Sender;
 
-pub(crate) fn generate(connection: &Connection, name: &str, instance: &str) -> Result<()> {
-    patch::generate(connection, name, instance, &|warning| {
-        StatusOutput::new(Status::Warning, Message::new(&warning.to_string())).print();
-    })?;
+pub(crate) fn generate(
+    connection: &Connection,
+    tx: &Sender<Event>,
+    name: &str,
+    instance: &str,
+) -> Result<()> {
+    patch::generate(connection, tx, name, instance)?;
 
     StatusOutput::new(
         Status::Success,

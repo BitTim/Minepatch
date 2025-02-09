@@ -6,8 +6,9 @@
  *
  * File:       error.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   02.02.25, 19:32
+ * Modified:   09.02.25, 18:21
  */
+use crate::common::event::Event;
 use crate::common::file::error::FileError;
 use crate::common::meta::error::MetaError;
 use crate::instance::InstanceError;
@@ -15,6 +16,7 @@ use crate::pack::PackError;
 use crate::patch::PatchError;
 use crate::template::TemplateError;
 use crate::vault::VaultError;
+use std::sync::mpsc;
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
@@ -38,6 +40,10 @@ pub enum Error {
 
     #[error(transparent)]
     IO(#[from] std::io::Error),
+    #[error(transparent)]
+    Send(#[from] mpsc::SendError<Event>),
+    #[error(transparent)]
+    Recv(#[from] mpsc::RecvError),
     #[error(transparent)]
     SQLite(#[from] rusqlite::Error),
     #[error(transparent)]

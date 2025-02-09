@@ -6,24 +6,23 @@
  *
  * File:       generate.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   08.02.25, 20:12
+ * Modified:   09.02.25, 18:30
  */
+use crate::event::Event;
 use crate::hash::hash_file;
 use crate::prelude::*;
 use crate::{file, instance, patch, vault};
 use rusqlite::Connection;
 use std::collections::HashSet;
 use std::path::PathBuf;
+use std::sync::mpsc::Sender;
 
-pub fn generate<F>(
+pub fn generate(
     connection: &Connection,
+    tx: &Sender<Event>,
     name: &str,
     instance: &str,
-    handle_warning: &F,
-) -> Result<()>
-where
-    F: Fn(Error),
-{
+) -> Result<()> {
     let instance = instance::query_single(connection, instance)?;
     instance::validate(connection, &instance.name, true)?;
 
@@ -41,7 +40,7 @@ where
         removed.remove(&hash);
 
         if !sim_hashes.contains(&hash) {
-            added.insert(vault::add(connection, &path, false, handle_warning)?);
+            added.insert(vault::add(connection, tx, &path, false)?);
         }
     }
 

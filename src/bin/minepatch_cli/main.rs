@@ -6,7 +6,7 @@
  *
  * File:       main.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   08.02.25, 22:01
+ * Modified:   09.02.25, 18:57
  */
 use crate::cli::instance::InstanceCommands;
 use crate::cli::pack::PackCommands;
@@ -17,16 +17,25 @@ use crate::output::status::{Status, StatusOutput};
 use crate::output::Output;
 use clap::Parser;
 use cli::vault::VaultCommands;
+use colored::Colorize;
+use indicatif::{MultiProgress, ProgressBar, ProgressStyle};
 use minepatch::db;
+use minepatch::event::Event;
 use minepatch::msg::Message;
 use minepatch::prelude::*;
 use minepatch::update::func;
 use rusqlite::Connection;
+use std::collections::HashMap;
+use std::sync::mpsc;
+use std::sync::mpsc::{Receiver, Sender};
+use std::thread;
+use std::thread::JoinHandle;
+use std::time::Duration;
 
 mod cli;
 mod output;
 
-fn match_command(command: &Commands, connection: &Connection) -> Result<()> {
+fn match_command(command: &Commands, connection: &Connection, tx: &Sender<Event>) -> Result<()> {
     match command {
         Commands::Update => func::update::update()?,
         Commands::Instance {
@@ -42,7 +51,7 @@ fn match_command(command: &Commands, connection: &Connection) -> Result<()> {
             vault_commands: vault_command,
         } => match vault_command {
             VaultCommands::Add { path, overwrite } => {
-                vault::add(connection, path, overwrite)?;
+                vault::add(connection, tx, path, overwrite)?;
             }
             VaultCommands::List {
                 detailed,
@@ -81,7 +90,7 @@ fn match_command(command: &Commands, connection: &Connection) -> Result<()> {
                 mod_hash,
             } => patch::exclude(connection, name, pack, mod_hash)?,
             PatchCommands::Generate { name, instance } => {
-                patch::generate(connection, name, instance)?
+                patch::generate(connection, tx, name, instance)?
             }
             PatchCommands::Include {
                 name,
@@ -106,7 +115,7 @@ fn match_command(command: &Commands, connection: &Connection) -> Result<()> {
                 template,
                 from,
                 instance,
-            } => pack::create(connection, name, description, template, from, instance)?,
+            } => pack::create(connection, tx, name, description, template, from, instance)?,
             PackCommands::Delete => {}
         },
     }
@@ -114,19 +123,85 @@ fn match_command(command: &Commands, connection: &Connection) -> Result<()> {
     Ok(())
 }
 
-fn error_handled() -> Result<()> {
-    let mut connection = db::init()?;
-    let tx = connection.transaction()?;
+fn match_event(rx: Receiver<Event>) -> Result<()> {
+    let mut progresses = HashMap::new();
+    let multi_progress = MultiProgress::new();
 
-    let cli = Cli::parse();
-    match_command(&cli.command, &tx)?;
+    for event in rx {
+        match event {
+            Event::Progress { id, title, total } => {
+                let progress_bar = match total {
+                    Some(total) => {
+                        let progress_bar = ProgressBar::new(total);
+                        progress_bar.set_style(ProgressStyle::with_template(&("{spinner} [".to_owned() + &title.bold().to_string() + "] {msg}\n {wide_bar} {percent:>3} % ({human_pos:>5} / {human_len:5})\nElapsed: {elapsed_precise}\tETA: {eta_precise}"))?);
+                        progress_bar
+                    }
+                    None => {
+                        let progress_bar = ProgressBar::new_spinner();
+                        progress_bar.set_style(ProgressStyle::with_template(
+                            &("{spinner} [".to_owned() + &title.bold().to_string() + "] {msg}"),
+                        )?);
+                        progress_bar
+                    }
+                };
+                progress_bar.enable_steady_tick(Duration::from_millis(100));
 
-    tx.commit()?;
+                let progress_bar = multi_progress.add(progress_bar);
+                progresses.insert(id, progress_bar);
+            }
+            Event::ProgressTick { id, message } => {
+                progresses
+                    .get(&id)
+                    .unwrap()
+                    .set_message(message.to_string());
+                progresses.get(&id).unwrap().inc(1);
+            }
+            Event::ProgressFinish { id } => {
+                progresses
+                    .get(&id)
+                    .unwrap()
+                    .finish_with_message("✓ Finished".green().to_string());
+            }
+            Event::Confirm { tx, message } => {
+                println!("[Confirm] Not yet implemented: {:?}, {:?}", tx, message)
+            }
+            Event::Select { tx, options } => {
+                println!("[Select] Not yet implemented: {:?}, {:?}", tx, options)
+            }
+            Event::Warning { warning } => {
+                multi_progress.println(
+                    StatusOutput::new(Status::Warning, Message::new(&warning.to_string()))
+                        .to_string(),
+                )?;
+            }
+            Event::Log { message } => {
+                multi_progress.println(message.to_string())?;
+            }
+        }
+    }
+
     Ok(())
 }
 
+fn fallible(rx: Receiver<Event>, thread: JoinHandle<Result<()>>) -> Result<()> {
+    match_event(rx)?;
+    thread.join().unwrap()
+}
+
 fn main() {
-    if let Err(error) = error_handled() {
+    let (tx, rx) = mpsc::channel::<Event>();
+    let cli = Cli::parse();
+
+    let thread = thread::spawn(move || {
+        let mut connection = db::init()?;
+        let transaction = connection.transaction()?;
+        let result = match_command(&cli.command, &transaction, &tx);
+        transaction.commit()?;
+
+        result
+    });
+
+    if let Err(error) = fallible(rx, thread) {
         StatusOutput::new(Status::Error, Message::new(&error.to_string())).print();
     }
 }

@@ -9,21 +9,22 @@ repository = "https://github.com/BitTim/Minepatch"
 license = "GPL-3"
 
 [dependencies]
-clap = { version = "4.5.23", features = ["derive"] }
+clap = { version = "4.5.28", features = ["derive"] }
 directories = "6.0.0"
-tabled = { version = "0.17.0", features = ["ansi"] }
-serde = { version = "1.0.216", features = ["derive"] }
+tabled = { version = "0.18.0", features = ["ansi"] }
+serde = { version = "1.0.217", features = ["derive"] }
 colored = "3.0.0"
 inquire = "0.7.5"
 self_update = { version = "0.42.0", features = ["rustls"] }
 sha256 = "1.5.0"
 zip = "2.2.2"
-toml = "0.8.19"
-strum = "0.26.3"
-strum_macros = "0.26.4"
-serde_json = "1.0.134"
-indicatif = "0.17.9"
+toml = "0.8.20"
+strum = "0.27.0"
+strum_macros = "0.27.0"
+serde_json = "1.0.138"
+indicatif = "0.17.11"
 thiserror = "2.0.11"
 rusqlite = { version = "0.33.0", features = ["bundled"] }
 ron = "0.8.1"
 symlink = "0.1.0"
+uuid = { version = "1.13.1", features = ["v4"] }

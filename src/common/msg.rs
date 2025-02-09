@@ -6,7 +6,7 @@
  *
  * File:       msg.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   05.02.25, 21:12
+ * Modified:   09.02.25, 18:36
  */
 use std::fmt::{Display, Formatter};
 
