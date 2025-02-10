@@ -6,14 +6,21 @@
  *
  * File:       apply.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   08.02.25, 21:30
+ * Modified:   10.02.25, 19:09
  */
 use crate::prelude::*;
+use crate::progress::event::Event;
 use crate::{file, instance, patch, vault};
 use rusqlite::Connection;
+use std::sync::mpsc::Sender;
 use std::{fs, process};
 
-pub fn apply(connection: &Connection, instance: &str, patch: &str) -> Result<()> {
+pub fn apply(
+    connection: &Connection,
+    tx: &Sender<Event>,
+    instance: &str,
+    patch: &str,
+) -> Result<()> {
     let instance = instance::query_single(connection, instance)?;
 
     let mods_path = instance.path.join("mods");
@@ -28,7 +35,7 @@ pub fn apply(connection: &Connection, instance: &str, patch: &str) -> Result<()>
     fs::rename(&mods_path, &tmp_mods_path)?;
     fs::create_dir(&mods_path)?;
 
-    let hashes = patch::simulate(connection, patch, &instance.pack)?;
+    let hashes = patch::simulate(connection, tx, patch, &instance.pack)?;
 
     for hash in hashes {
         let mod_entry = vault::query_single(connection, &hash)?;
@@ -45,9 +52,6 @@ pub fn apply(connection: &Connection, instance: &str, patch: &str) -> Result<()>
         cleanup()?;
         return Err(err);
     }
-
-    let a = instance::query_single(connection, &instance.name)?;
-    println!("{:?}", a);
 
     Ok(fs::remove_dir_all(&tmp_mods_path)?)
 }

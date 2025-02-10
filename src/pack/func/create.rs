@@ -6,7 +6,7 @@
  *
  * File:       create.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   09.02.25, 22:28
+ * Modified:   10.02.25, 18:51
  */
 use crate::common::file;
 use crate::common::progress::event::Event;
@@ -27,8 +27,8 @@ pub fn create(
     connection: &Connection,
     tx: &Sender<Event>,
     pack: Pack,
-    from: Option<String>,
-    instance: Option<String>,
+    from: Option<&str>,
+    instance: Option<&str>,
 ) -> Result<()> {
     let spinner_id = progress::init_progress(tx, "Creating pack", None)?;
 
@@ -71,6 +71,7 @@ pub fn create(
         progress::end_progress(tx, hash_prog_id)?;
         patch::create(
             connection,
+            tx,
             INIT_PATCH_NAME,
             &name,
             "",
@@ -81,11 +82,10 @@ pub fn create(
         if let Some(instance) = instance {
             let instance_name = match instance.is_empty() {
                 true => None,
-                false => Some(instance.to_owned()),
+                false => Some(instance),
             };
 
-            // FIXME: This will fail because of src_dir_hash
-            instance::link(connection, from.as_ref(), &instance_name, &name)?;
+            instance::link(connection, tx, from.as_ref(), instance_name, Some(&name))?;
         };
     }
 

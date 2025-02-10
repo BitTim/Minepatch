@@ -6,25 +6,28 @@
  *
  * File:       link.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   08.02.25, 22:14
+ * Modified:   10.02.25, 19:07
  */
 use crate::common::file::error::FileError;
 use crate::common::file::filename_from_path;
-use crate::common::hash;
 use crate::db::Repo;
+use crate::instance;
 use crate::instance::data::{InstanceFilter, InstanceRepo};
 use crate::instance::{validate, Instance, InstanceError};
+use crate::msg::Message;
 use crate::prelude::*;
-use crate::{file, instance, pack, patch};
+use crate::progress::event::Event;
 use rusqlite::Connection;
 use std::fs;
 use std::path::Path;
+use std::sync::mpsc::Sender;
 
 pub fn link(
     connection: &Connection,
+    tx: &Sender<Event>,
     path: &Path,
-    name: &Option<String>,
-    pack: &str,
+    name: Option<&str>,
+    pack: Option<&str>,
 ) -> Result<String> {
     if !fs::exists(path)? {
         return Err(Error::File(FileError::PathNotFound(
@@ -46,26 +49,19 @@ pub fn link(
         }));
     }
 
-    pack::validate(connection, pack, true)?;
+    let (patch, pack) = instance::detect(connection, tx, path, pack)?;
 
-    let mod_paths = file::mod_paths_from_instance_path(path)?;
-    let src_dir_hash = hash::hash_state_from_path(&mod_paths)?;
-    let patch = patch::query_by_src_dir_hash_single(connection, &src_dir_hash, pack)?;
-    let dependency = &patch.dependency;
+    InstanceRepo::insert(connection, Instance::new(actual_name, path, &pack, &patch))?;
+    validate(connection, tx, actual_name, false)?;
 
-    if dependency.is_empty() {
-        return Err(Error::Instance(InstanceError::NoPatchFound {
-            pack: pack.to_owned(),
-            src_dir_hash,
-        }));
-    }
+    instance::apply(connection, tx, actual_name, &patch)?;
 
-    InstanceRepo::insert(
-        connection,
-        Instance::new(actual_name, path, pack, dependency),
-    )?;
-    validate(connection, actual_name, false)?;
-
-    instance::apply(connection, actual_name, dependency)?;
+    tx.send(Event::Success {
+        message: Message::new("Linked instance")
+            .context("Name", actual_name)
+            .context("Path", &path.display().to_string())
+            .context("Pack", &pack)
+            .context("Patch", &patch),
+    })?;
     Ok(actual_name.to_owned())
 }

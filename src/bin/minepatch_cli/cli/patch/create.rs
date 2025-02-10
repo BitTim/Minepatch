@@ -6,23 +6,27 @@
  *
  * File:       create.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   08.02.25, 02:11
+ * Modified:   10.02.25, 18:58
  */
 use crate::output::status::{Status, StatusOutput};
 use crate::output::Output;
 use minepatch::msg::Message;
 use minepatch::patch;
+use minepatch::progress::event::Event;
 use rusqlite::Connection;
 use std::collections::HashSet;
+use std::sync::mpsc::Sender;
 
 pub(crate) fn create(
     connection: &Connection,
+    tx: &Sender<Event>,
     name: &str,
     pack: &str,
     dependency: &str,
 ) -> minepatch::prelude::Result<()> {
     patch::create(
         connection,
+        tx,
         name,
         pack,
         dependency,

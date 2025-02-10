@@ -6,7 +6,7 @@
  *
  * File:       query.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   08.02.25, 22:17
+ * Modified:   10.02.25, 18:43
  */
 use crate::db::Repo;
 use crate::patch::{Patch, PatchFilter, PatchRepo};
@@ -41,18 +41,6 @@ pub fn query_by_dependency_single(
 ) -> Result<Patch> {
     let query = PatchFilter::ByDepAndPackExact {
         dependency: dependency.to_owned(),
-        pack: pack.to_owned(),
-    };
-    PatchRepo::query_single(connection, &query)
-}
-
-pub fn query_by_src_dir_hash_single(
-    connection: &Connection,
-    src_dir_hash: &str,
-    pack: &str,
-) -> Result<Patch> {
-    let query = PatchFilter::BySrcDirHashAndPackExact {
-        src_dir_hash: src_dir_hash.to_owned(),
         pack: pack.to_owned(),
     };
     PatchRepo::query_single(connection, &query)

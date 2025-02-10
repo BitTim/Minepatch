@@ -6,7 +6,7 @@
  *
  * File:       simulate.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   08.02.25, 11:19
+ * Modified:   10.02.25, 18:58
  */
 use crate::output::list_items::vault::ModListItem;
 use crate::output::table::TableOutput;
@@ -14,12 +14,15 @@ use crate::output::Output;
 use colored::Colorize;
 use minepatch::msg::Message;
 use minepatch::prelude::*;
+use minepatch::progress::event::Event;
 use minepatch::vault::Mod;
 use minepatch::{patch, vault};
 use rusqlite::Connection;
+use std::sync::mpsc::Sender;
 
 pub(crate) fn simulate(
     connection: &Connection,
+    tx: &Sender<Event>,
     name: &str,
     pack: &str,
     dir_hash: &bool,
@@ -33,12 +36,12 @@ pub(crate) fn simulate(
     println!("{}", header_line);
 
     if *dir_hash {
-        let hash = patch::simulate_dir_hash(connection, name, pack)?;
+        let hash = patch::simulate_dir_hash(connection, tx, name, pack)?;
         println!("Dir Hash: '{}'", hash.purple());
         return Ok(());
     }
 
-    let mods = patch::simulate(connection, name, pack)?
+    let mods = patch::simulate(connection, tx, name, pack)?
         .iter()
         .map(|hash| vault::query_single(connection, hash))
         .collect::<Result<Vec<Mod>>>()?;

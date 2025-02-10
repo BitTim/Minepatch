@@ -6,16 +6,25 @@
  *
  * File:       exclude.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   08.02.25, 14:23
+ * Modified:   10.02.25, 18:51
  */
 use crate::db::Repo;
 use crate::error::Error;
-use crate::patch::{simulate, PatchError};
+use crate::patch;
+use crate::patch::PatchError;
 use crate::patch_with_mods::{PatchModRelFilter, PatchModRelRepo, PatchWithMods};
 use crate::prelude::*;
+use crate::progress::event::Event;
 use rusqlite::Connection;
+use std::sync::mpsc::Sender;
 
-pub fn exclude(connection: &Connection, name: &str, pack: &str, mod_hash: &str) -> Result<()> {
+pub fn exclude(
+    connection: &Connection,
+    tx: &Sender<Event>,
+    name: &str,
+    pack: &str,
+    mod_hash: &str,
+) -> Result<()> {
     let query = PatchModRelFilter::ByPatchAndPackAndModHashExact {
         patch: name.to_owned(),
         pack: pack.to_owned(),
@@ -23,7 +32,7 @@ pub fn exclude(connection: &Connection, name: &str, pack: &str, mod_hash: &str) 
     };
     let relation = PatchModRelRepo::query_single(connection, &query);
 
-    let mods = simulate(connection, name, pack)?;
+    let mods = patch::simulate(connection, tx, name, pack)?;
     if !mods.contains(&mod_hash.to_owned()) {
         return Err(Error::Patch(PatchError::ModExcluded {
             hash: mod_hash.to_owned(),

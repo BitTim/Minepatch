@@ -6,7 +6,7 @@
  *
  * File:       generate.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   09.02.25, 22:29
+ * Modified:   10.02.25, 18:51
  */
 use crate::common::progress::event::Event;
 use crate::hash::hash_file;
@@ -24,9 +24,9 @@ pub fn generate(
     instance: &str,
 ) -> Result<()> {
     let instance = instance::query_single(connection, instance)?;
-    instance::validate(connection, &instance.name, true)?;
+    instance::validate(connection, tx, &instance.name, true)?;
 
-    let sim_hashes = patch::simulate(connection, &instance.patch, &instance.pack)?;
+    let sim_hashes = patch::simulate(connection, tx, &instance.patch, &instance.pack)?;
     let mod_paths = file::mod_paths_from_instance_path(&instance.path)?;
     let mod_files = mod_paths
         .iter()
@@ -46,6 +46,7 @@ pub fn generate(
 
     patch::create(
         connection,
+        tx,
         name,
         &instance.pack,
         &instance.patch,
@@ -53,6 +54,6 @@ pub fn generate(
         &removed,
     )?;
 
-    instance::apply(connection, &instance.name, name)?;
+    instance::apply(connection, tx, &instance.name, name)?;
     Ok(())
 }

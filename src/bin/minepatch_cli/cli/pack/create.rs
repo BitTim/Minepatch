@@ -6,7 +6,7 @@
  *
  * File:       create.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   09.02.25, 22:29
+ * Modified:   10.02.25, 18:57
  */
 use crate::output::status::{Status, StatusOutput};
 use crate::output::Output;
@@ -31,8 +31,8 @@ pub(crate) fn create(
         connection,
         tx,
         Pack::new(name, description.to_owned(), template.to_owned()),
-        from.to_owned(),
-        instance.to_owned(),
+        from.as_deref(),
+        instance.as_deref(),
     )?;
 
     StatusOutput::new(

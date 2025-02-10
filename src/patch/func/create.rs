@@ -6,19 +6,22 @@
  *
  * File:       create.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   08.02.25, 14:22
+ * Modified:   10.02.25, 18:50
  */
 use crate::db::Repo;
 use crate::error::Error;
 use crate::patch::data::{PatchFilter, PatchRepo};
 use crate::patch::{Patch, PatchError};
 use crate::patch_with_mods::{PatchModRelRepo, PatchWithMods};
+use crate::progress::event::Event;
 use crate::{pack, patch};
 use rusqlite::Connection;
 use std::collections::HashSet;
+use std::sync::mpsc::Sender;
 
 pub fn create(
     connection: &Connection,
+    tx: &Sender<Event>,
     name: &str,
     pack: &str,
     dependency: &str,
@@ -36,7 +39,7 @@ pub fn create(
         }));
     }
 
-    let src_dir_hash = patch::simulate_dir_hash(connection, dependency, pack)?;
+    let src_dir_hash = patch::simulate_dir_hash(connection, tx, dependency, pack)?;
 
     pack::validate(connection, pack, true)?;
     PatchRepo::insert(

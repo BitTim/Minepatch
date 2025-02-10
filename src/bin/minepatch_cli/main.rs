@@ -6,7 +6,7 @@
  *
  * File:       main.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   09.02.25, 22:29
+ * Modified:   10.02.25, 21:05
  */
 use crate::cli::instance::InstanceCommands;
 use crate::cli::pack::PackCommands;
@@ -41,10 +41,12 @@ fn match_command(command: &Commands, connection: &Connection, tx: &Sender<Event>
         Commands::Instance {
             instance_commands: instance_command,
         } => match instance_command {
-            InstanceCommands::Apply { name, patch } => instance::apply(connection, name, patch)?,
-            InstanceCommands::List { name } => instance::list(connection, name)?,
+            InstanceCommands::Apply { name, patch } => {
+                instance::apply(connection, tx, name, patch)?
+            }
+            InstanceCommands::List { name } => instance::list(connection, tx, name)?,
             InstanceCommands::Link { path, name, pack } => {
-                instance::link(connection, path, name, pack)?;
+                instance::link(connection, tx, path, name, pack)?;
             }
         },
         Commands::Vault {
@@ -83,12 +85,12 @@ fn match_command(command: &Commands, connection: &Connection, tx: &Sender<Event>
                 name,
                 dependency,
                 pack,
-            } => patch::create(connection, name, pack, dependency)?,
+            } => patch::create(connection, tx, name, pack, dependency)?,
             PatchCommands::Exclude {
                 name,
                 pack,
                 mod_hash,
-            } => patch::exclude(connection, name, pack, mod_hash)?,
+            } => patch::exclude(connection, tx, name, pack, mod_hash)?,
             PatchCommands::Generate { name, instance } => {
                 patch::generate(connection, tx, name, instance)?
             }
@@ -96,13 +98,13 @@ fn match_command(command: &Commands, connection: &Connection, tx: &Sender<Event>
                 name,
                 pack,
                 mod_hash,
-            } => patch::include(connection, name, pack, mod_hash)?,
+            } => patch::include(connection, tx, name, pack, mod_hash)?,
             PatchCommands::List { name, pack } => patch::list(connection, name, pack)?,
             PatchCommands::Simulate {
                 name,
                 pack,
                 dir_hash,
-            } => patch::simulate(connection, name, pack, dir_hash)?,
+            } => patch::simulate(connection, tx, name, pack, dir_hash)?,
             PatchCommands::View { name, pack } => patch::view(connection, name, pack)?,
         },
         Commands::Pack {
@@ -133,40 +135,54 @@ fn match_event(rx: Receiver<Event>) -> Result<()> {
                 let progress_bar = match total {
                     Some(total) => {
                         let progress_bar = ProgressBar::new(total);
-                        progress_bar.set_style(ProgressStyle::with_template(&("{spinner} [".to_owned() + &title.bold().to_string() + "] {msg}\n {wide_bar} {percent:>3} % ({human_pos:>5} / {human_len:5})\nElapsed: {elapsed_precise}\tETA: {eta_precise}"))?);
+                        progress_bar.set_style(
+                            ProgressStyle::with_template(&format!(
+                                "{{spinner}} [{}] {{msg}}\n{{wide_bar}} {{percent:>3}} % ({{human_pos:>5}} / {{human_len:5}})\nElapsed: {{elapsed_precise}}\tETA: {{eta_precise}}",
+                                title.bold()
+                            ))?.tick_chars("⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"),
+                        );
                         progress_bar
                     }
                     None => {
                         let progress_bar = ProgressBar::new_spinner();
-                        progress_bar.set_style(ProgressStyle::with_template(
-                            &("{spinner} [".to_owned() + &title.bold().to_string() + "] {msg}"),
-                        )?);
+                        progress_bar.set_style(
+                            ProgressStyle::with_template(&format!(
+                                "{{spinner}} [{}] {{msg}}",
+                                title.bold()
+                            ))?
+                            .tick_chars("⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"),
+                        );
                         progress_bar
                     }
                 };
                 progress_bar.enable_steady_tick(Duration::from_millis(100));
 
                 let progress_bar = multi_progress.add(progress_bar);
-                progresses.insert(id, progress_bar);
+                progresses.insert(id, (progress_bar, title));
             }
             Event::ProgressTick { id, message } => {
-                progresses
-                    .get(&id)
-                    .unwrap()
-                    .set_message(message.to_string());
-                progresses.get(&id).unwrap().inc(1);
+                let (progress_bar, _) = progresses.get(&id).unwrap();
+
+                progress_bar.set_message(message.to_string());
+                progress_bar.inc(1);
             }
             Event::ProgressFinish { id } => {
-                progresses
-                    .get(&id)
-                    .unwrap()
-                    .finish_with_message("✓ Finished".green().to_string());
+                let (progress_bar, title) = progresses.get(&id).unwrap();
+                progress_bar.set_style(ProgressStyle::with_template(&format!(
+                    "{} [{}]",
+                    "✓".green(),
+                    title.bold()
+                ))?);
+                progress_bar.finish_with_message("Finished");
             }
             Event::Confirm { tx, message } => {
                 println!("[Confirm] Not yet implemented: {:?}, {:?}", tx, message)
             }
             Event::Select { tx, options } => {
                 println!("[Select] Not yet implemented: {:?}, {:?}", tx, options)
+            }
+            Event::Success { message } => {
+                multi_progress.println(StatusOutput::new(Status::Success, message).to_string())?
             }
             Event::Warning { warning } => {
                 multi_progress.println(

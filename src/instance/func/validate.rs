@@ -6,17 +6,24 @@
  *
  * File:       validate.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   08.02.25, 22:17
+ * Modified:   10.02.25, 18:47
  */
 use crate::db::Repo;
 use crate::error::Error;
 use crate::instance::data::{InstanceFilter, InstanceRepo};
 use crate::instance::InstanceError;
 use crate::prelude::*;
+use crate::progress::event::Event;
 use crate::{file, hash, pack, patch};
 use rusqlite::Connection;
+use std::sync::mpsc::Sender;
 
-pub fn validate(connection: &Connection, name: &str, exist_only: bool) -> Result<()> {
+pub fn validate(
+    connection: &Connection,
+    tx: &Sender<Event>,
+    name: &str,
+    exist_only: bool,
+) -> Result<()> {
     let query = InstanceFilter::ByExactName {
         name: name.to_owned(),
     };
@@ -27,8 +34,8 @@ pub fn validate(connection: &Connection, name: &str, exist_only: bool) -> Result
     }
 
     let mod_paths = file::mod_paths_from_instance_path(&instance.path)?;
-    let src_dir_hash = hash::hash_state_from_path(&mod_paths)?;
-    let sim_hashes = patch::simulate(connection, &instance.patch, &instance.pack)?;
+    let src_dir_hash = hash::hash_state_from_path(tx, &mod_paths)?;
+    let sim_hashes = patch::simulate(connection, tx, &instance.patch, &instance.pack)?;
     let sim_dir_hash = hash::hash_state(&sim_hashes);
 
     if src_dir_hash != sim_dir_hash {

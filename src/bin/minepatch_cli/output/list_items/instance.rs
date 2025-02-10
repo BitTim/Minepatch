@@ -6,12 +6,14 @@
  *
  * File:       instance.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   07.02.25, 17:40
+ * Modified:   10.02.25, 18:52
  */
 use crate::output::format_bool;
 use minepatch::instance;
 use minepatch::instance::Instance;
+use minepatch::progress::event::Event;
 use rusqlite::Connection;
+use std::sync::mpsc::Sender;
 use tabled::Tabled;
 
 #[derive(Debug, Tabled)]
@@ -29,8 +31,8 @@ pub(crate) struct InstanceListItem {
 }
 
 impl InstanceListItem {
-    pub(crate) fn from(connection: &Connection, instance: &Instance) -> Self {
-        let valid = instance::validate(connection, &instance.name, false).is_ok();
+    pub(crate) fn from(connection: &Connection, tx: &Sender<Event>, instance: &Instance) -> Self {
+        let valid = instance::validate(connection, tx, &instance.name, false).is_ok();
 
         Self {
             name: instance.name.to_owned(),

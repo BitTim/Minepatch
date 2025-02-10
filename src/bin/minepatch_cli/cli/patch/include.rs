@@ -6,22 +6,25 @@
  *
  * File:       include.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   05.02.25, 18:11
+ * Modified:   10.02.25, 18:58
  */
 use crate::output::status::{Status, StatusOutput};
 use crate::output::Output;
 use minepatch::msg::Message;
 use minepatch::patch;
 use minepatch::prelude::*;
+use minepatch::progress::event::Event;
 use rusqlite::Connection;
+use std::sync::mpsc::Sender;
 
 pub(crate) fn include(
     connection: &Connection,
+    tx: &Sender<Event>,
     name: &str,
     pack: &str,
     mod_hash: &str,
 ) -> Result<()> {
-    patch::include(connection, name, pack, mod_hash)?;
+    patch::include(connection, tx, name, pack, mod_hash)?;
 
     StatusOutput::new(
         Status::Success,

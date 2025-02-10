@@ -6,7 +6,7 @@
  *
  * File:       event.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   09.02.25, 22:29
+ * Modified:   10.02.25, 18:54
  */
 use crate::msg::Message;
 use crate::prelude::Error;
@@ -37,6 +37,10 @@ pub enum Event {
     Select {
         tx: mpsc::Sender<String>,
         options: Vec<String>,
+    },
+
+    Success {
+        message: Message,
     },
 
     Warning {

@@ -6,18 +6,34 @@
  *
  * File:       simulate.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   08.02.25, 22:17
+ * Modified:   10.02.25, 19:39
  */
 use crate::db::Repo;
-use crate::hash;
+use crate::msg::Message;
 use crate::patch::data::{PatchFilter, PatchRepo};
 use crate::patch_with_mods::{PatchModRelFilter, PatchModRelRepo};
 use crate::prelude::*;
+use crate::progress::event::Event;
+use crate::{hash, progress};
 use rusqlite::Connection;
 use std::collections::HashSet;
+use std::sync::mpsc::Sender;
 
-pub fn simulate(connection: &Connection, name: &str, pack: &str) -> Result<HashSet<String>> {
+pub fn simulate(
+    connection: &Connection,
+    tx: &Sender<Event>,
+    name: &str,
+    pack: &str,
+) -> Result<HashSet<String>> {
+    let id = progress::init_progress(
+        tx,
+        &format!("Simulating patch '{}' from pack '{}'", name, pack),
+        None,
+    )?;
+    progress::tick_progress(tx, &id, Message::new(name))?;
+
     if name.is_empty() {
+        progress::end_progress(tx, id)?;
         return Ok(HashSet::new());
     }
 
@@ -28,7 +44,7 @@ pub fn simulate(connection: &Connection, name: &str, pack: &str) -> Result<HashS
     let patch = PatchRepo::query_single(connection, &patch_filter)?;
 
     let mut mod_hashes = HashSet::new();
-    mod_hashes.extend(simulate(connection, &patch.dependency, pack)?);
+    mod_hashes.extend(simulate(connection, tx, &patch.dependency, pack)?);
 
     let rel_filter = PatchModRelFilter::ByPatchAndPackExact {
         patch: name.to_owned(),
@@ -42,10 +58,16 @@ pub fn simulate(connection: &Connection, name: &str, pack: &str) -> Result<HashS
         };
     }
 
+    progress::end_progress(tx, id)?;
     Ok(mod_hashes)
 }
 
-pub fn simulate_dir_hash(connection: &Connection, name: &str, pack: &str) -> Result<String> {
-    let sim_hashes = simulate(connection, name, pack)?;
+pub fn simulate_dir_hash(
+    connection: &Connection,
+    tx: &Sender<Event>,
+    name: &str,
+    pack: &str,
+) -> Result<String> {
+    let sim_hashes = simulate(connection, tx, name, pack)?;
     Ok(hash::hash_state(&sim_hashes))
 }

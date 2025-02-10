@@ -6,17 +6,24 @@
  *
  * File:       apply.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   08.02.25, 22:17
+ * Modified:   10.02.25, 18:52
  */
 use crate::output::status::{Status, StatusOutput};
 use crate::output::Output;
 use minepatch::instance;
 use minepatch::msg::Message;
 use minepatch::prelude::*;
+use minepatch::progress::event::Event;
 use rusqlite::Connection;
+use std::sync::mpsc::Sender;
 
-pub(crate) fn apply(connection: &Connection, instance: &str, patch: &str) -> Result<()> {
-    instance::apply(connection, instance, patch)?;
+pub(crate) fn apply(
+    connection: &Connection,
+    tx: &Sender<Event>,
+    instance: &str,
+    patch: &str,
+) -> Result<()> {
+    instance::apply(connection, tx, instance, patch)?;
 
     StatusOutput::new(
         Status::Success,

@@ -28,3 +28,4 @@ rusqlite = { version = "0.33.0", features = ["bundled"] }
 ron = "0.8.1"
 symlink = "0.1.0"
 uuid = { version = "1.13.1", features = ["v4"] }
+rayon = "1.10.0"
