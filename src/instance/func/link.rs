@@ -6,17 +6,16 @@
  *
  * File:       link.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   10.02.25, 19:07
+ * Modified:   11.02.25, 03:52
  */
 use crate::common::file::error::FileError;
 use crate::common::file::filename_from_path;
+use crate::common::msg::Event;
 use crate::db::Repo;
 use crate::instance;
 use crate::instance::data::{InstanceFilter, InstanceRepo};
-use crate::instance::{validate, Instance, InstanceError};
-use crate::msg::Message;
+use crate::instance::{validate, Instance, InstanceContext, InstanceError, InstanceMessage};
 use crate::prelude::*;
-use crate::progress::event::Event;
 use rusqlite::Connection;
 use std::fs;
 use std::path::Path;
@@ -50,18 +49,17 @@ pub fn link(
     }
 
     let (patch, pack) = instance::detect(connection, tx, path, pack)?;
+    let instance = Instance::new(actual_name, path, &pack, &patch);
 
-    InstanceRepo::insert(connection, Instance::new(actual_name, path, &pack, &patch))?;
+    InstanceRepo::insert(connection, instance.clone())?;
     validate(connection, tx, actual_name, false)?;
 
     instance::apply(connection, tx, actual_name, &patch)?;
 
     tx.send(Event::Success {
-        message: Message::new("Linked instance")
-            .context("Name", actual_name)
-            .context("Path", &path.display().to_string())
-            .context("Pack", &pack)
-            .context("Patch", &patch),
+        message: Message::Instance(InstanceMessage::LinkSuccess(vec![
+            InstanceContext::SuccessObj(instance),
+        ])),
     })?;
     Ok(actual_name.to_owned())
 }

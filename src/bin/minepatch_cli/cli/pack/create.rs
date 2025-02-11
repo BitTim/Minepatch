@@ -6,15 +6,13 @@
  *
  * File:       create.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   10.02.25, 18:57
+ * Modified:   11.02.25, 04:00
  */
 use crate::output::status::{Status, StatusOutput};
 use crate::output::Output;
-use minepatch::msg::Message;
 use minepatch::pack;
 use minepatch::pack::Pack;
 use minepatch::prelude::*;
-use minepatch::progress::event::Event;
 use rusqlite::Connection;
 use std::sync::mpsc::Sender;
 
@@ -35,10 +33,8 @@ pub(crate) fn create(
         instance.as_deref(),
     )?;
 
-    StatusOutput::new(
-        Status::Success,
-        Message::new("Created new pack").context("Name", name),
-    )
-    .print();
+    StatusOutput::new(Status::Success, "Created new pack".to_owned())
+        .context("Name".to_owned(), name.to_owned())
+        .print();
     Ok(())
 }

@@ -6,14 +6,12 @@
  *
  * File:       include.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   10.02.25, 18:58
+ * Modified:   11.02.25, 04:00
  */
 use crate::output::status::{Status, StatusOutput};
 use crate::output::Output;
-use minepatch::msg::Message;
 use minepatch::patch;
 use minepatch::prelude::*;
-use minepatch::progress::event::Event;
 use rusqlite::Connection;
 use std::sync::mpsc::Sender;
 
@@ -26,13 +24,10 @@ pub(crate) fn include(
 ) -> Result<()> {
     patch::include(connection, tx, name, pack, mod_hash)?;
 
-    StatusOutput::new(
-        Status::Success,
-        Message::new("Included mod with patch")
-            .context("Mod", mod_hash)
-            .context("Patch", name)
-            .context("Pack", pack),
-    )
-    .print();
+    StatusOutput::new(Status::Success, "Included mod with patch".to_owned())
+        .context("Mod".to_owned(), mod_hash.to_owned())
+        .context("Patch".to_owned(), name.to_owned())
+        .context("Pack".to_owned(), pack.to_owned())
+        .print();
     Ok(())
 }

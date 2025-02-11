@@ -6,12 +6,11 @@
  *
  * File:       list.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   05.02.25, 22:05
+ * Modified:   11.02.25, 03:35
  */
 use crate::output::list_items::patch::PatchListItem;
 use crate::output::table::TableOutput;
 use crate::output::Output;
-use minepatch::msg::Message;
 use minepatch::patch::query_multiple;
 use minepatch::prelude::*;
 use rusqlite::Connection;
@@ -31,6 +30,6 @@ pub(crate) fn list(
         .map(|value| PatchListItem::from(connection, value))
         .collect::<Result<Vec<PatchListItem>>>()?;
 
-    TableOutput::new(displays, Message::new("No patches present yet")).print();
+    TableOutput::new(displays, "No patches present yet".to_owned()).print();
     Ok(())
 }

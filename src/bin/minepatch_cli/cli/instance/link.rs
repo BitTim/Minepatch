@@ -6,11 +6,10 @@
  *
  * File:       link.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   10.02.25, 18:57
+ * Modified:   11.02.25, 04:00
  */
 use minepatch::instance;
 use minepatch::prelude::*;
-use minepatch::progress::event::Event;
 use rusqlite::Connection;
 use std::path::Path;
 use std::sync::mpsc::Sender;

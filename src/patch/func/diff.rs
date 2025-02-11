@@ -6,12 +6,12 @@
  *
  * File:       diff.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   10.02.25, 18:50
+ * Modified:   11.02.25, 03:47
  */
+use crate::common::msg::Event;
 use crate::patch;
 use crate::patch::PatchDiff;
 use crate::prelude::*;
-use crate::progress::event::Event;
 use rusqlite::Connection;
 use std::collections::HashSet;
 use std::sync::mpsc::Sender;

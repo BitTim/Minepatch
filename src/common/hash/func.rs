@@ -4,14 +4,14 @@
  * Project:    Minepatch
  * License:    GPLv3
  *
- * File:       hash.rs
+ * File:       func.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   10.02.25, 18:37
+ * Modified:   11.02.25, 03:53
  */
-use crate::msg::Message;
+use crate::common::msg;
+use crate::common::msg::Event;
+use crate::hash::msg::{HashContext, HashMessage, HashProcess};
 use crate::prelude::*;
-use crate::progress;
-use crate::progress::event::Event;
 use rayon::prelude::*;
 use sha256::Sha256Digest;
 use std::collections::HashSet;
@@ -38,15 +38,26 @@ pub(crate) fn hash_file(path: &Path) -> Result<String> {
 }
 
 pub(crate) fn hash_state_from_path(tx: &Sender<Event>, paths: &[PathBuf]) -> Result<String> {
-    let id = progress::init_progress(tx, "Hashing mod files", Some(paths.len() as u64))?;
+    msg::init_progress(
+        tx,
+        Process::Hash(HashProcess::HashFiles),
+        Some(paths.len() as u64),
+    )?;
+
     let hashes: HashSet<String> = paths
         .par_iter()
         .map(|mod_path| {
-            progress::tick_progress(tx, &id, Message::new(&mod_path.display().to_string()))?;
+            msg::tick_progress(
+                tx,
+                Process::Hash(HashProcess::HashFiles),
+                Message::Hash(HashMessage::HashFilesStatus(vec![HashContext::Path(
+                    mod_path.to_path_buf(),
+                )])),
+            )?;
             hash_file(mod_path)
         })
         .collect::<Result<HashSet<String>>>()?;
 
-    progress::end_progress(tx, id)?;
+    msg::end_progress(tx, Process::Hash(HashProcess::HashFiles))?;
     Ok(hash_state(&hashes))
 }

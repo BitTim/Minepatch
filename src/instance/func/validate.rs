@@ -6,14 +6,14 @@
  *
  * File:       validate.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   10.02.25, 18:47
+ * Modified:   11.02.25, 03:47
  */
+use crate::common::msg::Event;
 use crate::db::Repo;
 use crate::error::Error;
 use crate::instance::data::{InstanceFilter, InstanceRepo};
 use crate::instance::InstanceError;
 use crate::prelude::*;
-use crate::progress::event::Event;
 use crate::{file, hash, pack, patch};
 use rusqlite::Connection;
 use std::sync::mpsc::Sender;

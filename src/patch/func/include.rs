@@ -6,14 +6,14 @@
  *
  * File:       include.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   10.02.25, 18:51
+ * Modified:   11.02.25, 03:47
  */
+use crate::common::msg::Event;
 use crate::db::Repo;
 use crate::patch;
 use crate::patch::PatchError;
 use crate::patch_with_mods::{PatchModRelFilter, PatchModRelRepo, PatchWithMods};
 use crate::prelude::*;
-use crate::progress::event::Event;
 use rusqlite::Connection;
 use std::sync::mpsc::Sender;
 

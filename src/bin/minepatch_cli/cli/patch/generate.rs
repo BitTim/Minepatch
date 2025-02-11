@@ -6,14 +6,12 @@
  *
  * File:       generate.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   09.02.25, 22:29
+ * Modified:   11.02.25, 04:25
  */
 use crate::output::status::{Status, StatusOutput};
 use crate::output::Output;
-use minepatch::msg::Message;
 use minepatch::patch;
 use minepatch::prelude::*;
-use minepatch::progress::event::Event;
 use rusqlite::Connection;
 use std::sync::mpsc::Sender;
 
@@ -27,10 +25,10 @@ pub(crate) fn generate(
 
     StatusOutput::new(
         Status::Success,
-        Message::new("Generated and applied a new patch from instance")
-            .context("Name", name)
-            .context("Instance", instance),
+        "Generated and applied a new patch from instance".to_owned(),
     )
+    .context("Name".to_owned(), name.to_owned())
+    .context("Instance".to_owned(), instance.to_owned())
     .print();
 
     Ok(())

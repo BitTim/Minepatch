@@ -6,10 +6,10 @@
  *
  * File:       apply.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   10.02.25, 19:09
+ * Modified:   11.02.25, 03:47
  */
+use crate::common::msg::Event;
 use crate::prelude::*;
-use crate::progress::event::Event;
 use crate::{file, instance, patch, vault};
 use rusqlite::Connection;
 use std::sync::mpsc::Sender;

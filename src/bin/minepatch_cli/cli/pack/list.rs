@@ -6,12 +6,11 @@
  *
  * File:       list.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   05.02.25, 21:42
+ * Modified:   11.02.25, 03:34
  */
 use crate::output::list_items::pack::PackListItem;
 use crate::output::table::TableOutput;
 use crate::output::Output;
-use minepatch::msg::Message;
 use minepatch::pack;
 use minepatch::prelude::*;
 use rusqlite::Connection;
@@ -23,6 +22,6 @@ pub(crate) fn list(connection: &Connection, name: &Option<String>) -> Result<()>
         .map(|value| PackListItem::from(connection, value))
         .collect::<Result<Vec<PackListItem>>>();
 
-    TableOutput::new(list_items?, Message::new("No mod packs added yet")).print();
+    TableOutput::new(list_items?, "No mod packs added yet".to_owned()).print();
     Ok(())
 }

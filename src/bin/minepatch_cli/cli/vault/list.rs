@@ -6,13 +6,12 @@
  *
  * File:       list.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   05.02.25, 21:41
+ * Modified:   11.02.25, 03:37
  */
 use crate::output::detailed::{DetailedDisplayObject, DetailedOutput};
 use crate::output::list_items::vault::ModListItem;
 use crate::output::table::TableOutput;
 use crate::output::Output;
-use minepatch::msg::Message;
 use minepatch::prelude::*;
 use minepatch::vault::query_multiple;
 use rusqlite::Connection;
@@ -46,7 +45,7 @@ pub(crate) fn list(
                 .map(|value| ModListItem::from(connection, value))
                 .collect::<Vec<ModListItem>>();
 
-            TableOutput::new(displays, Message::new("No mods added to vault yet")).print();
+            TableOutput::new(displays, "No mods added to vault yet".to_owned()).print();
         }
     }
 

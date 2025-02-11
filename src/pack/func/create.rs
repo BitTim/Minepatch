@@ -6,17 +6,16 @@
  *
  * File:       create.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   10.02.25, 18:51
+ * Modified:   11.02.25, 03:54
  */
-use crate::common::file;
-use crate::common::progress::event::Event;
+use crate::common::msg::Event;
+use crate::common::{file, msg};
 use crate::db::Repo;
-use crate::msg::Message;
 use crate::pack::data::{Pack, PackFilter, PackRepo};
 use crate::pack::error::PackError;
+use crate::pack::msg::{PackContext, PackMessage, PackProcess};
 use crate::prelude::*;
-use crate::{instance, patch, progress, template, vault};
-use colored::Colorize;
+use crate::{instance, patch, template, vault};
 use rusqlite::Connection;
 use std::collections::HashSet;
 use std::sync::mpsc::Sender;
@@ -30,7 +29,7 @@ pub fn create(
     from: Option<&str>,
     instance: Option<&str>,
 ) -> Result<()> {
-    let spinner_id = progress::init_progress(tx, "Creating pack", None)?;
+    msg::init_progress(tx, Process::Pack(PackProcess::Create), None)?;
 
     let name = pack.name.to_owned();
     let template = pack.template.to_owned();
@@ -51,24 +50,27 @@ pub fn create(
     if let Some(from) = from {
         file::check_exists(from.as_ref())?;
         let mod_paths = file::mod_paths_from_instance_path(from.as_ref())?;
-        let hash_prog_id =
-            progress::init_progress(tx, "Hashing mod files", Some(mod_paths.len() as u64))?;
+        msg::init_progress(
+            tx,
+            Process::Pack(PackProcess::AddModFiles),
+            Some(mod_paths.len() as u64),
+        )?;
 
         let mut hashes = HashSet::new();
         for mod_path in mod_paths {
             let hash = vault::add(connection, tx, &mod_path, false)?;
-            hashes.insert(hash);
-            progress::tick_progress(
+            hashes.insert(hash.clone());
+            msg::tick_progress(
                 tx,
-                &hash_prog_id,
-                Message::new(
-                    &format!("Mod file path: '{}'", mod_path.display().to_string().cyan())
-                        .to_string(),
-                ),
+                Process::Pack(PackProcess::AddModFiles),
+                Message::Pack(PackMessage::AddModFileStatus(vec![
+                    PackContext::Path(mod_path.to_path_buf()),
+                    PackContext::Hash(hash),
+                ])),
             )?;
         }
 
-        progress::end_progress(tx, hash_prog_id)?;
+        msg::end_progress(tx, Process::Pack(PackProcess::AddModFiles))?;
         patch::create(
             connection,
             tx,
@@ -89,6 +91,6 @@ pub fn create(
         };
     }
 
-    progress::end_progress(tx, spinner_id)?;
+    msg::end_progress(tx, Process::Pack(PackProcess::Create))?;
     Ok(())
 }

@@ -6,15 +6,13 @@
  *
  * File:       simulate.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   10.02.25, 18:58
+ * Modified:   11.02.25, 04:00
  */
 use crate::output::list_items::vault::ModListItem;
 use crate::output::table::TableOutput;
 use crate::output::Output;
 use colored::Colorize;
-use minepatch::msg::Message;
 use minepatch::prelude::*;
-use minepatch::progress::event::Event;
 use minepatch::vault::Mod;
 use minepatch::{patch, vault};
 use rusqlite::Connection;
@@ -50,10 +48,6 @@ pub(crate) fn simulate(
         .map(|value| ModListItem::from(connection, value))
         .collect::<Vec<ModListItem>>();
 
-    TableOutput::new(
-        displays,
-        Message::new("No mods present in pack in simulation"),
-    )
-    .print();
+    TableOutput::new(displays, "No mods present in pack in simulation".to_owned()).print();
     Ok(())
 }

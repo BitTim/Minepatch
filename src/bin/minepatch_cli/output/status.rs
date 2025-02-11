@@ -6,11 +6,10 @@
  *
  * File:       status.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.01.25, 22:20
+ * Modified:   11.02.25, 03:33
  */
 use crate::output::Output;
 use colored::{ColoredString, Colorize};
-use minepatch::msg::Message;
 use std::fmt::{Display, Formatter};
 
 #[derive(Debug)]
@@ -42,19 +41,19 @@ impl Status {
 #[derive(Debug)]
 pub struct StatusOutput {
     status: Status,
-    message: Message,
+    message: String,
+    context: Vec<(String, String)>,
 }
 
 impl Display for StatusOutput {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}{}", self.status.title(), self.message.msg)?;
+        write!(f, "{}{}", self.status.title(), self.message)?;
 
-        for context in &self.message.context {
+        for (title, content) in &self.context {
             write!(
                 f,
                 "{}",
-                self.status
-                    .colorize(&format!("\n\t{}: {}", context.title, context.content))
+                self.status.colorize(&format!("\n\t{}: {}", title, content))
             )?;
         }
 
@@ -63,8 +62,17 @@ impl Display for StatusOutput {
 }
 
 impl StatusOutput {
-    pub fn new(status: Status, message: Message) -> Self {
-        Self { status, message }
+    pub fn new(status: Status, message: String) -> Self {
+        Self {
+            status,
+            message,
+            context: vec![],
+        }
+    }
+
+    pub fn context(&mut self, title: String, content: String) -> &mut Self {
+        self.context.push((title, content));
+        self
     }
 }
 

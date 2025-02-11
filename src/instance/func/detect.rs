@@ -6,12 +6,13 @@
  *
  * File:       detect.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   10.02.25, 19:07
+ * Modified:   11.02.25, 03:51
  */
-use crate::instance::InstanceError;
+use crate::common::msg;
+use crate::common::msg::Event;
+use crate::instance::{InstanceError, InstanceProcess};
 use crate::prelude::*;
-use crate::progress::event::Event;
-use crate::{file, hash, patch, progress};
+use crate::{file, hash, patch};
 use rusqlite::Connection;
 use std::path::Path;
 use std::sync::mpsc::Sender;
@@ -22,7 +23,7 @@ pub fn detect(
     path: &Path,
     pack: Option<&str>,
 ) -> Result<(String, String)> {
-    let id = progress::init_progress(tx, "Detecting patch and pack", None)?;
+    let id = msg::init_progress(tx, Process::Instance(InstanceProcess::Detect), None)?;
 
     let mod_paths = file::mod_paths_from_instance_path(path)?;
     let dir_hash = hash::hash_state_from_path(tx, &mod_paths)?;
@@ -43,6 +44,6 @@ pub fn detect(
         }
     };
 
-    progress::end_progress(tx, id)?;
-    Ok(result.ok_or(Error::Instance(InstanceError::NoPatchDetected { dir_hash }))?)
+    msg::end_progress(tx, Process::Instance(InstanceProcess::Detect))?;
+    result.ok_or(Error::Instance(InstanceError::NoPatchDetected { dir_hash }))
 }

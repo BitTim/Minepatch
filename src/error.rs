@@ -6,11 +6,11 @@
  *
  * File:       error.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   09.02.25, 22:29
+ * Modified:   11.02.25, 04:26
  */
 use crate::common::file::error::FileError;
 use crate::common::meta::error::MetaError;
-use crate::common::progress::event::Event;
+use crate::common::msg::Event;
 use crate::instance::InstanceError;
 use crate::pack::PackError;
 use crate::patch::PatchError;

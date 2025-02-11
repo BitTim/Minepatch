@@ -6,11 +6,10 @@
  *
  * File:       create.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   22.01.25, 01:45
+ * Modified:   11.02.25, 04:25
  */
 use crate::output::status::{Status, StatusOutput};
 use crate::output::Output;
-use minepatch::msg::Message;
 use minepatch::prelude::*;
 use minepatch::template;
 use rusqlite::Connection;
@@ -32,8 +31,9 @@ pub(crate) fn create(
 
     StatusOutput::new(
         Status::Success,
-        Message::new("Added template to be used with packs").context("Name", name),
+        "Added template to be used with packs".to_owned(),
     )
+    .context("Name".to_owned(), name.to_owned())
     .print();
     Ok(())
 }

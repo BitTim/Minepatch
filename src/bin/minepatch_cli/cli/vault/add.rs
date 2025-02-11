@@ -6,13 +6,11 @@
  *
  * File:       add.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   09.02.25, 22:29
+ * Modified:   11.02.25, 04:00
  */
 use crate::output::status::{Status, StatusOutput};
 use crate::output::Output;
-use minepatch::msg::Message;
 use minepatch::prelude::*;
-use minepatch::progress::event::Event;
 use minepatch::vault;
 use rusqlite::Connection;
 use std::path::Path;
@@ -26,13 +24,10 @@ pub(crate) fn add(
 ) -> Result<()> {
     let hash = vault::add(connection, tx, path, *overwrite)?;
 
-    StatusOutput::new(
-        Status::Success,
-        Message::new("Added mod to vault")
-            .context("Hash", &hash)
-            .context("Path", &path.display().to_string()),
-    )
-    .print();
+    StatusOutput::new(Status::Success, "Added mod to vault".to_owned())
+        .context("Hash".to_owned(), hash)
+        .context("Path".to_owned(), path.display().to_string())
+        .print();
 
     Ok(())
 }

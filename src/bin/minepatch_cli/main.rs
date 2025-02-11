@@ -6,7 +6,7 @@
  *
  * File:       main.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   10.02.25, 21:05
+ * Modified:   11.02.25, 04:15
  */
 use crate::cli::instance::InstanceCommands;
 use crate::cli::pack::PackCommands;
@@ -20,9 +20,12 @@ use cli::vault::VaultCommands;
 use colored::Colorize;
 use indicatif::{MultiProgress, ProgressBar, ProgressStyle};
 use minepatch::db;
-use minepatch::msg::Message;
+use minepatch::hash::{HashMessage, HashProcess};
+use minepatch::instance::{InstanceMessage, InstanceProcess};
+use minepatch::msg::Process;
+use minepatch::pack::{PackMessage, PackProcess};
+use minepatch::patch::{PatchMessage, PatchProcess};
 use minepatch::prelude::*;
-use minepatch::progress::event::Event;
 use minepatch::update::func;
 use rusqlite::Connection;
 use std::collections::HashMap;
@@ -125,20 +128,63 @@ fn match_command(command: &Commands, connection: &Connection, tx: &Sender<Event>
     Ok(())
 }
 
+fn match_process(process: &Process) -> &'static str {
+    match process {
+        Process::Hash(process) => match process {
+            HashProcess::HashFiles => "Hashing mod files",
+        },
+        Process::Instance(process) => match process {
+            InstanceProcess::Detect => "Detecting patch and pack",
+        },
+        Process::Pack(process) => match process {
+            PackProcess::Create => "Creating pack",
+            PackProcess::AddModFiles => "Adding mod files",
+        },
+        Process::Patch(process) => match process {
+            PatchProcess::Simulate => "Simulating patch",
+        },
+        Process::Mod(process) => "",
+    }
+}
+
+fn match_message(message: &Message) -> &'static str {
+    match message {
+        Message::Hash(message) => match message {
+            HashMessage::HashFilesStatus(context) => "Not yet implemented",
+        },
+        Message::Instance(message) => match message {
+            InstanceMessage::LinkSuccess(context) => "Not yet implemented",
+        },
+        Message::Pack(message) => match message {
+            PackMessage::AddModFileStatus(context) => "Not yet implemented",
+        },
+        Message::Patch(message) => match message {
+            PatchMessage::SimulateStatus(context) => "Not yet implemented",
+        },
+        Message::Mod(message) => "",
+    }
+}
+
 fn match_event(rx: Receiver<Event>) -> Result<()> {
     let mut progresses = HashMap::new();
     let multi_progress = MultiProgress::new();
 
     for event in rx {
         match event {
-            Event::Progress { id, title, total } => {
+            Event::Progress { process, total } => {
+                let progress_bar = progresses.remove(&process);
+                if progress_bar.is_some() {
+                    let progress_bar: ProgressBar = progress_bar.unwrap();
+                    progress_bar.finish_and_clear();
+                }
+
                 let progress_bar = match total {
                     Some(total) => {
                         let progress_bar = ProgressBar::new(total);
                         progress_bar.set_style(
                             ProgressStyle::with_template(&format!(
                                 "{{spinner}} [{}] {{msg}}\n{{wide_bar}} {{percent:>3}} % ({{human_pos:>5}} / {{human_len:5}})\nElapsed: {{elapsed_precise}}\tETA: {{eta_precise}}",
-                                title.bold()
+                                match_process(&process).bold()
                             ))?.tick_chars("⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"),
                         );
                         progress_bar
@@ -148,7 +194,7 @@ fn match_event(rx: Receiver<Event>) -> Result<()> {
                         progress_bar.set_style(
                             ProgressStyle::with_template(&format!(
                                 "{{spinner}} [{}] {{msg}}",
-                                title.bold()
+                                match_process(&process).bold()
                             ))?
                             .tick_chars("⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"),
                         );
@@ -158,20 +204,20 @@ fn match_event(rx: Receiver<Event>) -> Result<()> {
                 progress_bar.enable_steady_tick(Duration::from_millis(100));
 
                 let progress_bar = multi_progress.add(progress_bar);
-                progresses.insert(id, (progress_bar, title));
+                progresses.insert(process, progress_bar);
             }
-            Event::ProgressTick { id, message } => {
-                let (progress_bar, _) = progresses.get(&id).unwrap();
+            Event::ProgressTick { process, message } => {
+                let progress_bar = progresses.get(&process).unwrap();
 
-                progress_bar.set_message(message.to_string());
+                progress_bar.set_message(match_message(&message));
                 progress_bar.inc(1);
             }
-            Event::ProgressFinish { id } => {
-                let (progress_bar, title) = progresses.get(&id).unwrap();
+            Event::ProgressFinish { process } => {
+                let progress_bar = progresses.get(&process).unwrap();
                 progress_bar.set_style(ProgressStyle::with_template(&format!(
                     "{} [{}]",
                     "✓".green(),
-                    title.bold()
+                    match_process(&process).bold()
                 ))?);
                 progress_bar.finish_with_message("Finished");
             }
@@ -181,17 +227,15 @@ fn match_event(rx: Receiver<Event>) -> Result<()> {
             Event::Select { tx, options } => {
                 println!("[Select] Not yet implemented: {:?}, {:?}", tx, options)
             }
-            Event::Success { message } => {
-                multi_progress.println(StatusOutput::new(Status::Success, message).to_string())?
-            }
+            Event::Success { message } => multi_progress.println(
+                StatusOutput::new(Status::Success, match_message(&message).to_owned()).to_string(),
+            )?,
             Event::Warning { warning } => {
-                multi_progress.println(
-                    StatusOutput::new(Status::Warning, Message::new(&warning.to_string()))
-                        .to_string(),
-                )?;
+                multi_progress
+                    .println(StatusOutput::new(Status::Warning, warning.to_string()).to_string())?;
             }
             Event::Log { message } => {
-                multi_progress.println(message.to_string())?;
+                multi_progress.println(match_message(&message))?;
             }
         }
     }
@@ -218,6 +262,6 @@ fn main() {
     });
 
     if let Err(error) = fallible(rx, thread) {
-        StatusOutput::new(Status::Error, Message::new(&error.to_string())).print();
+        StatusOutput::new(Status::Error, error.to_string()).print();
     }
 }

@@ -6,13 +6,12 @@
  *
  * File:       view.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   09.02.25, 23:28
+ * Modified:   11.02.25, 03:36
  */
 use crate::output::list_items::vault::ModListItem;
 use crate::output::table::TableOutput;
 use crate::output::{format_bool_valid, format_string_option};
 use colored::Colorize;
-use minepatch::msg::Message;
 use minepatch::patch_with_mods::PatchWithMods;
 use minepatch::prelude::*;
 use minepatch::vault::Mod;
@@ -35,7 +34,7 @@ pub(crate) fn view(connection: &Connection, name: &str, pack: &str) -> Result<()
             .iter()
             .map(|value| ModListItem::from(connection, value))
             .collect::<Vec<ModListItem>>(),
-        Message::new(&"No mods added".bold().yellow().to_string()),
+        "No mods added".bold().yellow().to_string(),
     );
 
     let removed_mods_table = TableOutput::new(
@@ -43,7 +42,7 @@ pub(crate) fn view(connection: &Connection, name: &str, pack: &str) -> Result<()
             .iter()
             .map(|value| ModListItem::from(connection, value))
             .collect::<Vec<ModListItem>>(),
-        Message::new(&"No mods removed".bold().yellow().to_string()),
+        "No mods removed".bold().yellow().to_string(),
     );
 
     let valid = patch::validate(connection, name, pack, false).is_ok();

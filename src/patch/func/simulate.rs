@@ -6,15 +6,16 @@
  *
  * File:       simulate.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   10.02.25, 19:39
+ * Modified:   11.02.25, 03:54
  */
+use crate::common::msg;
+use crate::common::msg::Event;
 use crate::db::Repo;
-use crate::msg::Message;
+use crate::hash;
 use crate::patch::data::{PatchFilter, PatchRepo};
+use crate::patch::{PatchContext, PatchMessage, PatchProcess};
 use crate::patch_with_mods::{PatchModRelFilter, PatchModRelRepo};
 use crate::prelude::*;
-use crate::progress::event::Event;
-use crate::{hash, progress};
 use rusqlite::Connection;
 use std::collections::HashSet;
 use std::sync::mpsc::Sender;
@@ -25,15 +26,17 @@ pub fn simulate(
     name: &str,
     pack: &str,
 ) -> Result<HashSet<String>> {
-    let id = progress::init_progress(
+    msg::init_progress(tx, Process::Patch(PatchProcess::Simulate), None)?;
+    msg::tick_progress(
         tx,
-        &format!("Simulating patch '{}' from pack '{}'", name, pack),
-        None,
+        Process::Patch(PatchProcess::Simulate),
+        Message::Patch(PatchMessage::SimulateStatus(vec![PatchContext::Name(
+            name.to_owned(),
+        )])),
     )?;
-    progress::tick_progress(tx, &id, Message::new(name))?;
 
     if name.is_empty() {
-        progress::end_progress(tx, id)?;
+        msg::end_progress(tx, Process::Patch(PatchProcess::Simulate))?;
         return Ok(HashSet::new());
     }
 
@@ -58,7 +61,7 @@ pub fn simulate(
         };
     }
 
-    progress::end_progress(tx, id)?;
+    msg::end_progress(tx, Process::Patch(PatchProcess::Simulate))?;
     Ok(mod_hashes)
 }
 

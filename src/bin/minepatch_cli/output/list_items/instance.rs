@@ -6,12 +6,12 @@
  *
  * File:       instance.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   10.02.25, 18:52
+ * Modified:   11.02.25, 04:01
  */
 use crate::output::format_bool;
 use minepatch::instance;
 use minepatch::instance::Instance;
-use minepatch::progress::event::Event;
+use minepatch::prelude::Event;
 use rusqlite::Connection;
 use std::sync::mpsc::Sender;
 use tabled::Tabled;

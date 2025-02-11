@@ -6,13 +6,12 @@
  *
  * File:       create.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   10.02.25, 18:58
+ * Modified:   11.02.25, 04:01
  */
 use crate::output::status::{Status, StatusOutput};
 use crate::output::Output;
-use minepatch::msg::Message;
 use minepatch::patch;
-use minepatch::progress::event::Event;
+use minepatch::prelude::*;
 use rusqlite::Connection;
 use std::collections::HashSet;
 use std::sync::mpsc::Sender;
@@ -23,7 +22,7 @@ pub(crate) fn create(
     name: &str,
     pack: &str,
     dependency: &str,
-) -> minepatch::prelude::Result<()> {
+) -> Result<()> {
     patch::create(
         connection,
         tx,
@@ -34,12 +33,9 @@ pub(crate) fn create(
         &HashSet::new(),
     )?;
 
-    StatusOutput::new(
-        Status::Success,
-        Message::new("Added patch to pack")
-            .context("Name", name)
-            .context("Pack", pack),
-    )
-    .print();
+    StatusOutput::new(Status::Success, "Added patch to pack".to_owned())
+        .context("Name".to_owned(), name.to_owned())
+        .context("Pack".to_owned(), pack.to_owned())
+        .print();
     Ok(())
 }

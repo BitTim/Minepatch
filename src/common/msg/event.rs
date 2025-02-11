@@ -6,26 +6,23 @@
  *
  * File:       event.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   10.02.25, 18:54
+ * Modified:   11.02.25, 03:51
  */
-use crate::msg::Message;
-use crate::prelude::Error;
+use crate::prelude::{Error, Message, Process};
 use std::sync::mpsc;
-use uuid::Uuid;
 
 #[derive(Debug)]
 pub enum Event {
     Progress {
-        id: Uuid,
-        title: String,
+        process: Process,
         total: Option<u64>,
     },
     ProgressTick {
-        id: Uuid,
+        process: Process,
         message: Message,
     },
     ProgressFinish {
-        id: Uuid,
+        process: Process,
     },
 
     Confirm {
