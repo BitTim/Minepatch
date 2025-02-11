@@ -6,7 +6,7 @@
  *
  * File:       create.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   11.02.25, 17:39
+ * Modified:   11.02.25, 17:50
  */
 use crate::common::msg::Event;
 use crate::db::Repo;
@@ -15,19 +15,20 @@ use crate::pack;
 use crate::patch::data::{PatchFilter, PatchRepo};
 use crate::patch::{Patch, PatchError};
 use crate::patch_with_mods::{PatchModRelRepo, PatchWithMods};
+use crate::prelude::*;
 use rusqlite::Connection;
 use std::collections::HashSet;
 use std::sync::mpsc::Sender;
 
 pub fn create(
     connection: &Connection,
-    tx: &Sender<Event>,
+    _tx: &Sender<Event>,
     name: &str,
     pack: &str,
     dependency: &str,
     added: &HashSet<String>,
     removed: &HashSet<String>,
-) -> crate::prelude::Result<()> {
+) -> Result<()> {
     let exists_query = PatchFilter::ByNameAndPackExact {
         name: name.to_owned(),
         pack: pack.to_owned(),
