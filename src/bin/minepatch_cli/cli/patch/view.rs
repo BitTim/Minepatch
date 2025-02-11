@@ -6,7 +6,7 @@
  *
  * File:       view.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   11.02.25, 03:36
+ * Modified:   11.02.25, 17:27
  */
 use crate::output::list_items::vault::ModListItem;
 use crate::output::table::TableOutput;
@@ -59,14 +59,12 @@ pub(crate) fn view(connection: &Connection, name: &str, pack: &str) -> Result<()
         "Next patch:\t\t'{}'",
         format_string_option(&next_patch.map(|value| value.name)).purple()
     );
-    let dir_hash_line = format!("Source dir hash:\t'{}'", patch.src_dir_hash.yellow());
 
     println!(
-        "\n{}\n{}\n{}\n{}\n\n{}\n{}\n\n{}\n{}\n",
+        "\n{}\n{}\n{}\n\n{}\n{}\n\n{}\n{}\n",
         header_line,
         prev_patch_line,
         next_patch_line,
-        dir_hash_line,
         &"Added mods:".green().bold().underline().to_string(),
         added_mods_table,
         &"Removed mods:".red().bold().underline().to_string(),

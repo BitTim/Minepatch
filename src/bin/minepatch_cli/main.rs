@@ -6,7 +6,7 @@
  *
  * File:       main.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   11.02.25, 04:15
+ * Modified:   11.02.25, 17:37
  */
 use crate::cli::instance::InstanceCommands;
 use crate::cli::pack::PackCommands;
@@ -165,6 +165,25 @@ fn match_message(message: &Message) -> &'static str {
     }
 }
 
+// fn match_context(context: &Context) -> String {
+//     match context {
+//         Context::Hash(context) => match context {
+//             HashContext::Path(path) => path.display().to_string(),
+//         },
+//         Context::Instance(context) => match context {
+//             InstanceContext::SuccessObj(instance) => format!("'{}'", instance.name),
+//         },
+//         Context::Pack(context) => match context {
+//             PackContext::Path(path) => path.display().to_string(),
+//             PackContext::Hash(hash) => hash.to_owned(),
+//         },
+//         Context::Patch(context) => match context {
+//             PatchContext::Name(name) => name.to_owned(),
+//         },
+//         Context::Mod(context) => "".to_owned(),
+//     }
+// }
+
 fn match_event(rx: Receiver<Event>) -> Result<()> {
     let mut progresses = HashMap::new();
     let multi_progress = MultiProgress::new();
@@ -256,7 +275,9 @@ fn main() {
         let mut connection = db::init()?;
         let transaction = connection.transaction()?;
         let result = match_command(&cli.command, &transaction, &tx);
-        transaction.commit()?;
+        if result.is_ok() {
+            transaction.commit()?
+        };
 
         result
     });

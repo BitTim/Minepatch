@@ -6,7 +6,7 @@
  *
  * File:       filter.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   10.02.25, 18:44
+ * Modified:   11.02.25, 17:29
  */
 use crate::common::db::{Filter, InsertableFilter};
 use crate::error::Error;
@@ -24,7 +24,7 @@ pub(crate) enum PatchFilter {
 impl Filter for PatchFilter {
     fn value(&self) -> String {
         match self {
-            PatchFilter::Insert { .. } => "VALUES (?1, ?2, ?3, ?4)",
+            PatchFilter::Insert { .. } => "VALUES (?1, ?2, ?3)",
             PatchFilter::ByNameAndPackExact { .. } => "WHERE name = ?1 AND pack = ?2",
             PatchFilter::ByNameAndPackSimilar { .. } => {
                 "WHERE name LIKE ?1||'%' AND pack LIKE ?2||'%'"
@@ -41,7 +41,6 @@ impl Filter for PatchFilter {
                 Box::new(patch.name.to_owned()),
                 Box::new(patch.pack.to_owned()),
                 Box::new(patch.dependency.to_owned()),
-                Box::new(patch.src_dir_hash.to_owned()),
             ],
             PatchFilter::ByNameAndPackExact { name, pack }
             | PatchFilter::ByNameAndPackSimilar { name, pack } => {

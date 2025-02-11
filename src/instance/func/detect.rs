@@ -6,7 +6,7 @@
  *
  * File:       detect.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   11.02.25, 03:51
+ * Modified:   11.02.25, 17:23
  */
 use crate::common::msg;
 use crate::common::msg::Event;
@@ -23,7 +23,7 @@ pub fn detect(
     path: &Path,
     pack: Option<&str>,
 ) -> Result<(String, String)> {
-    let id = msg::init_progress(tx, Process::Instance(InstanceProcess::Detect), None)?;
+    msg::init_progress(tx, Process::Instance(InstanceProcess::Detect), None)?;
 
     let mod_paths = file::mod_paths_from_instance_path(path)?;
     let dir_hash = hash::hash_state_from_path(tx, &mod_paths)?;
