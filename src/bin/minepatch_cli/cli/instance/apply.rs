@@ -6,10 +6,8 @@
  *
  * File:       apply.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   11.02.25, 03:57
+ * Modified:   12.02.25, 17:32
  */
-use crate::output::status::{Status, StatusOutput};
-use crate::output::Output;
 use minepatch::instance;
 use minepatch::prelude::*;
 use rusqlite::Connection;
@@ -21,11 +19,5 @@ pub(crate) fn apply(
     instance: &str,
     patch: &str,
 ) -> Result<()> {
-    instance::apply(connection, tx, instance, patch)?;
-
-    StatusOutput::new(Status::Success, "Applied patch to instance".to_owned())
-        .context("Instance".to_owned(), instance.to_owned())
-        .context("Patch".to_owned(), patch.to_owned())
-        .print();
-    Ok(())
+    instance::apply(connection, tx, instance, patch)
 }

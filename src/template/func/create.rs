@@ -6,7 +6,7 @@
  *
  * File:       create.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   12.02.25, 03:40
+ * Modified:   12.02.25, 17:36
  */
 use crate::common::msg;
 use crate::db::Repo;
@@ -33,13 +33,14 @@ pub fn create(
         return Err(Error::Template(TemplateError::NameTaken(name.to_owned())));
     }
 
-    TemplateRepo::insert(connection, Template::new(name, loader, version, download))?;
+    let template = Template::new(name, loader, version, download);
+    TemplateRepo::insert(connection, template.to_owned())?;
 
     msg::end_progress(
         tx,
         Process::Template(TemplateProcess::Create),
         Some(Message::Template(TemplateMessage::CreateSuccess {
-            name: name.to_owned(),
+            template: Box::new(template),
         })),
     )?;
     Ok(())

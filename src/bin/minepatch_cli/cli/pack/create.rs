@@ -6,10 +6,8 @@
  *
  * File:       create.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   12.02.25, 03:50
+ * Modified:   12.02.25, 17:33
  */
-use crate::output::status::{Status, StatusOutput};
-use crate::output::Output;
 use minepatch::pack;
 use minepatch::prelude::*;
 use rusqlite::Connection;
@@ -32,10 +30,5 @@ pub(crate) fn create(
         template.as_deref(),
         from.as_deref(),
         instance.as_deref(),
-    )?;
-
-    StatusOutput::new(Status::Success, "Created new pack".to_owned())
-        .context("Name".to_owned(), name.to_owned())
-        .print();
-    Ok(())
+    )
 }

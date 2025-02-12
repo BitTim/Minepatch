@@ -6,10 +6,8 @@
  *
  * File:       create.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   11.02.25, 04:01
+ * Modified:   12.02.25, 17:33
  */
-use crate::output::status::{Status, StatusOutput};
-use crate::output::Output;
 use minepatch::patch;
 use minepatch::prelude::*;
 use rusqlite::Connection;
@@ -31,11 +29,5 @@ pub(crate) fn create(
         dependency,
         &HashSet::new(),
         &HashSet::new(),
-    )?;
-
-    StatusOutput::new(Status::Success, "Added patch to pack".to_owned())
-        .context("Name".to_owned(), name.to_owned())
-        .context("Pack".to_owned(), pack.to_owned())
-        .print();
-    Ok(())
+    )
 }

@@ -6,7 +6,7 @@
  *
  * File:       status.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   11.02.25, 03:33
+ * Modified:   12.02.25, 17:35
  */
 use crate::output::Output;
 use colored::{ColoredString, Colorize};
@@ -16,7 +16,6 @@ use std::fmt::{Display, Formatter};
 pub enum Status {
     Error,
     Warning,
-    Success,
 }
 
 impl Status {
@@ -24,17 +23,8 @@ impl Status {
         match self {
             Status::Error => "error: ".red(),
             Status::Warning => "warning: ".yellow(),
-            Status::Success => "success: ".green(),
         }
         .bold()
-    }
-
-    fn colorize(&self, message: &str) -> ColoredString {
-        match self {
-            Status::Error => message.yellow(),
-            Status::Warning => message.green(),
-            Status::Success => message.cyan(),
-        }
     }
 }
 
@@ -42,37 +32,17 @@ impl Status {
 pub struct StatusOutput {
     status: Status,
     message: String,
-    context: Vec<(String, String)>,
 }
 
 impl Display for StatusOutput {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}{}", self.status.title(), self.message)?;
-
-        for (title, content) in &self.context {
-            write!(
-                f,
-                "{}",
-                self.status.colorize(&format!("\n\t{}: {}", title, content))
-            )?;
-        }
-
-        Ok(())
+        write!(f, "{}{}", self.status.title(), self.message)
     }
 }
 
 impl StatusOutput {
     pub fn new(status: Status, message: String) -> Self {
-        Self {
-            status,
-            message,
-            context: vec![],
-        }
-    }
-
-    pub fn context(&mut self, title: String, content: String) -> &mut Self {
-        self.context.push((title, content));
-        self
+        Self { status, message }
     }
 }
 

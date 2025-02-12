@@ -6,7 +6,7 @@
  *
  * File:       main.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   12.02.25, 04:16
+ * Modified:   12.02.25, 17:27
  */
 use crate::cli::instance::InstanceCommands;
 use crate::cli::pack::PackCommands;
@@ -138,31 +138,31 @@ fn match_process(process: &Process) -> String {
         Process::Instance(process) => match process {
             InstanceProcess::Detect => "Detect patch and pack",
             InstanceProcess::Link => "Link instance",
-            InstanceProcess::Apply => {}
-            InstanceProcess::Validate => {}
+            InstanceProcess::Apply => "Apply patch",
+            InstanceProcess::Validate => "Validate instance",
         },
         Process::Pack(process) => match process {
             PackProcess::Create => "Create pack",
             PackProcess::AddModFiles => "Add mod files",
-            PackProcess::Validate => {}
+            PackProcess::Validate => "Validate pack",
         },
         Process::Patch(process) => match process {
             PatchProcess::Simulate => "Simulate patch",
-            PatchProcess::Create => {}
-            PatchProcess::Exclude => {}
-            PatchProcess::Generate => {}
-            PatchProcess::HashModFiles => {}
-            PatchProcess::Include => {}
-            PatchProcess::Validate => {}
+            PatchProcess::Create => "Create patch",
+            PatchProcess::Exclude => "Exclude mod with patch",
+            PatchProcess::Generate => "Generate patch from instance",
+            PatchProcess::HashModFiles => "Hash mod files",
+            PatchProcess::Include => "Include mod with patch",
+            PatchProcess::Validate => "Validate patch",
         },
         Process::Mod(process) => match process {
-            ModProcess::Add => {}
-            ModProcess::Remove => {}
-            ModProcess::Validate => {}
+            ModProcess::Add => "Add mod to vault",
+            ModProcess::Remove => "Remove mod from vault",
+            ModProcess::Validate => "Validate mod",
         },
         Process::Template(process) => match process {
-            TemplateProcess::Create => {}
-            TemplateProcess::Validate => {}
+            TemplateProcess::Create => "Create template",
+            TemplateProcess::Validate => "Validate template",
         },
     }
     .to_owned()
@@ -189,8 +189,14 @@ fn match_message(message: &Message) -> String {
                     patch.cyan()
                 )
             }
-            InstanceMessage::ApplySuccess { .. } => {}
-            InstanceMessage::ValidateSuccess { .. } => {}
+            InstanceMessage::ApplySuccess { pack, patch } => format!(
+                "Applied patch '{}' from pack '{}'",
+                patch.cyan(),
+                pack.cyan()
+            ),
+            InstanceMessage::ValidateSuccess { name } => {
+                format!("Validated instance '{}'", name.cyan())
+            }
         },
         Message::Pack(message) => match message {
             PackMessage::AddModFileStatus { path, hash } => {
@@ -200,26 +206,53 @@ fn match_message(message: &Message) -> String {
                     hash.yellow()
                 )
             }
-            PackMessage::CreateSuccess { pack } => format!("Created pack '{}'", name.cyan()),
-            PackMessage::ValidateSuccess { .. } => {}
+            PackMessage::CreateSuccess { pack } => format!("Created pack '{}'", pack.name.cyan()),
+            PackMessage::ValidateSuccess { name } => format!("Validated pack '{}'", name.cyan()),
         },
         Message::Patch(message) => match message {
             PatchMessage::SimulateStatus { name } => format!("Patch: '{}'", name.cyan()),
-            PatchMessage::CreateSuccess { .. } => {}
-            PatchMessage::ExcludeSuccess { .. } => {}
-            PatchMessage::GenerateSuccess { .. } => {}
-            PatchMessage::HashModFileStatus { .. } => {}
-            PatchMessage::IncludeSuccess { .. } => {}
-            PatchMessage::ValidateSuccess { .. } => {}
+            PatchMessage::CreateSuccess { patch } => format!(
+                "Created patch '{}' for pack '{}' depending on patch '{}'",
+                patch.name.cyan(),
+                patch.pack.cyan(),
+                patch.dependency.cyan()
+            ),
+            PatchMessage::ExcludeSuccess { hash } => {
+                format!("Excluded mod with hash '{}'", hash.yellow())
+            }
+            PatchMessage::GenerateSuccess { name, instance } => format!(
+                "Generated patch '{}' from changes to '{}'",
+                name.cyan(),
+                instance.cyan()
+            ),
+            PatchMessage::HashModFileStatus { path, hash } => format!(
+                "Mod file path: '{}' ['{}']",
+                path.display().to_string().cyan(),
+                hash.yellow()
+            ),
+            PatchMessage::IncludeSuccess { hash } => {
+                format!("Included mod with hash '{}'", hash.yellow())
+            }
+            PatchMessage::ValidateSuccess { name } => format!("Validated patch '{}'", name.cyan()),
         },
         Message::Mod(message) => match message {
-            ModMessage::AddSuccess { .. } => {}
-            ModMessage::RemoveStatus { .. } => {}
-            ModMessage::ValidateSuccess { .. } => {}
+            ModMessage::AddSuccess { value } => {
+                format!("Added mod with hash '{}' to vault", value.hash.yellow())
+            }
+            ModMessage::RemoveStatus { hash } => {
+                format!("Removed mod with hash '{}' from vault", hash.yellow())
+            }
+            ModMessage::ValidateSuccess { hash } => {
+                format!("Validated mod with hash '{}'", hash.yellow())
+            }
         },
         Message::Template(message) => match message {
-            TemplateMessage::CreateSuccess { .. } => {}
-            TemplateMessage::ValidateSuccess { .. } => {}
+            TemplateMessage::CreateSuccess { template } => {
+                format!("Created template '{}'", template.name.cyan())
+            }
+            TemplateMessage::ValidateSuccess { name } => {
+                format!("Validated template '{}'", name.cyan())
+            }
         },
     }
 }

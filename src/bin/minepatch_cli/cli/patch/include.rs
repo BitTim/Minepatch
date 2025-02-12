@@ -6,10 +6,8 @@
  *
  * File:       include.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   11.02.25, 04:00
+ * Modified:   12.02.25, 17:33
  */
-use crate::output::status::{Status, StatusOutput};
-use crate::output::Output;
 use minepatch::patch;
 use minepatch::prelude::*;
 use rusqlite::Connection;
@@ -22,12 +20,5 @@ pub(crate) fn include(
     pack: &str,
     mod_hash: &str,
 ) -> Result<()> {
-    patch::include(connection, tx, name, pack, mod_hash)?;
-
-    StatusOutput::new(Status::Success, "Included mod with patch".to_owned())
-        .context("Mod".to_owned(), mod_hash.to_owned())
-        .context("Patch".to_owned(), name.to_owned())
-        .context("Pack".to_owned(), pack.to_owned())
-        .print();
-    Ok(())
+    patch::include(connection, tx, name, pack, mod_hash)
 }

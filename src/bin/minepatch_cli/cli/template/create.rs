@@ -6,10 +6,8 @@
  *
  * File:       create.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   12.02.25, 04:12
+ * Modified:   12.02.25, 17:33
  */
-use crate::output::status::{Status, StatusOutput};
-use crate::output::Output;
 use minepatch::prelude::*;
 use minepatch::template;
 use rusqlite::Connection;
@@ -30,13 +28,5 @@ pub(crate) fn create(
         loader.to_owned(),
         version.to_owned(),
         download.to_owned(),
-    )?;
-
-    StatusOutput::new(
-        Status::Success,
-        "Added template to be used with packs".to_owned(),
     )
-    .context("Name".to_owned(), name.to_owned())
-    .print();
-    Ok(())
 }
