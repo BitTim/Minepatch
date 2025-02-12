@@ -6,16 +6,16 @@
  *
  * File:       add.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   11.02.25, 03:26
+ * Modified:   12.02.25, 03:55
  */
 
 use crate::common::msg::Event;
-use crate::common::{file, hash};
+use crate::common::{file, hash, msg};
 use crate::db::Repo;
 use crate::prelude::*;
 use crate::vault::data::{Mod, ModFilter, VaultRepo};
 use crate::vault::func::common::meta::{detect_loader, extract_meta};
-use crate::vault::VaultError;
+use crate::vault::{ModMessage, ModProcess, VaultError};
 use rusqlite::Connection;
 use std::fs;
 use std::path::Path;
@@ -27,6 +27,8 @@ pub fn add(
     path: &Path,
     overwrite: bool,
 ) -> Result<String> {
+    msg::init_progress(tx, Process::Mod(ModProcess::Add), None)?;
+
     file::check_exists(path)?;
     let hash = hash::hash_file(path)?;
 
@@ -57,7 +59,15 @@ pub fn add(
     let (meta, mod_file_path) = extract_meta(loader_result, filename)?;
 
     fs::copy(path, &mod_file_path)?;
-    VaultRepo::insert(connection, Mod::new(&hash, &mod_file_path, meta))?;
+    let value = Mod::new(&hash, &mod_file_path, meta);
+    VaultRepo::insert(connection, value.to_owned())?;
 
+    msg::end_progress(
+        tx,
+        Process::Mod(ModProcess::Add),
+        Some(Message::Mod(ModMessage::AddSuccess {
+            value: Box::new(value),
+        })),
+    )?;
     Ok(hash)
 }

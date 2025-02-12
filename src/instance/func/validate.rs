@@ -6,13 +6,14 @@
  *
  * File:       validate.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   11.02.25, 03:47
+ * Modified:   12.02.25, 03:17
  */
+use crate::common::msg;
 use crate::common::msg::Event;
 use crate::db::Repo;
 use crate::error::Error;
 use crate::instance::data::{InstanceFilter, InstanceRepo};
-use crate::instance::InstanceError;
+use crate::instance::{InstanceError, InstanceMessage, InstanceProcess};
 use crate::prelude::*;
 use crate::{file, hash, pack, patch};
 use rusqlite::Connection;
@@ -24,12 +25,14 @@ pub fn validate(
     name: &str,
     exist_only: bool,
 ) -> Result<()> {
+    msg::init_progress(tx, Process::Instance(InstanceProcess::Validate), None)?;
     let query = InstanceFilter::ByExactName {
         name: name.to_owned(),
     };
     let instance = InstanceRepo::query_single(connection, &query)?;
 
     if exist_only {
+        msg::end_progress(tx, Process::Instance(InstanceProcess::Validate), None)?;
         return Ok(());
     }
 
@@ -45,8 +48,15 @@ pub fn validate(
         }));
     }
 
-    pack::validate(connection, &instance.pack, false)?;
-    patch::validate(connection, &instance.patch, &instance.pack, false)?;
+    pack::validate(connection, tx, &instance.pack, false)?;
+    patch::validate(connection, tx, &instance.patch, &instance.pack, false)?;
 
+    msg::end_progress(
+        tx,
+        Process::Instance(InstanceProcess::Validate),
+        Some(Message::Instance(InstanceMessage::ValidateSuccess {
+            name: name.to_owned(),
+        })),
+    )?;
     Ok(())
 }

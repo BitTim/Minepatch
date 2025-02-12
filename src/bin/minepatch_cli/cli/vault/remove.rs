@@ -6,7 +6,7 @@
  *
  * File:       remove.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   08.02.25, 02:12
+ * Modified:   12.02.25, 04:13
  */
 use crate::output::list_items::vault::ModListItem;
 use inquire::{Confirm, Select};
@@ -14,15 +14,18 @@ use minepatch::prelude::*;
 use minepatch::vault;
 use minepatch::vault::VaultError;
 use rusqlite::Connection;
+use std::sync::mpsc::Sender;
 
 pub(crate) fn remove(
     connection: &Connection,
+    tx: &Sender<Event>,
     hash: &Option<String>,
     yes: bool,
     all: bool,
 ) -> Result<()> {
     vault::remove(
         connection,
+        tx,
         hash.as_ref(),
         yes,
         all,
@@ -40,7 +43,7 @@ pub(crate) fn remove(
         |matches| {
             let options = matches
                 .iter()
-                .map(|entry| ModListItem::from(connection, entry))
+                .map(|entry| ModListItem::from(connection, tx, entry))
                 .collect::<Vec<ModListItem>>();
             let result = Select::new("Multiple entries match the provided hash. Please select the one you want to remove:", options).prompt()?;
             matches

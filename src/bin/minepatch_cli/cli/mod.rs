@@ -6,7 +6,7 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.01.25, 22:11
+ * Modified:   12.02.25, 03:44
  */
 use clap::{Parser, Subcommand};
 
@@ -14,6 +14,7 @@ pub(crate) mod instance;
 pub(crate) mod pack;
 pub(crate) mod patch;
 pub(crate) mod template;
+pub mod update;
 pub(crate) mod vault;
 
 #[derive(Debug, Parser)]

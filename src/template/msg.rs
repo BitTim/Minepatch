@@ -6,21 +6,17 @@
  *
  * File:       msg.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   12.02.25, 03:45
+ * Modified:   12.02.25, 03:38
  */
-use crate::pack::Pack;
-use std::path::PathBuf;
 
 #[derive(Hash, Eq, PartialEq, Debug)]
-pub enum PackProcess {
+pub enum TemplateProcess {
     Create,
-    AddModFiles,
     Validate,
 }
 
 #[derive(Hash, Eq, PartialEq, Debug)]
-pub enum PackMessage {
-    CreateSuccess { pack: Box<Pack> },
-    AddModFileStatus { path: PathBuf, hash: String },
+pub enum TemplateMessage {
+    CreateSuccess { name: String },
     ValidateSuccess { name: String },
 }

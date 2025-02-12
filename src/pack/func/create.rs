@@ -6,7 +6,7 @@
  *
  * File:       create.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   12.02.25, 02:32
+ * Modified:   12.02.25, 03:51
  */
 use crate::common::msg::Event;
 use crate::common::{file, msg};
@@ -25,27 +25,27 @@ const INIT_PATCH_NAME: &str = "init";
 pub fn create(
     connection: &Connection,
     tx: &Sender<Event>,
-    pack: Pack,
+    name: &str,
+    description: Option<&str>,
+    template: Option<&str>,
     from: Option<&str>,
     instance: Option<&str>,
 ) -> Result<()> {
     msg::init_progress(tx, Process::Pack(PackProcess::Create), None)?;
-
-    let name = pack.name.to_owned();
-    let template = pack.template.to_owned();
     let exists_query = PackFilter::QueryExactName {
         name: name.to_owned(),
     };
 
     if PackRepo::exists(connection, &exists_query)? {
-        return Err(Error::Pack(PackError::NameTaken(name)));
+        return Err(Error::Pack(PackError::NameTaken(name.to_owned())));
     }
 
     if template.is_some() {
-        template::validate(connection, template.as_ref().unwrap())?;
+        template::validate(connection, tx, template.as_ref().unwrap())?;
     }
 
-    PackRepo::insert(connection, pack)?;
+    let pack = Pack::new(name, description, template);
+    PackRepo::insert(connection, pack.to_owned())?;
 
     if let Some(from) = from {
         file::check_exists(from.as_ref())?;
@@ -95,7 +95,7 @@ pub fn create(
         tx,
         Process::Pack(PackProcess::Create),
         Some(Message::Pack(PackMessage::CreateSuccess {
-            name: name.to_owned(),
+            pack: Box::new(pack),
         })),
     )?;
     Ok(())

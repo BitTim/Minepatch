@@ -6,7 +6,7 @@
  *
  * File:       view.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   11.02.25, 17:27
+ * Modified:   12.02.25, 04:13
  */
 use crate::output::list_items::vault::ModListItem;
 use crate::output::table::TableOutput;
@@ -17,8 +17,14 @@ use minepatch::prelude::*;
 use minepatch::vault::Mod;
 use minepatch::{patch, patch_with_mods, vault};
 use rusqlite::Connection;
+use std::sync::mpsc::Sender;
 
-pub(crate) fn view(connection: &Connection, name: &str, pack: &str) -> Result<()> {
+pub(crate) fn view(
+    connection: &Connection,
+    tx: &Sender<Event>,
+    name: &str,
+    pack: &str,
+) -> Result<()> {
     let patch = patch::query_single(connection, name, pack)?;
     let relations = patch_with_mods::query_multiple(connection, name, pack)?;
     let next_patch = patch::query_by_dependency_single(connection, name, pack).ok();
@@ -32,7 +38,7 @@ pub(crate) fn view(connection: &Connection, name: &str, pack: &str) -> Result<()
     let added_mods_table = TableOutput::new(
         added_mods
             .iter()
-            .map(|value| ModListItem::from(connection, value))
+            .map(|value| ModListItem::from(connection, tx, value))
             .collect::<Vec<ModListItem>>(),
         "No mods added".bold().yellow().to_string(),
     );
@@ -40,12 +46,12 @@ pub(crate) fn view(connection: &Connection, name: &str, pack: &str) -> Result<()
     let removed_mods_table = TableOutput::new(
         removed_mods
             .iter()
-            .map(|value| ModListItem::from(connection, value))
+            .map(|value| ModListItem::from(connection, tx, value))
             .collect::<Vec<ModListItem>>(),
         "No mods removed".bold().yellow().to_string(),
     );
 
-    let valid = patch::validate(connection, name, pack, false).is_ok();
+    let valid = patch::validate(connection, tx, name, pack, false).is_ok();
     let header_line = format!(
         "Patch '{}' for pack '{}' ({})",
         name.cyan(),

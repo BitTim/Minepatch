@@ -6,7 +6,7 @@
  *
  * File:       simulate.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   11.02.25, 04:00
+ * Modified:   12.02.25, 04:13
  */
 use crate::output::list_items::vault::ModListItem;
 use crate::output::table::TableOutput;
@@ -45,7 +45,7 @@ pub(crate) fn simulate(
         .collect::<Result<Vec<Mod>>>()?;
     let displays = mods
         .iter()
-        .map(|value| ModListItem::from(connection, value))
+        .map(|value| ModListItem::from(connection, tx, value))
         .collect::<Vec<ModListItem>>();
 
     TableOutput::new(displays, "No mods present in pack in simulation".to_owned()).print();

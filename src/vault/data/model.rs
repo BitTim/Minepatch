@@ -6,7 +6,7 @@
  *
  * File:       model.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   08.02.25, 01:05
+ * Modified:   12.02.25, 03:55
  */
 use crate::common::db::Entity;
 use crate::common::meta::data::Meta;
@@ -15,7 +15,7 @@ use rusqlite::{Row, ToSql};
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
 
-#[derive(Eq, PartialEq, Hash, Debug, Serialize, Deserialize)]
+#[derive(Eq, PartialEq, Hash, Debug, Clone, Serialize, Deserialize)]
 pub struct Mod {
     pub hash: String,
     pub path: PathBuf,

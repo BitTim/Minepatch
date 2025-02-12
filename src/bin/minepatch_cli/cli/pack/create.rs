@@ -6,12 +6,11 @@
  *
  * File:       create.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   11.02.25, 04:00
+ * Modified:   12.02.25, 03:50
  */
 use crate::output::status::{Status, StatusOutput};
 use crate::output::Output;
 use minepatch::pack;
-use minepatch::pack::Pack;
 use minepatch::prelude::*;
 use rusqlite::Connection;
 use std::sync::mpsc::Sender;
@@ -28,7 +27,9 @@ pub(crate) fn create(
     pack::create(
         connection,
         tx,
-        Pack::new(name, description.to_owned(), template.to_owned()),
+        name,
+        description.as_deref(),
+        template.as_deref(),
         from.as_deref(),
         instance.as_deref(),
     )?;

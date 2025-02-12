@@ -6,7 +6,7 @@
  *
  * File:       link.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   12.02.25, 02:30
+ * Modified:   12.02.25, 03:45
  */
 use crate::common::file::error::FileError;
 use crate::common::file::filename_from_path;
@@ -50,7 +50,7 @@ pub fn link(
         }));
     }
 
-    // FIXME: Error if path is already present in DB
+    // FIXME: Introduce error if path is already present in DB
 
     let (patch, pack) = instance::detect(connection, tx, path, pack)?;
     let instance = Instance::new(actual_name, path, &pack, &patch);
@@ -63,7 +63,9 @@ pub fn link(
     msg::end_progress(
         tx,
         Process::Instance(InstanceProcess::Link),
-        Some(Message::Instance(InstanceMessage::LinkSuccess { instance })),
+        Some(Message::Instance(InstanceMessage::LinkSuccess {
+            instance: Box::new(instance),
+        })),
     )?;
     Ok(actual_name.to_owned())
 }

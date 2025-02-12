@@ -4,14 +4,9 @@
  * Project:    Minepatch
  * License:    GPLv3
  *
- * File:       mod.rs
+ * File:       msg.rs
  * Author:     Tim Anhalt (BitTim)
  * Modified:   12.02.25, 04:11
  */
-mod common;
-pub(crate) mod data;
-pub mod error;
-mod fabric;
-mod forge;
-mod forge_legacy;
-mod msg;
+
+//TODO: Implement messages and processes for meta

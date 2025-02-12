@@ -6,7 +6,7 @@
  *
  * File:       lib.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   11.02.25, 03:58
+ * Modified:   12.02.25, 03:44
  */
 mod common;
 pub use common::*;
@@ -18,5 +18,4 @@ pub mod patch;
 pub mod patch_with_mods;
 pub mod prelude;
 pub mod template;
-pub mod update;
 pub mod vault;

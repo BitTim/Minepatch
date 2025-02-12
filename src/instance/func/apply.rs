@@ -6,9 +6,11 @@
  *
  * File:       apply.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   11.02.25, 03:47
+ * Modified:   12.02.25, 03:11
  */
+use crate::common::msg;
 use crate::common::msg::Event;
+use crate::instance::{InstanceMessage, InstanceProcess};
 use crate::prelude::*;
 use crate::{file, instance, patch, vault};
 use rusqlite::Connection;
@@ -21,6 +23,7 @@ pub fn apply(
     instance: &str,
     patch: &str,
 ) -> Result<()> {
+    msg::init_progress(tx, Process::Instance(InstanceProcess::Apply), None)?;
     let instance = instance::query_single(connection, instance)?;
 
     let mods_path = instance.path.join("mods");
@@ -53,5 +56,15 @@ pub fn apply(
         return Err(err);
     }
 
-    Ok(fs::remove_dir_all(&tmp_mods_path)?)
+    fs::remove_dir_all(&tmp_mods_path)?;
+    msg::end_progress(
+        tx,
+        Process::Instance(InstanceProcess::Apply),
+        Some(Message::Instance(InstanceMessage::ApplySuccess {
+            pack: instance.pack,
+            patch: patch.to_owned(),
+        })),
+    )?;
+
+    Ok(())
 }

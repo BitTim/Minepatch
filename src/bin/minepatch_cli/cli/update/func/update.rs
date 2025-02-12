@@ -6,10 +6,10 @@
  *
  * File:       update.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   19.01.25, 13:24
+ * Modified:   12.02.25, 03:44
  */
 
-use crate::prelude::*;
+use minepatch::prelude::*;
 use self_update::backends::github::Update;
 use self_update::cargo_crate_version;
 

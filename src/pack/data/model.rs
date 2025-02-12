@@ -6,14 +6,14 @@
  *
  * File:       model.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   08.02.25, 01:05
+ * Modified:   12.02.25, 03:51
  */
 use crate::common::db::Entity;
 use crate::prelude::*;
 use rusqlite::{Row, ToSql};
 use serde::{Deserialize, Serialize};
 
-#[derive(Eq, PartialEq, Hash, Debug, Serialize, Deserialize)]
+#[derive(Eq, PartialEq, Hash, Debug, Clone, Serialize, Deserialize)]
 pub struct Pack {
     pub name: String,
     pub description: Option<String>,
@@ -21,11 +21,11 @@ pub struct Pack {
 }
 
 impl Pack {
-    pub fn new(name: &str, description: Option<String>, template: Option<String>) -> Self {
+    pub fn new(name: &str, description: Option<&str>, template: Option<&str>) -> Self {
         Self {
             name: name.to_owned(),
-            description,
-            template,
+            description: description.map(|description| description.to_owned()),
+            template: template.map(|template| template.to_owned()),
         }
     }
 }

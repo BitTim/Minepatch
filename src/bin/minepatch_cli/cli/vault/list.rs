@@ -6,7 +6,7 @@
  *
  * File:       list.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   11.02.25, 03:37
+ * Modified:   12.02.25, 04:13
  */
 use crate::output::detailed::{DetailedDisplayObject, DetailedOutput};
 use crate::output::list_items::vault::ModListItem;
@@ -15,9 +15,11 @@ use crate::output::Output;
 use minepatch::prelude::*;
 use minepatch::vault::query_multiple;
 use rusqlite::Connection;
+use std::sync::mpsc::Sender;
 
 pub(crate) fn list(
     connection: &Connection,
+    tx: &Sender<Event>,
     detailed: &bool,
     hash: &Option<String>,
     id: &Option<String>,
@@ -34,7 +36,7 @@ pub(crate) fn list(
         true => {
             let displays = results
                 .iter()
-                .map(|value| DetailedDisplayObject::from_mod(connection, value))
+                .map(|value| DetailedDisplayObject::from_mod(connection, tx, value))
                 .collect::<Vec<DetailedDisplayObject>>();
 
             DetailedOutput::new(displays).print();
@@ -42,7 +44,7 @@ pub(crate) fn list(
         false => {
             let displays = results
                 .iter()
-                .map(|value| ModListItem::from(connection, value))
+                .map(|value| ModListItem::from(connection, tx, value))
                 .collect::<Vec<ModListItem>>();
 
             TableOutput::new(displays, "No mods added to vault yet".to_owned()).print();

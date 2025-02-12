@@ -6,16 +6,18 @@
  *
  * File:       create.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   11.02.25, 04:25
+ * Modified:   12.02.25, 04:12
  */
 use crate::output::status::{Status, StatusOutput};
 use crate::output::Output;
 use minepatch::prelude::*;
 use minepatch::template;
 use rusqlite::Connection;
+use std::sync::mpsc::Sender;
 
 pub(crate) fn create(
     connection: &Connection,
+    tx: &Sender<Event>,
     name: &str,
     loader: &Option<String>,
     version: &Option<String>,
@@ -23,6 +25,7 @@ pub(crate) fn create(
 ) -> Result<()> {
     template::create(
         connection,
+        tx,
         name,
         loader.to_owned(),
         version.to_owned(),

@@ -6,7 +6,7 @@
  *
  * File:       func.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   12.02.25, 02:23
+ * Modified:   12.02.25, 03:02
  */
 use crate::common::msg;
 use crate::common::msg::Event;
@@ -29,7 +29,7 @@ pub(crate) fn hash_state(hashes: &HashSet<String>) -> String {
 }
 
 pub(crate) fn hash_file(path: &Path) -> Result<String> {
-    let mut file = fs::OpenOptions::new().read(true).open(&path)?;
+    let mut file = fs::OpenOptions::new().read(true).open(path)?;
 
     let mut data: Vec<u8> = vec![];
     file.read_to_end(&mut data)?;

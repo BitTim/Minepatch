@@ -6,7 +6,7 @@
  *
  * File:       main.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   12.02.25, 02:54
+ * Modified:   12.02.25, 04:16
  */
 use crate::cli::instance::InstanceCommands;
 use crate::cli::pack::PackCommands;
@@ -16,6 +16,7 @@ use crate::cli::{instance, pack, patch, template, vault, Cli, Commands};
 use crate::output::status::{Status, StatusOutput};
 use crate::output::Output;
 use clap::Parser;
+use cli::update::func;
 use cli::vault::VaultCommands;
 use colored::Colorize;
 use indicatif::{MultiProgress, ProgressBar, ProgressStyle};
@@ -26,7 +27,8 @@ use minepatch::msg::Process;
 use minepatch::pack::{PackMessage, PackProcess};
 use minepatch::patch::{PatchMessage, PatchProcess};
 use minepatch::prelude::*;
-use minepatch::update::func;
+use minepatch::template::{TemplateMessage, TemplateProcess};
+use minepatch::vault::{ModMessage, ModProcess};
 use rusqlite::Connection;
 use std::collections::HashMap;
 use std::sync::mpsc;
@@ -64,10 +66,10 @@ fn match_command(command: &Commands, connection: &Connection, tx: &Sender<Event>
                 id,
                 name,
             } => {
-                vault::list(connection, detailed, hash, id, name)?;
+                vault::list(connection, tx, detailed, hash, id, name)?;
             }
             VaultCommands::Remove { hash, all, yes } => {
-                vault::remove(connection, hash, *all, *yes)?;
+                vault::remove(connection, tx, hash, *all, *yes)?;
             }
         },
         Commands::Template {
@@ -78,7 +80,7 @@ fn match_command(command: &Commands, connection: &Connection, tx: &Sender<Event>
                 version,
                 loader,
                 download,
-            } => template::create(connection, name, version, loader, download)?,
+            } => template::create(connection, tx, name, version, loader, download)?,
             TemplateCommands::List { name } => template::list(connection, name)?,
         },
         Commands::Patch {
@@ -102,18 +104,18 @@ fn match_command(command: &Commands, connection: &Connection, tx: &Sender<Event>
                 pack,
                 mod_hash,
             } => patch::include(connection, tx, name, pack, mod_hash)?,
-            PatchCommands::List { name, pack } => patch::list(connection, name, pack)?,
+            PatchCommands::List { name, pack } => patch::list(connection, tx, name, pack)?,
             PatchCommands::Simulate {
                 name,
                 pack,
                 dir_hash,
             } => patch::simulate(connection, tx, name, pack, dir_hash)?,
-            PatchCommands::View { name, pack } => patch::view(connection, name, pack)?,
+            PatchCommands::View { name, pack } => patch::view(connection, tx, name, pack)?,
         },
         Commands::Pack {
             pack_commands: pack_command,
         } => match pack_command {
-            PackCommands::List { name } => pack::list(connection, name)?,
+            PackCommands::List { name } => pack::list(connection, tx, name)?,
             PackCommands::Create {
                 name,
                 description,
@@ -136,15 +138,32 @@ fn match_process(process: &Process) -> String {
         Process::Instance(process) => match process {
             InstanceProcess::Detect => "Detect patch and pack",
             InstanceProcess::Link => "Link instance",
+            InstanceProcess::Apply => {}
+            InstanceProcess::Validate => {}
         },
         Process::Pack(process) => match process {
             PackProcess::Create => "Create pack",
             PackProcess::AddModFiles => "Add mod files",
+            PackProcess::Validate => {}
         },
         Process::Patch(process) => match process {
             PatchProcess::Simulate => "Simulate patch",
+            PatchProcess::Create => {}
+            PatchProcess::Exclude => {}
+            PatchProcess::Generate => {}
+            PatchProcess::HashModFiles => {}
+            PatchProcess::Include => {}
+            PatchProcess::Validate => {}
         },
-        Process::Mod(_process) => "",
+        Process::Mod(process) => match process {
+            ModProcess::Add => {}
+            ModProcess::Remove => {}
+            ModProcess::Validate => {}
+        },
+        Process::Template(process) => match process {
+            TemplateProcess::Create => {}
+            TemplateProcess::Validate => {}
+        },
     }
     .to_owned()
 }
@@ -170,6 +189,8 @@ fn match_message(message: &Message) -> String {
                     patch.cyan()
                 )
             }
+            InstanceMessage::ApplySuccess { .. } => {}
+            InstanceMessage::ValidateSuccess { .. } => {}
         },
         Message::Pack(message) => match message {
             PackMessage::AddModFileStatus { path, hash } => {
@@ -179,12 +200,27 @@ fn match_message(message: &Message) -> String {
                     hash.yellow()
                 )
             }
-            PackMessage::CreateSuccess { name } => format!("Created pack '{}'", name.cyan()),
+            PackMessage::CreateSuccess { pack } => format!("Created pack '{}'", name.cyan()),
+            PackMessage::ValidateSuccess { .. } => {}
         },
         Message::Patch(message) => match message {
             PatchMessage::SimulateStatus { name } => format!("Patch: '{}'", name.cyan()),
+            PatchMessage::CreateSuccess { .. } => {}
+            PatchMessage::ExcludeSuccess { .. } => {}
+            PatchMessage::GenerateSuccess { .. } => {}
+            PatchMessage::HashModFileStatus { .. } => {}
+            PatchMessage::IncludeSuccess { .. } => {}
+            PatchMessage::ValidateSuccess { .. } => {}
         },
-        Message::Mod(_message) => "".to_owned(),
+        Message::Mod(message) => match message {
+            ModMessage::AddSuccess { .. } => {}
+            ModMessage::RemoveStatus { .. } => {}
+            ModMessage::ValidateSuccess { .. } => {}
+        },
+        Message::Template(message) => match message {
+            TemplateMessage::CreateSuccess { .. } => {}
+            TemplateMessage::ValidateSuccess { .. } => {}
+        },
     }
 }
 
