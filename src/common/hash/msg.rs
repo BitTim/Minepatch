@@ -6,7 +6,7 @@
  *
  * File:       msg.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   11.02.25, 04:09
+ * Modified:   12.02.25, 01:50
  */
 use std::path::PathBuf;
 
@@ -17,10 +17,5 @@ pub enum HashProcess {
 
 #[derive(Hash, Eq, PartialEq, Debug)]
 pub enum HashMessage {
-    HashFilesStatus(Vec<HashContext>),
-}
-
-#[derive(Hash, Eq, PartialEq, Debug)]
-pub enum HashContext {
-    Path(PathBuf),
+    HashFilesStatus { path: PathBuf },
 }

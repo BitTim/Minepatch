@@ -6,14 +6,14 @@
  *
  * File:       simulate.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   11.02.25, 03:54
+ * Modified:   12.02.25, 02:32
  */
 use crate::common::msg;
 use crate::common::msg::Event;
 use crate::db::Repo;
 use crate::hash;
 use crate::patch::data::{PatchFilter, PatchRepo};
-use crate::patch::{PatchContext, PatchMessage, PatchProcess};
+use crate::patch::{PatchMessage, PatchProcess};
 use crate::patch_with_mods::{PatchModRelFilter, PatchModRelRepo};
 use crate::prelude::*;
 use rusqlite::Connection;
@@ -30,13 +30,13 @@ pub fn simulate(
     msg::tick_progress(
         tx,
         Process::Patch(PatchProcess::Simulate),
-        Message::Patch(PatchMessage::SimulateStatus(vec![PatchContext::Name(
-            name.to_owned(),
-        )])),
+        Message::Patch(PatchMessage::SimulateStatus {
+            name: name.to_owned(),
+        }),
     )?;
 
     if name.is_empty() {
-        msg::end_progress(tx, Process::Patch(PatchProcess::Simulate))?;
+        msg::end_progress(tx, Process::Patch(PatchProcess::Simulate), None)?;
         return Ok(HashSet::new());
     }
 
@@ -61,7 +61,7 @@ pub fn simulate(
         };
     }
 
-    msg::end_progress(tx, Process::Patch(PatchProcess::Simulate))?;
+    msg::end_progress(tx, Process::Patch(PatchProcess::Simulate), None)?;
     Ok(mod_hashes)
 }
 

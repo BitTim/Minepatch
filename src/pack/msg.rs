@@ -6,7 +6,7 @@
  *
  * File:       msg.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   11.02.25, 04:09
+ * Modified:   12.02.25, 02:55
  */
 use std::path::PathBuf;
 
@@ -18,11 +18,6 @@ pub enum PackProcess {
 
 #[derive(Hash, Eq, PartialEq, Debug)]
 pub enum PackMessage {
-    AddModFileStatus(Vec<PackContext>),
-}
-
-#[derive(Hash, Eq, PartialEq, Debug)]
-pub enum PackContext {
-    Path(PathBuf),
-    Hash(String),
+    CreateSuccess { name: String },
+    AddModFileStatus { path: PathBuf, hash: String },
 }

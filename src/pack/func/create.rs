@@ -6,14 +6,14 @@
  *
  * File:       create.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   11.02.25, 03:54
+ * Modified:   12.02.25, 02:32
  */
 use crate::common::msg::Event;
 use crate::common::{file, msg};
 use crate::db::Repo;
 use crate::pack::data::{Pack, PackFilter, PackRepo};
 use crate::pack::error::PackError;
-use crate::pack::msg::{PackContext, PackMessage, PackProcess};
+use crate::pack::msg::{PackMessage, PackProcess};
 use crate::prelude::*;
 use crate::{instance, patch, template, vault};
 use rusqlite::Connection;
@@ -63,14 +63,14 @@ pub fn create(
             msg::tick_progress(
                 tx,
                 Process::Pack(PackProcess::AddModFiles),
-                Message::Pack(PackMessage::AddModFileStatus(vec![
-                    PackContext::Path(mod_path.to_path_buf()),
-                    PackContext::Hash(hash),
-                ])),
+                Message::Pack(PackMessage::AddModFileStatus {
+                    path: mod_path.to_path_buf(),
+                    hash,
+                }),
             )?;
         }
 
-        msg::end_progress(tx, Process::Pack(PackProcess::AddModFiles))?;
+        msg::end_progress(tx, Process::Pack(PackProcess::AddModFiles), None)?;
         patch::create(
             connection,
             tx,
@@ -91,6 +91,12 @@ pub fn create(
         };
     }
 
-    msg::end_progress(tx, Process::Pack(PackProcess::Create))?;
+    msg::end_progress(
+        tx,
+        Process::Pack(PackProcess::Create),
+        Some(Message::Pack(PackMessage::CreateSuccess {
+            name: name.to_owned(),
+        })),
+    )?;
     Ok(())
 }

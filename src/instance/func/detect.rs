@@ -6,11 +6,11 @@
  *
  * File:       detect.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   11.02.25, 17:23
+ * Modified:   12.02.25, 02:27
  */
 use crate::common::msg;
 use crate::common::msg::Event;
-use crate::instance::{InstanceError, InstanceProcess};
+use crate::instance::{InstanceError, InstanceMessage, InstanceProcess};
 use crate::prelude::*;
 use crate::{file, hash, patch};
 use rusqlite::Connection;
@@ -44,6 +44,16 @@ pub fn detect(
         }
     };
 
-    msg::end_progress(tx, Process::Instance(InstanceProcess::Detect))?;
-    result.ok_or(Error::Instance(InstanceError::NoPatchDetected { dir_hash }))
+    let (patch, pack) =
+        result.ok_or(Error::Instance(InstanceError::NoPatchDetected { dir_hash }))?;
+    msg::end_progress(
+        tx,
+        Process::Instance(InstanceProcess::Detect),
+        Some(Message::Instance(InstanceMessage::DetectSuccess {
+            pack: pack.to_owned(),
+            patch: patch.to_owned(),
+        })),
+    )?;
+
+    Ok((patch, pack))
 }

@@ -6,7 +6,7 @@
  *
  * File:       msg.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   11.02.25, 04:09
+ * Modified:   12.02.25, 01:51
  */
 
 #[derive(Hash, Eq, PartialEq, Debug)]
@@ -14,6 +14,3 @@ pub enum ModProcess {}
 
 #[derive(Hash, Eq, PartialEq, Debug)]
 pub enum ModMessage {}
-
-#[derive(Hash, Eq, PartialEq, Debug)]
-pub enum ModContext {}

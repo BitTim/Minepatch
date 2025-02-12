@@ -6,7 +6,7 @@
  *
  * File:       util.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   11.02.25, 04:00
+ * Modified:   12.02.25, 02:18
  */
 use crate::common::msg::Event;
 use crate::prelude::*;
@@ -24,6 +24,10 @@ pub(crate) fn tick_progress(tx: &Sender<Event>, process: Process, message: Messa
     Ok(tx.send(Event::ProgressTick { process, message })?)
 }
 
-pub(crate) fn end_progress(tx: &Sender<Event>, process: Process) -> Result<()> {
-    Ok(tx.send(Event::ProgressFinish { process })?)
+pub(crate) fn end_progress(
+    tx: &Sender<Event>,
+    process: Process,
+    message: Option<Message>,
+) -> Result<()> {
+    Ok(tx.send(Event::ProgressFinish { process, message })?)
 }

@@ -6,13 +6,13 @@
  *
  * File:       msg.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   11.02.25, 04:09
+ * Modified:   12.02.25, 01:51
  */
-use crate::hash::{HashContext, HashMessage, HashProcess};
-use crate::instance::{InstanceContext, InstanceMessage, InstanceProcess};
-use crate::pack::{PackContext, PackMessage, PackProcess};
-use crate::patch::{PatchContext, PatchMessage, PatchProcess};
-use crate::vault::{ModContext, ModMessage, ModProcess};
+use crate::hash::{HashMessage, HashProcess};
+use crate::instance::{InstanceMessage, InstanceProcess};
+use crate::pack::{PackMessage, PackProcess};
+use crate::patch::{PatchMessage, PatchProcess};
+use crate::vault::{ModMessage, ModProcess};
 
 #[derive(Hash, Eq, PartialEq, Debug)]
 pub enum Process {
@@ -29,12 +29,4 @@ pub enum Message {
     Pack(PackMessage),
     Patch(PatchMessage),
     Mod(ModMessage),
-}
-#[derive(Hash, Eq, PartialEq, Debug)]
-pub enum Context {
-    Hash(HashContext),
-    Instance(InstanceContext),
-    Pack(PackContext),
-    Patch(PatchContext),
-    Mod(ModContext),
 }

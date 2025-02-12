@@ -6,11 +6,11 @@
  *
  * File:       func.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   11.02.25, 03:53
+ * Modified:   12.02.25, 02:23
  */
 use crate::common::msg;
 use crate::common::msg::Event;
-use crate::hash::msg::{HashContext, HashMessage, HashProcess};
+use crate::hash::msg::{HashMessage, HashProcess};
 use crate::prelude::*;
 use rayon::prelude::*;
 use sha256::Sha256Digest;
@@ -50,14 +50,14 @@ pub(crate) fn hash_state_from_path(tx: &Sender<Event>, paths: &[PathBuf]) -> Res
             msg::tick_progress(
                 tx,
                 Process::Hash(HashProcess::HashFiles),
-                Message::Hash(HashMessage::HashFilesStatus(vec![HashContext::Path(
-                    mod_path.to_path_buf(),
-                )])),
+                Message::Hash(HashMessage::HashFilesStatus {
+                    path: mod_path.to_path_buf(),
+                }),
             )?;
             hash_file(mod_path)
         })
         .collect::<Result<HashSet<String>>>()?;
 
-    msg::end_progress(tx, Process::Hash(HashProcess::HashFiles))?;
+    msg::end_progress(tx, Process::Hash(HashProcess::HashFiles), None)?;
     Ok(hash_state(&hashes))
 }

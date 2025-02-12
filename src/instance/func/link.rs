@@ -6,15 +6,16 @@
  *
  * File:       link.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   11.02.25, 03:52
+ * Modified:   12.02.25, 02:30
  */
 use crate::common::file::error::FileError;
 use crate::common::file::filename_from_path;
+use crate::common::msg;
 use crate::common::msg::Event;
 use crate::db::Repo;
 use crate::instance;
 use crate::instance::data::{InstanceFilter, InstanceRepo};
-use crate::instance::{validate, Instance, InstanceContext, InstanceError, InstanceMessage};
+use crate::instance::{validate, Instance, InstanceError, InstanceMessage, InstanceProcess};
 use crate::prelude::*;
 use rusqlite::Connection;
 use std::fs;
@@ -28,6 +29,7 @@ pub fn link(
     name: Option<&str>,
     pack: Option<&str>,
 ) -> Result<String> {
+    msg::init_progress(tx, Process::Instance(InstanceProcess::Link), None)?;
     if !fs::exists(path)? {
         return Err(Error::File(FileError::PathNotFound(
             path.display().to_string(),
@@ -48,6 +50,8 @@ pub fn link(
         }));
     }
 
+    // FIXME: Error if path is already present in DB
+
     let (patch, pack) = instance::detect(connection, tx, path, pack)?;
     let instance = Instance::new(actual_name, path, &pack, &patch);
 
@@ -56,10 +60,10 @@ pub fn link(
 
     instance::apply(connection, tx, actual_name, &patch)?;
 
-    tx.send(Event::Success {
-        message: Message::Instance(InstanceMessage::LinkSuccess(vec![
-            InstanceContext::SuccessObj(instance),
-        ])),
-    })?;
+    msg::end_progress(
+        tx,
+        Process::Instance(InstanceProcess::Link),
+        Some(Message::Instance(InstanceMessage::LinkSuccess { instance })),
+    )?;
     Ok(actual_name.to_owned())
 }

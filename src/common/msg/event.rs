@@ -6,7 +6,7 @@
  *
  * File:       event.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   11.02.25, 03:51
+ * Modified:   12.02.25, 02:18
  */
 use crate::prelude::{Error, Message, Process};
 use std::sync::mpsc;
@@ -23,6 +23,7 @@ pub enum Event {
     },
     ProgressFinish {
         process: Process,
+        message: Option<Message>,
     },
 
     Confirm {
@@ -34,10 +35,6 @@ pub enum Event {
     Select {
         tx: mpsc::Sender<String>,
         options: Vec<String>,
-    },
-
-    Success {
-        message: Message,
     },
 
     Warning {

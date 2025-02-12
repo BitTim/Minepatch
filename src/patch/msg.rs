@@ -6,7 +6,7 @@
  *
  * File:       msg.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   11.02.25, 04:09
+ * Modified:   12.02.25, 01:51
  */
 
 #[derive(Hash, Eq, PartialEq, Debug)]
@@ -16,10 +16,5 @@ pub enum PatchProcess {
 
 #[derive(Hash, Eq, PartialEq, Debug)]
 pub enum PatchMessage {
-    SimulateStatus(Vec<PatchContext>),
-}
-
-#[derive(Hash, Eq, PartialEq, Debug)]
-pub enum PatchContext {
-    Name(String),
+    SimulateStatus { name: String },
 }
