@@ -6,7 +6,7 @@
  *
  * File:       error.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   11.02.25, 04:26
+ * Modified:   13.02.25, 00:04
  */
 use crate::common::file::error::FileError;
 use crate::common::meta::error::MetaError;
@@ -41,7 +41,9 @@ pub enum Error {
     #[error(transparent)]
     IO(#[from] std::io::Error),
     #[error(transparent)]
-    Send(#[from] mpsc::SendError<Event>),
+    SendEvent(#[from] mpsc::SendError<Event>),
+    #[error(transparent)]
+    SendBool(#[from] mpsc::SendError<bool>),
     #[error(transparent)]
     Recv(#[from] mpsc::RecvError),
     #[error(transparent)]

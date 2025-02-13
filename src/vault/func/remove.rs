@@ -6,7 +6,7 @@
  *
  * File:       remove.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   12.02.25, 04:10
+ * Modified:   13.02.25, 03:16
  */
 use crate::common::msg;
 use crate::db::Repo;
@@ -21,18 +21,16 @@ use std::collections::HashSet;
 use std::fs;
 use std::sync::mpsc::Sender;
 
-pub fn remove<F, G>(
+pub fn remove<F>(
     connection: &Connection,
     tx: &Sender<Event>,
     hash: Option<&String>,
     all: bool,
     yes: bool,
-    confirm: F,
-    resolve: G,
+    resolve: F,
 ) -> Result<()>
 where
-    F: Fn(&Mod) -> Result<bool>,
-    G: Fn(&HashSet<Mod>) -> Result<&Mod>,
+    F: Fn(&HashSet<Mod>) -> Result<&Mod>,
 {
     // FIXME: Check if used before removing
     let hashes: Vec<String> = if all {
@@ -62,9 +60,19 @@ where
             return Err(Error::Vault(VaultError::NotFound { hash }));
         }
 
-        // TODO: Implement Event::Select and Event::Confirm
-        let value = resolve(&matches)?;
-        if !yes && confirm(value)? {
+        // TMP
+        let value = matches.into_iter().next().unwrap();
+
+        // TODO: Implement Event::Select
+        //let value = resolve(&matches)?;
+        if !yes
+            && !msg::confirm(
+                tx,
+                Message::Mod(ModMessage::RemoveConfirm {
+                    value: Box::new(value.to_owned()),
+                }),
+            )?
+        {
             continue;
         }
 

@@ -6,7 +6,7 @@
  *
  * File:       main.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   12.02.25, 17:27
+ * Modified:   13.02.25, 03:15
  */
 use crate::cli::instance::InstanceCommands;
 use crate::cli::pack::PackCommands;
@@ -14,12 +14,13 @@ use crate::cli::patch::PatchCommands;
 use crate::cli::template::TemplateCommands;
 use crate::cli::{instance, pack, patch, template, vault, Cli, Commands};
 use crate::output::status::{Status, StatusOutput};
-use crate::output::Output;
+use crate::output::{format_string_option, Output};
 use clap::Parser;
 use cli::update::func;
 use cli::vault::VaultCommands;
 use colored::Colorize;
 use indicatif::{MultiProgress, ProgressBar, ProgressStyle};
+use inquire::Confirm;
 use minepatch::db;
 use minepatch::hash::{HashMessage, HashProcess};
 use minepatch::instance::{InstanceMessage, InstanceProcess};
@@ -245,6 +246,13 @@ fn match_message(message: &Message) -> String {
             ModMessage::ValidateSuccess { hash } => {
                 format!("Validated mod with hash '{}'", hash.yellow())
             }
+            ModMessage::RemoveConfirm { value } => format!(
+                "Do you want to remove this mod from the vault?\n{} ({}, {}) [{}]",
+                value.meta.name.bold().cyan(),
+                value.meta.loader,
+                format_string_option(&value.meta.minecraft_version),
+                value.hash.yellow()
+            ),
         },
         Message::Template(message) => match message {
             TemplateMessage::CreateSuccess { template } => {
@@ -317,10 +325,24 @@ fn match_event(rx: Receiver<Event>, processes: &mut HashMap<Process, ProgressBar
                 }
             }
             Event::Confirm { tx, message } => {
-                println!("[Confirm] Not yet implemented: {:?}, {:?}", tx, message)
+                let result = multi_progress.suspend(|| {
+                    Confirm::new(&match_message(&message))
+                        .with_default(false)
+                        .prompt()
+                })?;
+
+                tx.send(result)?;
             }
-            Event::Select { tx, options } => {
-                println!("[Select] Not yet implemented: {:?}, {:?}", tx, options)
+            Event::Select {
+                tx,
+                message,
+                options,
+                multiselect,
+            } => {
+                println!(
+                    "[Select] Not yet implemented: {:?}, {:?}, {:?}, {:?}",
+                    tx, message, options, multiselect
+                )
             }
             Event::Warning { warning } => {
                 multi_progress
