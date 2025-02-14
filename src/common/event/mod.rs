@@ -6,10 +6,12 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   13.02.25, 03:16
+ * Modified:   14.02.25, 18:41
  */
+mod error;
 mod event;
 mod func;
 
+pub use error::*;
 pub use event::*;
 pub(crate) use func::*;

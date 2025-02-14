@@ -6,10 +6,10 @@
  *
  * File:       create.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   12.02.25, 03:51
+ * Modified:   14.02.25, 19:11
  */
-use crate::common::msg;
-use crate::common::msg::Event;
+use crate::common::event;
+use crate::common::event::Event;
 use crate::db::Repo;
 use crate::error::Error;
 use crate::pack;
@@ -30,7 +30,7 @@ pub fn create(
     added: &HashSet<String>,
     removed: &HashSet<String>,
 ) -> Result<()> {
-    msg::init_progress(tx, Process::Patch(PatchProcess::Create), None)?;
+    event::init_progress(tx, Process::Patch(PatchProcess::Create), None)?;
 
     let exists_query = PatchFilter::ByNameAndPackExact {
         name: name.to_owned(),
@@ -55,7 +55,7 @@ pub fn create(
         PatchModRelRepo::insert(connection, PatchWithMods::new(name, pack, hash, true))?;
     }
 
-    msg::end_progress(
+    event::end_progress(
         tx,
         Process::Patch(PatchProcess::Create),
         Some(Message::Patch(PatchMessage::CreateSuccess {

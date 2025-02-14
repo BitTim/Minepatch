@@ -6,9 +6,9 @@
  *
  * File:       validate.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   12.02.25, 03:57
+ * Modified:   14.02.25, 19:11
  */
-use crate::common::msg;
+use crate::common::event;
 use crate::db::Repo;
 use crate::prelude::*;
 use crate::vault::data::{ModFilter, VaultRepo};
@@ -18,7 +18,7 @@ use std::fs;
 use std::sync::mpsc::Sender;
 
 pub fn validate(connection: &Connection, tx: &Sender<Event>, hash: &str) -> Result<()> {
-    msg::init_progress(tx, Process::Mod(ModProcess::Validate), None)?;
+    event::init_progress(tx, Process::Mod(ModProcess::Validate), None)?;
 
     let query = ModFilter::QueryHashExact {
         hash: hash.to_owned(),
@@ -32,7 +32,7 @@ pub fn validate(connection: &Connection, tx: &Sender<Event>, hash: &str) -> Resu
         }));
     }
 
-    msg::end_progress(
+    event::end_progress(
         tx,
         Process::Mod(ModProcess::Validate),
         Some(Message::Mod(ModMessage::ValidateSuccess {

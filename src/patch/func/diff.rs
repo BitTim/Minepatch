@@ -6,9 +6,9 @@
  *
  * File:       diff.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   11.02.25, 03:47
+ * Modified:   14.02.25, 19:11
  */
-use crate::common::msg::Event;
+use crate::common::event::Event;
 use crate::patch;
 use crate::patch::PatchDiff;
 use crate::prelude::*;

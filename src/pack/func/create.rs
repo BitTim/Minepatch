@@ -6,10 +6,10 @@
  *
  * File:       create.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   12.02.25, 03:51
+ * Modified:   14.02.25, 19:11
  */
-use crate::common::msg::Event;
-use crate::common::{file, msg};
+use crate::common::event::Event;
+use crate::common::{event, file};
 use crate::db::Repo;
 use crate::pack::data::{Pack, PackFilter, PackRepo};
 use crate::pack::error::PackError;
@@ -31,7 +31,7 @@ pub fn create(
     from: Option<&str>,
     instance: Option<&str>,
 ) -> Result<()> {
-    msg::init_progress(tx, Process::Pack(PackProcess::Create), None)?;
+    event::init_progress(tx, Process::Pack(PackProcess::Create), None)?;
     let exists_query = PackFilter::QueryExactName {
         name: name.to_owned(),
     };
@@ -50,7 +50,7 @@ pub fn create(
     if let Some(from) = from {
         file::check_exists(from.as_ref())?;
         let mod_paths = file::mod_paths_from_instance_path(from.as_ref())?;
-        msg::init_progress(
+        event::init_progress(
             tx,
             Process::Pack(PackProcess::AddModFiles),
             Some(mod_paths.len() as u64),
@@ -60,7 +60,7 @@ pub fn create(
         for mod_path in mod_paths {
             let hash = vault::add(connection, tx, &mod_path, false)?;
             hashes.insert(hash.clone());
-            msg::tick_progress(
+            event::tick_progress(
                 tx,
                 Process::Pack(PackProcess::AddModFiles),
                 Message::Pack(PackMessage::AddModFileStatus {
@@ -70,7 +70,7 @@ pub fn create(
             )?;
         }
 
-        msg::end_progress(tx, Process::Pack(PackProcess::AddModFiles), None)?;
+        event::end_progress(tx, Process::Pack(PackProcess::AddModFiles), None)?;
         patch::create(
             connection,
             tx,
@@ -91,7 +91,7 @@ pub fn create(
         };
     }
 
-    msg::end_progress(
+    event::end_progress(
         tx,
         Process::Pack(PackProcess::Create),
         Some(Message::Pack(PackMessage::CreateSuccess {

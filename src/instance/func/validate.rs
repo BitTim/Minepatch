@@ -6,10 +6,10 @@
  *
  * File:       validate.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   12.02.25, 03:17
+ * Modified:   14.02.25, 19:11
  */
-use crate::common::msg;
-use crate::common::msg::Event;
+use crate::common::event;
+use crate::common::event::Event;
 use crate::db::Repo;
 use crate::error::Error;
 use crate::instance::data::{InstanceFilter, InstanceRepo};
@@ -25,14 +25,14 @@ pub fn validate(
     name: &str,
     exist_only: bool,
 ) -> Result<()> {
-    msg::init_progress(tx, Process::Instance(InstanceProcess::Validate), None)?;
+    event::init_progress(tx, Process::Instance(InstanceProcess::Validate), None)?;
     let query = InstanceFilter::ByExactName {
         name: name.to_owned(),
     };
     let instance = InstanceRepo::query_single(connection, &query)?;
 
     if exist_only {
-        msg::end_progress(tx, Process::Instance(InstanceProcess::Validate), None)?;
+        event::end_progress(tx, Process::Instance(InstanceProcess::Validate), None)?;
         return Ok(());
     }
 
@@ -51,7 +51,7 @@ pub fn validate(
     pack::validate(connection, tx, &instance.pack, false)?;
     patch::validate(connection, tx, &instance.patch, &instance.pack, false)?;
 
-    msg::end_progress(
+    event::end_progress(
         tx,
         Process::Instance(InstanceProcess::Validate),
         Some(Message::Instance(InstanceMessage::ValidateSuccess {

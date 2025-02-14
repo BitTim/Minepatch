@@ -6,7 +6,7 @@
  *
  * File:       msg.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   12.02.25, 03:38
+ * Modified:   13.02.25, 03:30
  */
 use crate::hash::{HashMessage, HashProcess};
 use crate::instance::{InstanceMessage, InstanceProcess};
@@ -15,7 +15,7 @@ use crate::patch::{PatchMessage, PatchProcess};
 use crate::template::{TemplateMessage, TemplateProcess};
 use crate::vault::{ModMessage, ModProcess};
 
-#[derive(Hash, Eq, PartialEq, Debug)]
+#[derive(Clone, Hash, Eq, PartialEq, Debug)]
 pub enum Process {
     Hash(HashProcess),
     Instance(InstanceProcess),
@@ -24,7 +24,7 @@ pub enum Process {
     Template(TemplateProcess),
     Mod(ModProcess),
 }
-#[derive(Hash, Eq, PartialEq, Debug)]
+#[derive(Clone, Hash, Eq, PartialEq, Debug)]
 pub enum Message {
     Hash(HashMessage),
     Instance(InstanceMessage),

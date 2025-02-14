@@ -6,10 +6,10 @@
  *
  * File:       simulate.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   12.02.25, 02:32
+ * Modified:   14.02.25, 19:11
  */
-use crate::common::msg;
-use crate::common::msg::Event;
+use crate::common::event;
+use crate::common::event::Event;
 use crate::db::Repo;
 use crate::hash;
 use crate::patch::data::{PatchFilter, PatchRepo};
@@ -26,8 +26,8 @@ pub fn simulate(
     name: &str,
     pack: &str,
 ) -> Result<HashSet<String>> {
-    msg::init_progress(tx, Process::Patch(PatchProcess::Simulate), None)?;
-    msg::tick_progress(
+    event::init_progress(tx, Process::Patch(PatchProcess::Simulate), None)?;
+    event::tick_progress(
         tx,
         Process::Patch(PatchProcess::Simulate),
         Message::Patch(PatchMessage::SimulateStatus {
@@ -36,7 +36,7 @@ pub fn simulate(
     )?;
 
     if name.is_empty() {
-        msg::end_progress(tx, Process::Patch(PatchProcess::Simulate), None)?;
+        event::end_progress(tx, Process::Patch(PatchProcess::Simulate), None)?;
         return Ok(HashSet::new());
     }
 
@@ -61,7 +61,7 @@ pub fn simulate(
         };
     }
 
-    msg::end_progress(tx, Process::Patch(PatchProcess::Simulate), None)?;
+    event::end_progress(tx, Process::Patch(PatchProcess::Simulate), None)?;
     Ok(mod_hashes)
 }
 

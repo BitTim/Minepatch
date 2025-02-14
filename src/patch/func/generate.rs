@@ -6,10 +6,10 @@
  *
  * File:       generate.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   12.02.25, 03:33
+ * Modified:   14.02.25, 19:11
  */
-use crate::common::msg;
-use crate::common::msg::Event;
+use crate::common::event;
+use crate::common::event::Event;
 use crate::hash::hash_file;
 use crate::patch::{PatchMessage, PatchProcess};
 use crate::prelude::*;
@@ -26,7 +26,7 @@ pub fn generate(
     name: &str,
     instance: &str,
 ) -> Result<()> {
-    msg::init_progress(tx, Process::Patch(PatchProcess::Generate), None)?;
+    event::init_progress(tx, Process::Patch(PatchProcess::Generate), None)?;
 
     let instance = instance::query_single(connection, instance)?;
     instance::validate(connection, tx, &instance.name, true)?;
@@ -34,7 +34,7 @@ pub fn generate(
     let sim_hashes = patch::simulate(connection, tx, &instance.patch, &instance.pack)?;
     let mod_paths = file::mod_paths_from_instance_path(&instance.path)?;
 
-    msg::init_progress(
+    event::init_progress(
         tx,
         Process::Patch(PatchProcess::HashModFiles),
         Some(mod_paths.len() as u64),
@@ -43,7 +43,7 @@ pub fn generate(
         .par_iter()
         .map(|path| {
             let hash = hash_file(path)?;
-            msg::tick_progress(
+            event::tick_progress(
                 tx,
                 Process::Patch(PatchProcess::HashModFiles),
                 Message::Patch(PatchMessage::HashModFileStatus {
@@ -55,7 +55,7 @@ pub fn generate(
             Ok((path.to_owned(), hash))
         })
         .collect::<Result<Vec<(PathBuf, String)>>>()?;
-    msg::end_progress(tx, Process::Patch(PatchProcess::HashModFiles), None)?;
+    event::end_progress(tx, Process::Patch(PatchProcess::HashModFiles), None)?;
 
     let mut removed = sim_hashes.to_owned();
     let mut added = HashSet::new();
@@ -79,7 +79,7 @@ pub fn generate(
     )?;
 
     instance::apply(connection, tx, &instance.name, name)?;
-    msg::end_progress(
+    event::end_progress(
         tx,
         Process::Patch(PatchProcess::Generate),
         Some(Message::Patch(PatchMessage::GenerateSuccess {

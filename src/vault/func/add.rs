@@ -6,11 +6,11 @@
  *
  * File:       add.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   12.02.25, 03:55
+ * Modified:   14.02.25, 19:11
  */
 
-use crate::common::msg::Event;
-use crate::common::{file, hash, msg};
+use crate::common::event::Event;
+use crate::common::{event, file, hash};
 use crate::db::Repo;
 use crate::prelude::*;
 use crate::vault::data::{Mod, ModFilter, VaultRepo};
@@ -27,7 +27,7 @@ pub fn add(
     path: &Path,
     overwrite: bool,
 ) -> Result<String> {
-    msg::init_progress(tx, Process::Mod(ModProcess::Add), None)?;
+    event::init_progress(tx, Process::Mod(ModProcess::Add), None)?;
 
     file::check_exists(path)?;
     let hash = hash::hash_file(path)?;
@@ -62,7 +62,7 @@ pub fn add(
     let value = Mod::new(&hash, &mod_file_path, meta);
     VaultRepo::insert(connection, value.to_owned())?;
 
-    msg::end_progress(
+    event::end_progress(
         tx,
         Process::Mod(ModProcess::Add),
         Some(Message::Mod(ModMessage::AddSuccess {

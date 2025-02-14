@@ -6,7 +6,7 @@
  *
  * File:       vault.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   12.02.25, 04:12
+ * Modified:   14.02.25, 17:14
  */
 use crate::output::detailed::{DetailedDisplayObject, Entry};
 use crate::output::{format_bool, format_string_option};
@@ -21,8 +21,6 @@ use tabled::Tabled;
 
 #[derive(Debug, Tabled)]
 pub struct ModListItem {
-    #[tabled(skip)]
-    pub hash: String,
     #[tabled(rename = "Hash")]
     pub short_hash: String,
     #[tabled(rename = "Mod ID")]
@@ -57,7 +55,6 @@ impl ModListItem {
         let valid = vault::validate(connection, tx, &value.hash).is_ok();
 
         ModListItem {
-            hash: value.hash.to_owned(),
             short_hash,
             id: value.meta.id.to_owned(),
             name: value.meta.name.to_owned(),

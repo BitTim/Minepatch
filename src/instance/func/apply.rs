@@ -6,10 +6,10 @@
  *
  * File:       apply.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   12.02.25, 03:11
+ * Modified:   14.02.25, 19:11
  */
-use crate::common::msg;
-use crate::common::msg::Event;
+use crate::common::event;
+use crate::common::event::Event;
 use crate::instance::{InstanceMessage, InstanceProcess};
 use crate::prelude::*;
 use crate::{file, instance, patch, vault};
@@ -23,7 +23,7 @@ pub fn apply(
     instance: &str,
     patch: &str,
 ) -> Result<()> {
-    msg::init_progress(tx, Process::Instance(InstanceProcess::Apply), None)?;
+    event::init_progress(tx, Process::Instance(InstanceProcess::Apply), None)?;
     let instance = instance::query_single(connection, instance)?;
 
     let mods_path = instance.path.join("mods");
@@ -57,7 +57,7 @@ pub fn apply(
     }
 
     fs::remove_dir_all(&tmp_mods_path)?;
-    msg::end_progress(
+    event::end_progress(
         tx,
         Process::Instance(InstanceProcess::Apply),
         Some(Message::Instance(InstanceMessage::ApplySuccess {

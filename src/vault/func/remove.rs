@@ -6,9 +6,10 @@
  *
  * File:       remove.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   13.02.25, 03:16
+ * Modified:   14.02.25, 18:56
  */
-use crate::common::msg;
+use crate::common::event;
+use crate::common::event::EventError;
 use crate::db::Repo;
 use crate::file;
 use crate::prelude::*;
@@ -17,21 +18,16 @@ use crate::vault::error::VaultError;
 use crate::vault::func::common::path::get_base_mod_dir_path;
 use crate::vault::{ModMessage, ModProcess};
 use rusqlite::Connection;
-use std::collections::HashSet;
 use std::fs;
 use std::sync::mpsc::Sender;
 
-pub fn remove<F>(
+pub fn remove(
     connection: &Connection,
     tx: &Sender<Event>,
     hash: Option<&String>,
     all: bool,
     yes: bool,
-    resolve: F,
-) -> Result<()>
-where
-    F: Fn(&HashSet<Mod>) -> Result<&Mod>,
-{
+) -> Result<()> {
     // FIXME: Check if used before removing
     let hashes: Vec<String> = if all {
         let query_all = ModFilter::QueryAll;
@@ -46,27 +42,40 @@ where
         }
     };
 
-    msg::init_progress(
+    event::init_progress(
         tx,
         Process::Mod(ModProcess::Remove),
         Some(hashes.len() as u64),
     )?;
     for hash in hashes {
-        let query = ModFilter::QueryHashExact {
+        let query = ModFilter::QueryHashAndIDAndNameSimilar {
             hash: hash.to_owned(),
+            mod_id: "".to_string(),
+            name: "".to_string(),
         };
         let matches = VaultRepo::query_multiple(connection, &query)?;
         if matches.is_empty() {
             return Err(Error::Vault(VaultError::NotFound { hash }));
         }
 
-        // TMP
-        let value = matches.into_iter().next().unwrap();
+        let values = event::select(
+            tx,
+            matches.into_iter().collect(),
+            Message::Mod(ModMessage::RemoveSelect),
+            false,
+            |option| {
+                Message::Mod(ModMessage::RemoveOption {
+                    value: Box::new(option),
+                })
+            },
+        )?;
+        let value = values
+            .into_iter()
+            .next()
+            .ok_or(Error::Event(EventError::InvalidSelection))?;
 
-        // TODO: Implement Event::Select
-        //let value = resolve(&matches)?;
         if !yes
-            && !msg::confirm(
+            && !event::confirm(
                 tx,
                 Message::Mod(ModMessage::RemoveConfirm {
                     value: Box::new(value.to_owned()),
@@ -85,7 +94,7 @@ where
         };
         VaultRepo::remove(connection, &remove_query)?;
 
-        msg::tick_progress(
+        event::tick_progress(
             tx,
             Process::Mod(ModProcess::Remove),
             Message::Mod(ModMessage::RemoveStatus {
@@ -94,6 +103,6 @@ where
         )?;
     }
 
-    msg::end_progress(tx, Process::Mod(ModProcess::Remove), None)?;
+    event::end_progress(tx, Process::Mod(ModProcess::Remove), None)?;
     Ok(())
 }

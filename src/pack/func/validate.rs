@@ -6,9 +6,9 @@
  *
  * File:       validate.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   12.02.25, 03:41
+ * Modified:   14.02.25, 19:11
  */
-use crate::common::msg;
+use crate::common::event;
 use crate::db::Repo;
 use crate::pack::data::{PackFilter, PackRepo};
 use crate::pack::{PackMessage, PackProcess};
@@ -23,7 +23,7 @@ pub fn validate(
     name: &str,
     exist_only: bool,
 ) -> Result<()> {
-    msg::init_progress(tx, Process::Pack(PackProcess::Validate), None)?;
+    event::init_progress(tx, Process::Pack(PackProcess::Validate), None)?;
     let query = PackFilter::QueryExactName {
         name: name.to_owned(),
     };
@@ -31,14 +31,14 @@ pub fn validate(
     let pack = PackRepo::query_single(connection, &query)?;
 
     if exist_only {
-        msg::end_progress(tx, Process::Pack(PackProcess::Validate), None)?;
+        event::end_progress(tx, Process::Pack(PackProcess::Validate), None)?;
         return Ok(());
     }
 
     validate_template(connection, tx, &pack.template)?;
     validate_patches(connection, tx, &pack.name)?;
 
-    msg::end_progress(
+    event::end_progress(
         tx,
         Process::Pack(PackProcess::Validate),
         Some(Message::Pack(PackMessage::ValidateSuccess {

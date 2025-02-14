@@ -6,12 +6,12 @@
  *
  * File:       msg.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   12.02.25, 03:45
+ * Modified:   13.02.25, 03:30
  */
 use crate::patch::Patch;
 use std::path::PathBuf;
 
-#[derive(Hash, Eq, PartialEq, Debug)]
+#[derive(Clone, Hash, Eq, PartialEq, Debug)]
 pub enum PatchProcess {
     Create,
     Exclude,
@@ -22,7 +22,7 @@ pub enum PatchProcess {
     Validate,
 }
 
-#[derive(Hash, Eq, PartialEq, Debug)]
+#[derive(Clone, Hash, Eq, PartialEq, Debug)]
 pub enum PatchMessage {
     CreateSuccess { patch: Box<Patch> },
     ExcludeSuccess { hash: String },

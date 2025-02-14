@@ -6,12 +6,12 @@
  *
  * File:       link.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   12.02.25, 03:45
+ * Modified:   14.02.25, 19:11
  */
+use crate::common::event;
+use crate::common::event::Event;
 use crate::common::file::error::FileError;
 use crate::common::file::filename_from_path;
-use crate::common::msg;
-use crate::common::msg::Event;
 use crate::db::Repo;
 use crate::instance;
 use crate::instance::data::{InstanceFilter, InstanceRepo};
@@ -29,7 +29,7 @@ pub fn link(
     name: Option<&str>,
     pack: Option<&str>,
 ) -> Result<String> {
-    msg::init_progress(tx, Process::Instance(InstanceProcess::Link), None)?;
+    event::init_progress(tx, Process::Instance(InstanceProcess::Link), None)?;
     if !fs::exists(path)? {
         return Err(Error::File(FileError::PathNotFound(
             path.display().to_string(),
@@ -60,7 +60,7 @@ pub fn link(
 
     instance::apply(connection, tx, actual_name, &patch)?;
 
-    msg::end_progress(
+    event::end_progress(
         tx,
         Process::Instance(InstanceProcess::Link),
         Some(Message::Instance(InstanceMessage::LinkSuccess {

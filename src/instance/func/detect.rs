@@ -6,10 +6,10 @@
  *
  * File:       detect.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   12.02.25, 02:27
+ * Modified:   14.02.25, 19:11
  */
-use crate::common::msg;
-use crate::common::msg::Event;
+use crate::common::event;
+use crate::common::event::Event;
 use crate::instance::{InstanceError, InstanceMessage, InstanceProcess};
 use crate::prelude::*;
 use crate::{file, hash, patch};
@@ -23,7 +23,7 @@ pub fn detect(
     path: &Path,
     pack: Option<&str>,
 ) -> Result<(String, String)> {
-    msg::init_progress(tx, Process::Instance(InstanceProcess::Detect), None)?;
+    event::init_progress(tx, Process::Instance(InstanceProcess::Detect), None)?;
 
     let mod_paths = file::mod_paths_from_instance_path(path)?;
     let dir_hash = hash::hash_state_from_path(tx, &mod_paths)?;
@@ -46,7 +46,7 @@ pub fn detect(
 
     let (patch, pack) =
         result.ok_or(Error::Instance(InstanceError::NoPatchDetected { dir_hash }))?;
-    msg::end_progress(
+    event::end_progress(
         tx,
         Process::Instance(InstanceProcess::Detect),
         Some(Message::Instance(InstanceMessage::DetectSuccess {

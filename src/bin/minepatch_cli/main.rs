@@ -6,7 +6,7 @@
  *
  * File:       main.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   13.02.25, 03:15
+ * Modified:   14.02.25, 19:09
  */
 use crate::cli::instance::InstanceCommands;
 use crate::cli::pack::PackCommands;
@@ -20,8 +20,9 @@ use cli::update::func;
 use cli::vault::VaultCommands;
 use colored::Colorize;
 use indicatif::{MultiProgress, ProgressBar, ProgressStyle};
-use inquire::Confirm;
+use inquire::{Confirm, MultiSelect, Select};
 use minepatch::db;
+use minepatch::event::EventError;
 use minepatch::hash::{HashMessage, HashProcess};
 use minepatch::instance::{InstanceMessage, InstanceProcess};
 use minepatch::msg::Process;
@@ -247,10 +248,20 @@ fn match_message(message: &Message) -> String {
                 format!("Validated mod with hash '{}'", hash.yellow())
             }
             ModMessage::RemoveConfirm { value } => format!(
-                "Do you want to remove this mod from the vault?\n{} ({}, {}) [{}]",
+                "Do you want to remove this mod from the vault?\n{} ({}, {}, {}) [{}]",
                 value.meta.name.bold().cyan(),
+                value.meta.id.bold(),
                 value.meta.loader,
                 format_string_option(&value.meta.minecraft_version),
+                value.hash.yellow()
+            ),
+            ModMessage::RemoveSelect => String::from("Multiple mods match the supplied filters. Please select the one you wish to remove:"),
+            ModMessage::RemoveOption { value } => format!(
+                "{} ({}, {}, {}) [{}]",
+                value.meta.name.bold().cyan(),
+                value.meta.id.bold(),
+                format_string_option(&value.meta.minecraft_version),
+                value.meta.loader,
                 value.hash.yellow()
             ),
         },
@@ -306,13 +317,17 @@ fn match_event(rx: Receiver<Event>, processes: &mut HashMap<Process, ProgressBar
                 processes.insert(process, progress_bar);
             }
             Event::ProgressTick { process, message } => {
-                let progress_bar = processes.get(&process).unwrap();
+                let progress_bar = processes
+                    .get(&process)
+                    .ok_or(Error::Event(EventError::ProcessNotFound))?;
 
                 progress_bar.set_message(match_message(&message));
                 progress_bar.inc(1);
             }
             Event::ProgressFinish { process, message } => {
-                let progress_bar = processes.get(&process).unwrap();
+                let progress_bar = processes
+                    .get(&process)
+                    .ok_or(Error::Event(EventError::ProcessNotFound))?;
                 progress_bar.set_style(ProgressStyle::with_template(&format!(
                     "{} [{}]: {{msg}}",
                     "✓".bold().green(),
@@ -339,10 +354,27 @@ fn match_event(rx: Receiver<Event>, processes: &mut HashMap<Process, ProgressBar
                 options,
                 multiselect,
             } => {
-                println!(
-                    "[Select] Not yet implemented: {:?}, {:?}, {:?}, {:?}",
-                    tx, message, options, multiselect
-                )
+                let indices = multi_progress.suspend(|| {
+                    let option_strings = options.iter().map(match_message).collect::<Vec<String>>();
+                    let result = match multiselect {
+                        true => MultiSelect::new(&match_message(&message), option_strings.clone())
+                            .prompt()?,
+                        false => {
+                            vec![
+                                Select::new(&match_message(&message), option_strings.clone())
+                                    .prompt()?,
+                            ]
+                        }
+                    };
+
+                    result
+                        .iter()
+                        .map(|result| option_strings.iter().position(|msg| result == msg))
+                        .collect::<Option<Vec<usize>>>()
+                        .ok_or(Error::Event(EventError::InvalidSelection))
+                })?;
+
+                tx.send(indices)?;
             }
             Event::Warning { warning } => {
                 multi_progress

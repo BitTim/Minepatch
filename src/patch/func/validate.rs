@@ -6,9 +6,9 @@
  *
  * File:       validate.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   12.02.25, 04:02
+ * Modified:   14.02.25, 19:11
  */
-use crate::common::msg;
+use crate::common::event;
 use crate::db::Repo;
 use crate::patch::data::{PatchFilter, PatchRepo};
 use crate::patch::{Patch, PatchMessage, PatchProcess};
@@ -25,7 +25,7 @@ pub fn validate(
     pack: &str,
     exist_only: bool,
 ) -> Result<()> {
-    msg::init_progress(tx, Process::Patch(PatchProcess::Validate), None)?;
+    event::init_progress(tx, Process::Patch(PatchProcess::Validate), None)?;
     let query = PatchFilter::ByNameAndPackExact {
         name: name.to_owned(),
         pack: pack.to_owned(),
@@ -33,7 +33,7 @@ pub fn validate(
     let patch = PatchRepo::query_single(connection, &query)?;
 
     if exist_only {
-        msg::end_progress(tx, Process::Patch(PatchProcess::Validate), None)?;
+        event::end_progress(tx, Process::Patch(PatchProcess::Validate), None)?;
         return Ok(());
     }
 
@@ -41,7 +41,7 @@ pub fn validate(
     validate_patch_dependency(connection, tx, &patch)?;
     validate_mods(connection, tx, name, pack)?;
 
-    msg::end_progress(
+    event::end_progress(
         tx,
         Process::Patch(PatchProcess::Validate),
         Some(Message::Patch(PatchMessage::ValidateSuccess {

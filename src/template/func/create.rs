@@ -6,9 +6,9 @@
  *
  * File:       create.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   12.02.25, 17:36
+ * Modified:   14.02.25, 19:11
  */
-use crate::common::msg;
+use crate::common::event;
 use crate::db::Repo;
 use crate::prelude::*;
 use crate::template::data::{TemplateFilter, TemplateRepo};
@@ -24,7 +24,7 @@ pub fn create(
     version: Option<String>,
     download: Option<String>,
 ) -> Result<()> {
-    msg::init_progress(tx, Process::Template(TemplateProcess::Create), None)?;
+    event::init_progress(tx, Process::Template(TemplateProcess::Create), None)?;
 
     let exists_query = TemplateFilter::QueryNameExact {
         name: name.to_owned(),
@@ -36,7 +36,7 @@ pub fn create(
     let template = Template::new(name, loader, version, download);
     TemplateRepo::insert(connection, template.to_owned())?;
 
-    msg::end_progress(
+    event::end_progress(
         tx,
         Process::Template(TemplateProcess::Create),
         Some(Message::Template(TemplateMessage::CreateSuccess {

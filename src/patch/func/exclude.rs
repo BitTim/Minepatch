@@ -6,10 +6,10 @@
  *
  * File:       exclude.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   12.02.25, 03:26
+ * Modified:   14.02.25, 19:09
  */
-use crate::common::msg;
-use crate::common::msg::Event;
+use crate::common::event;
+use crate::common::event::Event;
 use crate::db::Repo;
 use crate::error::Error;
 use crate::patch;
@@ -27,7 +27,7 @@ pub fn exclude(
     pack: &str,
     mod_hash: &str,
 ) -> Result<()> {
-    msg::init_progress(tx, Process::Patch(PatchProcess::Exclude), None)?;
+    event::init_progress(tx, Process::Patch(PatchProcess::Exclude), None)?;
     let query = PatchModRelFilter::ByPatchAndPackAndModHashExact {
         patch: name.to_owned(),
         pack: pack.to_owned(),
@@ -36,7 +36,7 @@ pub fn exclude(
     let relation = PatchModRelRepo::query_single(connection, &query);
 
     let mods = patch::simulate(connection, tx, name, pack)?;
-    if !mods.contains(&mod_hash.to_owned()) {
+    if !mods.contains(mod_hash) {
         return Err(Error::Patch(PatchError::ModExcluded {
             hash: mod_hash.to_owned(),
             pack: pack.to_owned(),
@@ -58,7 +58,7 @@ pub fn exclude(
         PatchModRelRepo::insert(connection, PatchWithMods::new(name, pack, mod_hash, true))?;
     }
 
-    msg::end_progress(
+    event::end_progress(
         tx,
         Process::Patch(PatchProcess::Exclude),
         Some(Message::Patch(PatchMessage::ExcludeSuccess {

@@ -6,11 +6,11 @@
  *
  * File:       error.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   13.02.25, 00:04
+ * Modified:   14.02.25, 18:56
  */
+use crate::common::event::{Event, EventError};
 use crate::common::file::error::FileError;
 use crate::common::meta::error::MetaError;
-use crate::common::msg::Event;
 use crate::instance::InstanceError;
 use crate::pack::PackError;
 use crate::patch::PatchError;
@@ -28,6 +28,8 @@ pub enum Error {
     #[error(transparent)]
     Meta(#[from] MetaError),
     #[error(transparent)]
+    Event(#[from] EventError),
+    #[error(transparent)]
     Vault(#[from] VaultError),
     #[error(transparent)]
     Template(#[from] TemplateError),
@@ -44,6 +46,8 @@ pub enum Error {
     SendEvent(#[from] mpsc::SendError<Event>),
     #[error(transparent)]
     SendBool(#[from] mpsc::SendError<bool>),
+    #[error(transparent)]
+    SendVecUsize(#[from] mpsc::SendError<Vec<usize>>),
     #[error(transparent)]
     Recv(#[from] mpsc::RecvError),
     #[error(transparent)]

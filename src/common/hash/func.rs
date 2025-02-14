@@ -6,10 +6,10 @@
  *
  * File:       func.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   12.02.25, 03:02
+ * Modified:   14.02.25, 19:11
  */
-use crate::common::msg;
-use crate::common::msg::Event;
+use crate::common::event;
+use crate::common::event::Event;
 use crate::hash::msg::{HashMessage, HashProcess};
 use crate::prelude::*;
 use rayon::prelude::*;
@@ -38,7 +38,7 @@ pub(crate) fn hash_file(path: &Path) -> Result<String> {
 }
 
 pub(crate) fn hash_state_from_path(tx: &Sender<Event>, paths: &[PathBuf]) -> Result<String> {
-    msg::init_progress(
+    event::init_progress(
         tx,
         Process::Hash(HashProcess::HashFiles),
         Some(paths.len() as u64),
@@ -47,7 +47,7 @@ pub(crate) fn hash_state_from_path(tx: &Sender<Event>, paths: &[PathBuf]) -> Res
     let hashes: HashSet<String> = paths
         .par_iter()
         .map(|mod_path| {
-            msg::tick_progress(
+            event::tick_progress(
                 tx,
                 Process::Hash(HashProcess::HashFiles),
                 Message::Hash(HashMessage::HashFilesStatus {
@@ -58,6 +58,6 @@ pub(crate) fn hash_state_from_path(tx: &Sender<Event>, paths: &[PathBuf]) -> Res
         })
         .collect::<Result<HashSet<String>>>()?;
 
-    msg::end_progress(tx, Process::Hash(HashProcess::HashFiles), None)?;
+    event::end_progress(tx, Process::Hash(HashProcess::HashFiles), None)?;
     Ok(hash_state(&hashes))
 }
