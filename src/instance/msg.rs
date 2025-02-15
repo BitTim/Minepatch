@@ -6,7 +6,7 @@
  *
  * File:       msg.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   13.02.25, 03:30
+ * Modified:   15.02.25, 00:59
  */
 use crate::instance::Instance;
 
@@ -24,4 +24,5 @@ pub enum InstanceMessage {
     DetectSuccess { pack: String, patch: String },
     LinkSuccess { instance: Box<Instance> },
     ValidateSuccess { name: String },
+    ValidateStatus { name: String },
 }

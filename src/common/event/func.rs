@@ -6,7 +6,7 @@
  *
  * File:       func.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   14.02.25, 18:56
+ * Modified:   14.02.25, 19:32
  */
 use crate::common::event::{Event, EventError};
 use crate::prelude::*;

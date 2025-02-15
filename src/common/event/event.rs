@@ -6,7 +6,7 @@
  *
  * File:       event.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   14.02.25, 16:44
+ * Modified:   14.02.25, 19:32
  */
 use crate::prelude::*;
 use std::sync::mpsc;

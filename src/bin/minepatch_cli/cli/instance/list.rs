@@ -6,11 +6,10 @@
  *
  * File:       list.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   11.02.25, 04:00
+ * Modified:   14.02.25, 19:36
  */
 use crate::output::list_items::instance::InstanceListItem;
 use crate::output::table::TableOutput;
-use crate::output::Output;
 use minepatch::instance;
 use minepatch::prelude::*;
 use rusqlite::Connection;
@@ -26,6 +25,9 @@ pub(crate) fn list(
         .map(|instance| InstanceListItem::from(connection, tx, instance))
         .collect::<Vec<InstanceListItem>>();
 
-    TableOutput::new(instances, "No instances linked yet".to_owned()).print();
+    let output = TableOutput::new(instances, "No instances linked yet".to_owned()).to_string();
+    tx.send(Event::Log {
+        message: Message::Transparent(output),
+    })?;
     Ok(())
 }

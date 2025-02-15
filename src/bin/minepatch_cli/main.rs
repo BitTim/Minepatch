@@ -6,15 +6,15 @@
  *
  * File:       main.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   14.02.25, 19:09
+ * Modified:   15.02.25, 01:40
  */
 use crate::cli::instance::InstanceCommands;
 use crate::cli::pack::PackCommands;
 use crate::cli::patch::PatchCommands;
 use crate::cli::template::TemplateCommands;
 use crate::cli::{instance, pack, patch, template, vault, Cli, Commands};
+use crate::output::format_string_option;
 use crate::output::status::{Status, StatusOutput};
-use crate::output::{format_string_option, Output};
 use clap::Parser;
 use cli::update::func;
 use cli::vault::VaultCommands;
@@ -44,7 +44,7 @@ mod output;
 
 fn match_command(command: &Commands, connection: &Connection, tx: &Sender<Event>) -> Result<()> {
     match command {
-        Commands::Update => func::update::update()?,
+        Commands::Update => func::update::update(tx)?,
         Commands::Instance {
             instance_commands: instance_command,
         } => match instance_command {
@@ -83,7 +83,7 @@ fn match_command(command: &Commands, connection: &Connection, tx: &Sender<Event>
                 loader,
                 download,
             } => template::create(connection, tx, name, version, loader, download)?,
-            TemplateCommands::List { name } => template::list(connection, name)?,
+            TemplateCommands::List { name } => template::list(connection, tx, name)?,
         },
         Commands::Patch {
             patch_commands: patch_command,
@@ -172,6 +172,7 @@ fn match_process(process: &Process) -> String {
 
 fn match_message(message: &Message) -> String {
     match message {
+        Message::Transparent(content) => content.to_owned(),
         Message::Hash(message) => match message {
             HashMessage::HashFilesStatus { path } => {
                 format!("Mod file path: '{}'", path.display().to_string().cyan())
@@ -198,6 +199,9 @@ fn match_message(message: &Message) -> String {
             ),
             InstanceMessage::ValidateSuccess { name } => {
                 format!("Validated instance '{}'", name.cyan())
+            }
+            InstanceMessage::ValidateStatus { name } => {
+                format!("{}", name.bold().cyan())
             }
         },
         Message::Pack(message) => match message {
@@ -286,6 +290,7 @@ fn match_event(rx: Receiver<Event>, processes: &mut HashMap<Process, ProgressBar
                 if progress_bar.is_some() {
                     let progress_bar: ProgressBar = progress_bar.unwrap();
                     progress_bar.finish_and_clear();
+                    multi_progress.remove(&progress_bar);
                 }
 
                 let progress_bar = match total {
@@ -335,7 +340,10 @@ fn match_event(rx: Receiver<Event>, processes: &mut HashMap<Process, ProgressBar
                 ))?);
 
                 match message {
-                    None => progress_bar.finish_and_clear(),
+                    None => {
+                        progress_bar.finish_and_clear();
+                        multi_progress.remove(progress_bar);
+                    }
                     Some(message) => progress_bar.finish_with_message(match_message(&message)),
                 }
             }
@@ -425,6 +433,6 @@ fn main() {
     });
 
     if let Err(error) = fallible(rx, thread) {
-        StatusOutput::new(Status::Error, error.to_string()).print();
+        println!("{}", StatusOutput::new(Status::Error, error.to_string()));
     }
 }

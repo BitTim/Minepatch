@@ -6,7 +6,7 @@
  *
  * File:       msg.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   13.02.25, 03:30
+ * Modified:   15.02.25, 01:41
  */
 use crate::hash::{HashMessage, HashProcess};
 use crate::instance::{InstanceMessage, InstanceProcess};
@@ -26,6 +26,7 @@ pub enum Process {
 }
 #[derive(Clone, Hash, Eq, PartialEq, Debug)]
 pub enum Message {
+    Transparent(String),
     Hash(HashMessage),
     Instance(InstanceMessage),
     Pack(PackMessage),

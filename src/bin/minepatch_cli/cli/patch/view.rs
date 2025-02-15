@@ -6,7 +6,7 @@
  *
  * File:       view.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   12.02.25, 04:13
+ * Modified:   14.02.25, 19:39
  */
 use crate::output::list_items::vault::ModListItem;
 use crate::output::table::TableOutput;
@@ -66,7 +66,7 @@ pub(crate) fn view(
         format_string_option(&next_patch.map(|value| value.name)).purple()
     );
 
-    println!(
+    let output = format!(
         "\n{}\n{}\n{}\n\n{}\n{}\n\n{}\n{}\n",
         header_line,
         prev_patch_line,
@@ -76,6 +76,9 @@ pub(crate) fn view(
         &"Removed mods:".red().bold().underline().to_string(),
         removed_mods_table
     );
+    tx.send(Event::Log {
+        message: Message::Transparent(output),
+    })?;
     Ok(())
 }
 

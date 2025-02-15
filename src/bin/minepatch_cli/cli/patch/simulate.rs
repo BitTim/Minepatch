@@ -6,11 +6,10 @@
  *
  * File:       simulate.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   12.02.25, 04:13
+ * Modified:   14.02.25, 19:46
  */
 use crate::output::list_items::vault::ModListItem;
 use crate::output::table::TableOutput;
-use crate::output::Output;
 use colored::Colorize;
 use minepatch::prelude::*;
 use minepatch::vault::Mod;
@@ -31,11 +30,15 @@ pub(crate) fn simulate(
         pack.blue()
     )
     .bold();
-    println!("{}", header_line);
 
     if *dir_hash {
         let hash = patch::simulate_dir_hash(connection, tx, name, pack)?;
-        println!("Dir Hash: '{}'", hash.purple());
+        let hash_line = format!("Dir Hash: '{}'", hash.purple());
+        let output = format!("{}\n{}", header_line, hash_line);
+        tx.send(Event::Log {
+            message: Message::Transparent(output),
+        })?;
+
         return Ok(());
     }
 
@@ -48,6 +51,13 @@ pub(crate) fn simulate(
         .map(|value| ModListItem::from(connection, tx, value))
         .collect::<Vec<ModListItem>>();
 
-    TableOutput::new(displays, "No mods present in pack in simulation".to_owned()).print();
+    let output = format!(
+        "{}\n{}",
+        header_line,
+        TableOutput::new(displays, "No mods present in pack in simulation".to_owned()).to_string()
+    );
+    tx.send(Event::Log {
+        message: Message::Transparent(output),
+    })?;
     Ok(())
 }

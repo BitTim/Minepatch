@@ -6,12 +6,12 @@
  *
  * File:       validate.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   14.02.25, 19:11
+ * Modified:   14.02.25, 19:34
  */
 use crate::common::event;
 use crate::db::Repo;
 use crate::pack::data::{PackFilter, PackRepo};
-use crate::pack::{PackMessage, PackProcess};
+use crate::pack::PackProcess;
 use crate::prelude::*;
 use crate::{patch, template};
 use rusqlite::Connection;
@@ -38,13 +38,7 @@ pub fn validate(
     validate_template(connection, tx, &pack.template)?;
     validate_patches(connection, tx, &pack.name)?;
 
-    event::end_progress(
-        tx,
-        Process::Pack(PackProcess::Validate),
-        Some(Message::Pack(PackMessage::ValidateSuccess {
-            name: name.to_owned(),
-        })),
-    )?;
+    event::end_progress(tx, Process::Pack(PackProcess::Validate), None)?;
     Ok(())
 }
 

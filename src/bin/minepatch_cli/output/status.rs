@@ -6,9 +6,8 @@
  *
  * File:       status.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   12.02.25, 17:35
+ * Modified:   14.02.25, 20:55
  */
-use crate::output::Output;
 use colored::{ColoredString, Colorize};
 use std::fmt::{Display, Formatter};
 
@@ -45,5 +44,3 @@ impl StatusOutput {
         Self { status, message }
     }
 }
-
-impl Output for StatusOutput {}

@@ -6,12 +6,12 @@
  *
  * File:       validate.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   14.02.25, 19:11
+ * Modified:   14.02.25, 19:34
  */
 use crate::common::event;
 use crate::db::Repo;
 use crate::patch::data::{PatchFilter, PatchRepo};
-use crate::patch::{Patch, PatchMessage, PatchProcess};
+use crate::patch::{Patch, PatchProcess};
 use crate::patch_with_mods::{PatchModRelFilter, PatchModRelRepo};
 use crate::prelude::*;
 use crate::{pack, vault};
@@ -41,13 +41,7 @@ pub fn validate(
     validate_patch_dependency(connection, tx, &patch)?;
     validate_mods(connection, tx, name, pack)?;
 
-    event::end_progress(
-        tx,
-        Process::Patch(PatchProcess::Validate),
-        Some(Message::Patch(PatchMessage::ValidateSuccess {
-            name: name.to_owned(),
-        })),
-    )?;
+    event::end_progress(tx, Process::Patch(PatchProcess::Validate), None)?;
     Ok(())
 }
 

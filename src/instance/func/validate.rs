@@ -6,7 +6,7 @@
  *
  * File:       validate.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   14.02.25, 19:11
+ * Modified:   15.02.25, 00:59
  */
 use crate::common::event;
 use crate::common::event::Event;
@@ -26,6 +26,13 @@ pub fn validate(
     exist_only: bool,
 ) -> Result<()> {
     event::init_progress(tx, Process::Instance(InstanceProcess::Validate), None)?;
+    event::tick_progress(
+        tx,
+        Process::Instance(InstanceProcess::Validate),
+        Message::Instance(InstanceMessage::ValidateStatus {
+            name: name.to_owned(),
+        }),
+    )?;
     let query = InstanceFilter::ByExactName {
         name: name.to_owned(),
     };
@@ -51,12 +58,6 @@ pub fn validate(
     pack::validate(connection, tx, &instance.pack, false)?;
     patch::validate(connection, tx, &instance.patch, &instance.pack, false)?;
 
-    event::end_progress(
-        tx,
-        Process::Instance(InstanceProcess::Validate),
-        Some(Message::Instance(InstanceMessage::ValidateSuccess {
-            name: name.to_owned(),
-        })),
-    )?;
+    event::end_progress(tx, Process::Instance(InstanceProcess::Validate), None)?;
     Ok(())
 }

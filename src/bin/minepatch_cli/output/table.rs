@@ -6,9 +6,8 @@
  *
  * File:       table.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   11.02.25, 03:30
+ * Modified:   15.02.25, 01:37
  */
-use crate::output::Output;
 use colored::Colorize;
 use std::fmt::{Display, Formatter};
 use tabled::grid::records::vec_records::{Text, VecRecords};
@@ -26,7 +25,7 @@ pub struct TableOutput {
 impl TableOutput {
     pub fn new<T: Tabled>(values: Vec<T>, empty_msg: String) -> Self {
         let table = Table::new(&values)
-            .with(Style::rounded().remove_horizontals())
+            .with(Style::rounded())
             .modify(
                 Rows::new(0..1),
                 Format::content(|s| format!("\x1b[1;4m{}\x1b[0m", s)),
@@ -65,5 +64,3 @@ impl Display for TableOutput {
         }
     }
 }
-
-impl Output for TableOutput {}
