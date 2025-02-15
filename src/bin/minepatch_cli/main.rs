@@ -6,7 +6,7 @@
  *
  * File:       main.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   15.02.25, 01:40
+ * Modified:   15.02.25, 01:51
  */
 use crate::cli::instance::InstanceCommands;
 use crate::cli::pack::PackCommands;
@@ -201,7 +201,7 @@ fn match_message(message: &Message) -> String {
                 format!("Validated instance '{}'", name.cyan())
             }
             InstanceMessage::ValidateStatus { name } => {
-                format!("{}", name.bold().cyan())
+                format!("{}", name.cyan())
             }
         },
         Message::Pack(message) => match message {
@@ -214,6 +214,7 @@ fn match_message(message: &Message) -> String {
             }
             PackMessage::CreateSuccess { pack } => format!("Created pack '{}'", pack.name.cyan()),
             PackMessage::ValidateSuccess { name } => format!("Validated pack '{}'", name.cyan()),
+            PackMessage::ValidateStatus { name } => format!("{}", name.cyan()),
         },
         Message::Patch(message) => match message {
             PatchMessage::SimulateStatus { name } => format!("Patch: '{}'", name.cyan()),
@@ -240,6 +241,7 @@ fn match_message(message: &Message) -> String {
                 format!("Included mod with hash '{}'", hash.yellow())
             }
             PatchMessage::ValidateSuccess { name } => format!("Validated patch '{}'", name.cyan()),
+            PatchMessage::ValidateStatus { pack, name } => format!("{} for {}", name.cyan(), pack.cyan()),
         },
         Message::Mod(message) => match message {
             ModMessage::AddSuccess { value } => {
@@ -268,6 +270,7 @@ fn match_message(message: &Message) -> String {
                 value.meta.loader,
                 value.hash.yellow()
             ),
+            ModMessage::ValidateStatus { hash } => format!("{}", hash.yellow()),
         },
         Message::Template(message) => match message {
             TemplateMessage::CreateSuccess { template } => {
@@ -275,7 +278,8 @@ fn match_message(message: &Message) -> String {
             }
             TemplateMessage::ValidateSuccess { name } => {
                 format!("Validated template '{}'", name.cyan())
-            }
+            },
+            TemplateMessage::ValidateStatus { name } => format!("{}", name.cyan())
         },
     }
 }

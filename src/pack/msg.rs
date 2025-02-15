@@ -6,7 +6,7 @@
  *
  * File:       msg.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   13.02.25, 03:30
+ * Modified:   15.02.25, 02:01
  */
 use crate::pack::Pack;
 use std::path::PathBuf;
@@ -23,4 +23,5 @@ pub enum PackMessage {
     CreateSuccess { pack: Box<Pack> },
     AddModFileStatus { path: PathBuf, hash: String },
     ValidateSuccess { name: String },
+    ValidateStatus { name: String },
 }

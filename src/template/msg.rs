@@ -6,7 +6,7 @@
  *
  * File:       msg.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   13.02.25, 03:30
+ * Modified:   15.02.25, 01:47
  */
 use crate::template::Template;
 
@@ -20,4 +20,5 @@ pub enum TemplateProcess {
 pub enum TemplateMessage {
     CreateSuccess { template: Box<Template> },
     ValidateSuccess { name: String },
+    ValidateStatus { name: String },
 }

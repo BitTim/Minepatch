@@ -6,7 +6,7 @@
  *
  * File:       msg.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   14.02.25, 17:08
+ * Modified:   15.02.25, 01:48
  */
 use crate::vault::Mod;
 
@@ -25,4 +25,5 @@ pub enum ModMessage {
     ValidateSuccess { hash: String },
     RemoveSelect,
     RemoveOption { value: Box<Mod> },
+    ValidateStatus { hash: String },
 }

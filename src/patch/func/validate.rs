@@ -6,12 +6,12 @@
  *
  * File:       validate.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   14.02.25, 19:34
+ * Modified:   15.02.25, 01:46
  */
 use crate::common::event;
 use crate::db::Repo;
 use crate::patch::data::{PatchFilter, PatchRepo};
-use crate::patch::{Patch, PatchProcess};
+use crate::patch::{Patch, PatchMessage, PatchProcess};
 use crate::patch_with_mods::{PatchModRelFilter, PatchModRelRepo};
 use crate::prelude::*;
 use crate::{pack, vault};
@@ -26,6 +26,15 @@ pub fn validate(
     exist_only: bool,
 ) -> Result<()> {
     event::init_progress(tx, Process::Patch(PatchProcess::Validate), None)?;
+    event::tick_progress(
+        tx,
+        Process::Patch(PatchProcess::Validate),
+        Message::Patch(PatchMessage::ValidateStatus {
+            pack: pack.to_owned(),
+            name: name.to_owned(),
+        }),
+    )?;
+
     let query = PatchFilter::ByNameAndPackExact {
         name: name.to_owned(),
         pack: pack.to_owned(),

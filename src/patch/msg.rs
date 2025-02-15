@@ -6,7 +6,7 @@
  *
  * File:       msg.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   13.02.25, 03:30
+ * Modified:   15.02.25, 01:46
  */
 use crate::patch::Patch;
 use std::path::PathBuf;
@@ -31,4 +31,5 @@ pub enum PatchMessage {
     IncludeSuccess { hash: String },
     SimulateStatus { name: String },
     ValidateSuccess { name: String },
+    ValidateStatus { pack: String, name: String },
 }
