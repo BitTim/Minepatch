@@ -6,7 +6,7 @@
  *
  * File:       exclude.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   14.02.25, 19:09
+ * Modified:   16.02.25, 13:41
  */
 use crate::common::event;
 use crate::common::event::Event;
@@ -19,7 +19,6 @@ use crate::prelude::*;
 use rusqlite::Connection;
 use std::sync::mpsc::Sender;
 
-// TODO: Exclude mod by query instead of by hash (User can specify a name and select from a list)
 pub fn exclude(
     connection: &Connection,
     tx: &Sender<Event>,

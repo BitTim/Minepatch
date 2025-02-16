@@ -6,7 +6,7 @@
  *
  * File:       func.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   14.02.25, 19:32
+ * Modified:   16.02.25, 13:47
  */
 use crate::common::event::{Event, EventError};
 use crate::prelude::*;
@@ -82,4 +82,8 @@ where
         .map(|index| options.get(index).map(ToOwned::to_owned))
         .collect::<Option<HashSet<T>>>()
         .ok_or(Error::Event(EventError::InvalidSelection))
+}
+
+pub(crate) fn warning(tx: &Sender<Event>, error: Box<Error>) -> Result<()> {
+    Ok(tx.send(Event::Warning { warning: error })?)
 }

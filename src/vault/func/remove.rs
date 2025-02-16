@@ -6,12 +6,13 @@
  *
  * File:       remove.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   14.02.25, 18:56
+ * Modified:   16.02.25, 14:01
  */
 use crate::common::event;
 use crate::common::event::EventError;
 use crate::db::Repo;
 use crate::file;
+use crate::patch_with_mods::{PatchModRelFilter, PatchModRelRepo};
 use crate::prelude::*;
 use crate::vault::data::{Mod, ModFilter, VaultRepo};
 use crate::vault::error::VaultError;
@@ -28,7 +29,6 @@ pub fn remove(
     all: bool,
     yes: bool,
 ) -> Result<()> {
-    // FIXME: Check if used before removing
     let hashes: Vec<String> = if all {
         let query_all = ModFilter::QueryAll;
         VaultRepo::query_multiple(connection, &query_all)?
@@ -85,14 +85,25 @@ pub fn remove(
             continue;
         }
 
+        let rel_filter = PatchModRelFilter::ByModHashExact {
+            hash: value.hash.to_owned(),
+        };
+        let relations = PatchModRelRepo::query_multiple(connection, &rel_filter)?;
+
+        if !relations.is_empty() {
+            return Err(Error::Vault(VaultError::RelUsed {
+                hash: value.hash.to_owned(),
+            }));
+        }
+
+        let remove_filter = ModFilter::QueryHashExact {
+            hash: value.hash.to_owned(),
+        };
+        VaultRepo::remove(connection, &remove_filter)?;
+
         file::check_exists(&value.path)?;
         fs::remove_file(&value.path)?;
         file::remove_empty_dirs(&get_base_mod_dir_path()?)?;
-
-        let remove_query = ModFilter::QueryHashExact {
-            hash: value.hash.to_owned(),
-        };
-        VaultRepo::remove(connection, &remove_query)?;
 
         event::tick_progress(
             tx,
@@ -103,6 +114,5 @@ pub fn remove(
         )?;
     }
 
-    event::end_progress(tx, Process::Mod(ModProcess::Remove), None)?;
-    Ok(())
+    event::end_progress(tx, Process::Mod(ModProcess::Remove), None)
 }

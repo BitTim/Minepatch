@@ -6,12 +6,13 @@
  *
  * File:       filter.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   08.02.25, 14:30
+ * Modified:   16.02.25, 13:55
  */
 use crate::common::db::{Entity, Filter, InsertableFilter};
 use crate::error::Error;
 use crate::patch::PatchError;
 use crate::patch_with_mods::PatchWithMods;
+use crate::vault::VaultError;
 use rusqlite::ToSql;
 
 pub(crate) enum PatchModRelFilter {
@@ -27,6 +28,9 @@ pub(crate) enum PatchModRelFilter {
         pack: String,
         mod_hash: String,
     },
+    ByModHashExact {
+        hash: String,
+    },
 }
 
 impl Filter for PatchModRelFilter {
@@ -37,6 +41,7 @@ impl Filter for PatchModRelFilter {
             PatchModRelFilter::ByPatchAndPackAndModHashExact { .. } => {
                 "WHERE patch = ?1 AND pack = ?2 AND mod = ?3"
             }
+            PatchModRelFilter::ByModHashExact { .. } => "WHERE mod = ?1",
         }
         .to_owned()
     }
@@ -56,6 +61,9 @@ impl Filter for PatchModRelFilter {
                 Box::new(pack.to_owned()),
                 Box::new(mod_hash.to_owned()),
             ],
+            PatchModRelFilter::ByModHashExact { hash: mod_hash } => {
+                vec![Box::new(mod_hash.to_owned())]
+            }
         }
     }
 
@@ -81,6 +89,11 @@ impl Filter for PatchModRelFilter {
                 pack: pack.to_owned(),
                 hash: mod_hash.to_owned(),
             }),
+            PatchModRelFilter::ByModHashExact { hash: mod_hash } => {
+                Error::Vault(VaultError::RelNotFound {
+                    hash: mod_hash.to_owned(),
+                })
+            }
         }
     }
 }

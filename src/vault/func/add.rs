@@ -6,7 +6,7 @@
  *
  * File:       add.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   14.02.25, 19:11
+ * Modified:   16.02.25, 13:49
  */
 
 use crate::common::event::Event;
@@ -37,22 +37,24 @@ pub fn add(
     };
 
     if VaultRepo::exists(connection, &exists_query)? && !overwrite {
-        tx.send(Event::Warning {
-            warning: Box::new(Error::Vault(VaultError::AlreadyExists {
+        event::warning(
+            tx,
+            Box::new(Error::Vault(VaultError::AlreadyExists {
                 path: path.display().to_string(),
                 hash: hash.to_owned(),
             })),
-        })?;
+        )?;
         return Ok(hash);
     }
 
     let loader_result = detect_loader(path)?;
     if loader_result.is_none() {
-        tx.send(Event::Warning {
-            warning: Box::new(Error::Vault(VaultError::NoLoaderDetected {
+        event::warning(
+            tx,
+            Box::new(Error::Vault(VaultError::NoLoaderDetected {
                 path: path.display().to_string(),
             })),
-        })?;
+        )?;
     }
 
     let filename = file::filename_from_path(path)?;
