@@ -6,7 +6,7 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   27.01.25, 10:20
+ * Modified:   11.02.25, 02:57
  */
 
 pub(super) mod data;
@@ -14,4 +14,7 @@ pub use data::Instance;
 mod error;
 pub use error::*;
 mod func;
+mod msg;
+
 pub use func::*;
+pub use msg::*;

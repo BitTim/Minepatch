@@ -6,29 +6,46 @@
  *
  * File:       validate.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   08.02.25, 22:17
+ * Modified:   15.02.25, 00:59
  */
+use crate::common::event;
+use crate::common::event::Event;
 use crate::db::Repo;
 use crate::error::Error;
 use crate::instance::data::{InstanceFilter, InstanceRepo};
-use crate::instance::InstanceError;
+use crate::instance::{InstanceError, InstanceMessage, InstanceProcess};
 use crate::prelude::*;
 use crate::{file, hash, pack, patch};
 use rusqlite::Connection;
+use std::sync::mpsc::Sender;
 
-pub fn validate(connection: &Connection, name: &str, exist_only: bool) -> Result<()> {
+pub fn validate(
+    connection: &Connection,
+    tx: &Sender<Event>,
+    name: &str,
+    exist_only: bool,
+) -> Result<()> {
+    event::init_progress(tx, Process::Instance(InstanceProcess::Validate), None)?;
+    event::tick_progress(
+        tx,
+        Process::Instance(InstanceProcess::Validate),
+        Message::Instance(InstanceMessage::ValidateStatus {
+            name: name.to_owned(),
+        }),
+    )?;
     let query = InstanceFilter::ByExactName {
         name: name.to_owned(),
     };
     let instance = InstanceRepo::query_single(connection, &query)?;
 
     if exist_only {
+        event::end_progress(tx, Process::Instance(InstanceProcess::Validate), None)?;
         return Ok(());
     }
 
     let mod_paths = file::mod_paths_from_instance_path(&instance.path)?;
-    let src_dir_hash = hash::hash_state_from_path(&mod_paths)?;
-    let sim_hashes = patch::simulate(connection, &instance.patch, &instance.pack)?;
+    let src_dir_hash = hash::hash_state_from_path(tx, &mod_paths)?;
+    let sim_hashes = patch::simulate(connection, tx, &instance.patch, &instance.pack)?;
     let sim_dir_hash = hash::hash_state(&sim_hashes);
 
     if src_dir_hash != sim_dir_hash {
@@ -38,8 +55,9 @@ pub fn validate(connection: &Connection, name: &str, exist_only: bool) -> Result
         }));
     }
 
-    pack::validate(connection, &instance.pack, false)?;
-    patch::validate(connection, &instance.patch, &instance.pack, false)?;
+    pack::validate(connection, tx, &instance.pack, false)?;
+    patch::validate(connection, tx, &instance.patch, &instance.pack, false)?;
 
+    event::end_progress(tx, Process::Instance(InstanceProcess::Validate), None)?;
     Ok(())
 }

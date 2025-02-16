@@ -6,7 +6,7 @@
  *
  * File:       filter.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   08.02.25, 22:17
+ * Modified:   11.02.25, 17:29
  */
 use crate::common::db::{Filter, InsertableFilter};
 use crate::error::Error;
@@ -19,20 +19,18 @@ pub(crate) enum PatchFilter {
     ByNameAndPackSimilar { name: String, pack: String },
     ByDepAndPackExact { dependency: String, pack: String },
     ByPackExact { pack: String },
-    BySrcDirHashAndPackExact { src_dir_hash: String, pack: String },
 }
 
 impl Filter for PatchFilter {
     fn value(&self) -> String {
         match self {
-            PatchFilter::Insert { .. } => "VALUES (?1, ?2, ?3, ?4)",
+            PatchFilter::Insert { .. } => "VALUES (?1, ?2, ?3)",
             PatchFilter::ByNameAndPackExact { .. } => "WHERE name = ?1 AND pack = ?2",
             PatchFilter::ByNameAndPackSimilar { .. } => {
                 "WHERE name LIKE ?1||'%' AND pack LIKE ?2||'%'"
             }
             PatchFilter::ByDepAndPackExact { .. } => "WHERE dependency = ?1 AND pack = ?2",
             PatchFilter::ByPackExact { .. } => "WHERE pack = ?1",
-            PatchFilter::BySrcDirHashAndPackExact { .. } => "WHERE src_dir_hash = ?1 AND pack = ?2",
         }
         .to_owned()
     }
@@ -43,7 +41,6 @@ impl Filter for PatchFilter {
                 Box::new(patch.name.to_owned()),
                 Box::new(patch.pack.to_owned()),
                 Box::new(patch.dependency.to_owned()),
-                Box::new(patch.src_dir_hash.to_owned()),
             ],
             PatchFilter::ByNameAndPackExact { name, pack }
             | PatchFilter::ByNameAndPackSimilar { name, pack } => {
@@ -54,9 +51,6 @@ impl Filter for PatchFilter {
             }
             PatchFilter::ByPackExact { pack } => {
                 vec![Box::new(pack.to_owned())]
-            }
-            PatchFilter::BySrcDirHashAndPackExact { src_dir_hash, pack } => {
-                vec![Box::new(src_dir_hash.to_owned()), Box::new(pack.to_owned())]
             }
         }
     }
@@ -83,12 +77,6 @@ impl Filter for PatchFilter {
             PatchFilter::ByPackExact { pack } => Error::Patch(PatchError::PackNotFound {
                 pack: pack.to_owned(),
             }),
-            PatchFilter::BySrcDirHashAndPackExact { src_dir_hash, pack } => {
-                Error::Patch(PatchError::SrcDirHashNotFound {
-                    src_dir_hash: src_dir_hash.to_owned(),
-                    pack: pack.to_owned(),
-                })
-            }
         }
     }
 }

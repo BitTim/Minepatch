@@ -6,7 +6,7 @@
  *
  * File:       init.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   08.02.25, 11:08
+ * Modified:   11.02.25, 17:39
  */
 use crate::{file, prelude};
 use rusqlite::Connection;
@@ -56,7 +56,6 @@ fn create_tables(connection: &Connection) -> prelude::Result<()> {
             name TEXT NOT NULL,
             pack TEXT NOT NULL,
             dependency TEXT,
-            src_dir_hash TEXT NOT NULL,
 
             PRIMARY KEY (name, pack),
             FOREIGN KEY (pack) REFERENCES pack(name)

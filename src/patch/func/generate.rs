@@ -6,47 +6,71 @@
  *
  * File:       generate.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   08.02.25, 20:12
+ * Modified:   14.02.25, 19:11
  */
+use crate::common::event;
+use crate::common::event::Event;
 use crate::hash::hash_file;
+use crate::patch::{PatchMessage, PatchProcess};
 use crate::prelude::*;
 use crate::{file, instance, patch, vault};
+use rayon::prelude::*;
 use rusqlite::Connection;
 use std::collections::HashSet;
 use std::path::PathBuf;
+use std::sync::mpsc::Sender;
 
-pub fn generate<F>(
+pub fn generate(
     connection: &Connection,
+    tx: &Sender<Event>,
     name: &str,
     instance: &str,
-    handle_warning: &F,
-) -> Result<()>
-where
-    F: Fn(Error),
-{
+) -> Result<()> {
+    event::init_progress(tx, Process::Patch(PatchProcess::Generate), None)?;
+
     let instance = instance::query_single(connection, instance)?;
-    instance::validate(connection, &instance.name, true)?;
+    instance::validate(connection, tx, &instance.name, true)?;
 
-    let sim_hashes = patch::simulate(connection, &instance.patch, &instance.pack)?;
+    let sim_hashes = patch::simulate(connection, tx, &instance.patch, &instance.pack)?;
     let mod_paths = file::mod_paths_from_instance_path(&instance.path)?;
-    let mod_files = mod_paths
-        .iter()
-        .map(|path| Ok((path.clone(), hash_file(path)?)))
-        .collect::<Result<Vec<(PathBuf, String)>>>()?;
 
-    let mut removed = sim_hashes.clone();
+    event::init_progress(
+        tx,
+        Process::Patch(PatchProcess::HashModFiles),
+        Some(mod_paths.len() as u64),
+    )?;
+    let mod_files = mod_paths
+        .par_iter()
+        .map(|path| {
+            let hash = hash_file(path)?;
+            event::tick_progress(
+                tx,
+                Process::Patch(PatchProcess::HashModFiles),
+                Message::Patch(PatchMessage::HashModFileStatus {
+                    path: path.to_path_buf(),
+                    hash: hash.to_owned(),
+                }),
+            )?;
+
+            Ok((path.to_owned(), hash))
+        })
+        .collect::<Result<Vec<(PathBuf, String)>>>()?;
+    event::end_progress(tx, Process::Patch(PatchProcess::HashModFiles), None)?;
+
+    let mut removed = sim_hashes.to_owned();
     let mut added = HashSet::new();
 
     for (path, hash) in mod_files {
         removed.remove(&hash);
 
         if !sim_hashes.contains(&hash) {
-            added.insert(vault::add(connection, &path, false, handle_warning)?);
+            added.insert(vault::add(connection, tx, &path, false)?);
         }
     }
 
     patch::create(
         connection,
+        tx,
         name,
         &instance.pack,
         &instance.patch,
@@ -54,6 +78,14 @@ where
         &removed,
     )?;
 
-    instance::apply(connection, &instance.name, name)?;
+    instance::apply(connection, tx, &instance.name, name)?;
+    event::end_progress(
+        tx,
+        Process::Patch(PatchProcess::Generate),
+        Some(Message::Patch(PatchMessage::GenerateSuccess {
+            name: name.to_owned(),
+            instance: instance.name,
+        })),
+    )?;
     Ok(())
 }

@@ -6,7 +6,7 @@
  *
  * File:       error.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   08.02.25, 00:31
+ * Modified:   16.02.25, 13:59
  */
 use thiserror::Error;
 
@@ -25,4 +25,9 @@ pub enum VaultError {
     NoLoaderDetected { path: String },
     #[error("Mod at '{path}' with hash '{hash}' is already registered in vault.")]
     AlreadyExists { path: String, hash: String },
+
+    #[error("Mod with hash '{hash}' is not related to any patch.")]
+    RelNotFound { hash: String },
+    #[error("Mod with hash '{hash}' is still used by at least one other patch.")]
+    RelUsed { hash: String },
 }

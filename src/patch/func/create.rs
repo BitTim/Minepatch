@@ -6,25 +6,32 @@
  *
  * File:       create.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   08.02.25, 14:22
+ * Modified:   14.02.25, 19:11
  */
+use crate::common::event;
+use crate::common::event::Event;
 use crate::db::Repo;
 use crate::error::Error;
+use crate::pack;
 use crate::patch::data::{PatchFilter, PatchRepo};
-use crate::patch::{Patch, PatchError};
+use crate::patch::{Patch, PatchError, PatchMessage, PatchProcess};
 use crate::patch_with_mods::{PatchModRelRepo, PatchWithMods};
-use crate::{pack, patch};
+use crate::prelude::*;
 use rusqlite::Connection;
 use std::collections::HashSet;
+use std::sync::mpsc::Sender;
 
 pub fn create(
     connection: &Connection,
+    tx: &Sender<Event>,
     name: &str,
     pack: &str,
     dependency: &str,
     added: &HashSet<String>,
     removed: &HashSet<String>,
-) -> crate::prelude::Result<()> {
+) -> Result<()> {
+    event::init_progress(tx, Process::Patch(PatchProcess::Create), None)?;
+
     let exists_query = PatchFilter::ByNameAndPackExact {
         name: name.to_owned(),
         pack: pack.to_owned(),
@@ -36,13 +43,9 @@ pub fn create(
         }));
     }
 
-    let src_dir_hash = patch::simulate_dir_hash(connection, dependency, pack)?;
-
-    pack::validate(connection, pack, true)?;
-    PatchRepo::insert(
-        connection,
-        Patch::new(name, pack, dependency, &src_dir_hash),
-    )?;
+    pack::validate(connection, tx, pack, true)?;
+    let patch = Patch::new(name, pack, dependency);
+    PatchRepo::insert(connection, patch.to_owned())?;
 
     for hash in added {
         PatchModRelRepo::insert(connection, PatchWithMods::new(name, pack, hash, false))?;
@@ -52,5 +55,12 @@ pub fn create(
         PatchModRelRepo::insert(connection, PatchWithMods::new(name, pack, hash, true))?;
     }
 
+    event::end_progress(
+        tx,
+        Process::Patch(PatchProcess::Create),
+        Some(Message::Patch(PatchMessage::CreateSuccess {
+            patch: Box::new(patch),
+        })),
+    )?;
     Ok(())
 }

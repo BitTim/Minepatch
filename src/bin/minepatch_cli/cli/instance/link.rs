@@ -6,32 +6,20 @@
  *
  * File:       link.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   08.02.25, 22:00
+ * Modified:   11.02.25, 04:00
  */
-use crate::output::status::{Status, StatusOutput};
-use crate::output::Output;
 use minepatch::instance;
-use minepatch::msg::Message;
 use minepatch::prelude::*;
 use rusqlite::Connection;
 use std::path::Path;
+use std::sync::mpsc::Sender;
 
 pub(crate) fn link(
     connection: &Connection,
+    tx: &Sender<Event>,
     path: &Path,
     name: &Option<String>,
-    pack: &str,
+    pack: &Option<String>,
 ) -> Result<()> {
-    let name = instance::link(connection, path, name, pack)?;
-
-    StatusOutput::new(
-        Status::Success,
-        Message::new("Linked instance to pack")
-            .context("Name", &name)
-            .context("Path", &path.display().to_string())
-            .context("Pack", pack),
-    )
-    .print();
-
-    Ok(())
+    Ok(_ = instance::link(connection, tx, path, name.as_deref(), pack.as_deref())?)
 }

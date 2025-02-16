@@ -6,11 +6,9 @@
  *
  * File:       table.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   06.02.25, 02:43
+ * Modified:   15.02.25, 01:37
  */
-use crate::output::Output;
 use colored::Colorize;
-use minepatch::msg::Message;
 use std::fmt::{Display, Formatter};
 use tabled::grid::records::vec_records::{Text, VecRecords};
 use tabled::settings::object::{Object, Rows};
@@ -21,13 +19,13 @@ use tabled::{Table, Tabled};
 pub struct TableOutput {
     table: Table,
     count: usize,
-    empty_msg: Message,
+    empty_msg: String,
 }
 
 impl TableOutput {
-    pub fn new<T: Tabled>(values: Vec<T>, empty_msg: Message) -> Self {
+    pub fn new<T: Tabled>(values: Vec<T>, empty_msg: String) -> Self {
         let table = Table::new(&values)
-            .with(Style::rounded().remove_horizontals())
+            .with(Style::rounded())
             .modify(
                 Rows::new(0..1),
                 Format::content(|s| format!("\x1b[1;4m{}\x1b[0m", s)),
@@ -66,5 +64,3 @@ impl Display for TableOutput {
         }
     }
 }
-
-impl Output for TableOutput {}

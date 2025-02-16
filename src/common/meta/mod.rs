@@ -6,7 +6,7 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.01.25, 12:53
+ * Modified:   12.02.25, 23:15
  */
 mod common;
 pub(crate) mod data;

@@ -6,19 +6,19 @@
  *
  * File:       list.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   05.02.25, 21:41
+ * Modified:   15.02.25, 01:41
  */
 use crate::output::detailed::{DetailedDisplayObject, DetailedOutput};
 use crate::output::list_items::vault::ModListItem;
 use crate::output::table::TableOutput;
-use crate::output::Output;
-use minepatch::msg::Message;
 use minepatch::prelude::*;
 use minepatch::vault::query_multiple;
 use rusqlite::Connection;
+use std::sync::mpsc::Sender;
 
 pub(crate) fn list(
     connection: &Connection,
+    tx: &Sender<Event>,
     detailed: &bool,
     hash: &Option<String>,
     id: &Option<String>,
@@ -31,24 +31,26 @@ pub(crate) fn list(
         name.to_owned().as_deref(),
     )?;
 
-    match *detailed {
+    let output = match *detailed {
         true => {
             let displays = results
                 .iter()
-                .map(|value| DetailedDisplayObject::from_mod(connection, value))
+                .map(|value| DetailedDisplayObject::from_mod(connection, tx, value))
                 .collect::<Vec<DetailedDisplayObject>>();
 
-            DetailedOutput::new(displays).print();
+            DetailedOutput::new(displays).to_string()
         }
         false => {
             let displays = results
                 .iter()
-                .map(|value| ModListItem::from(connection, value))
+                .map(|value| ModListItem::from(connection, tx, value))
                 .collect::<Vec<ModListItem>>();
 
-            TableOutput::new(displays, Message::new("No mods added to vault yet")).print();
+            TableOutput::new(displays, "No mods added to vault yet".to_owned()).to_string()
         }
-    }
+    };
 
-    Ok(())
+    Ok(tx.send(Event::Log {
+        message: Message::Transparent(output),
+    })?)
 }

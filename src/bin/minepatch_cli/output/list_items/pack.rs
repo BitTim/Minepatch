@@ -6,13 +6,14 @@
  *
  * File:       pack.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   07.02.25, 17:40
+ * Modified:   12.02.25, 04:12
  */
 use crate::output::{format_bool, format_string_option};
 use minepatch::pack;
 use minepatch::pack::Pack;
 use minepatch::prelude::*;
 use rusqlite::Connection;
+use std::sync::mpsc::Sender;
 use tabled::Tabled;
 
 #[derive(Tabled, Debug)]
@@ -28,8 +29,8 @@ pub struct PackListItem {
 }
 
 impl PackListItem {
-    pub(crate) fn from(connection: &Connection, value: &Pack) -> Result<Self> {
-        let valid = pack::validate(connection, &value.name, false).is_ok();
+    pub(crate) fn from(connection: &Connection, tx: &Sender<Event>, value: &Pack) -> Result<Self> {
+        let valid = pack::validate(connection, tx, &value.name, false).is_ok();
 
         Ok(PackListItem {
             name: value.name.to_owned(),

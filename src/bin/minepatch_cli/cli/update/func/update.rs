@@ -6,14 +6,14 @@
  *
  * File:       update.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   19.01.25, 13:24
+ * Modified:   14.02.25, 19:41
  */
-
-use crate::prelude::*;
+use minepatch::prelude::*;
 use self_update::backends::github::Update;
 use self_update::cargo_crate_version;
+use std::sync::mpsc::Sender;
 
-pub fn update() -> Result<()> {
+pub fn update(tx: &Sender<Event>) -> Result<()> {
     let status = Update::configure()
         .repo_owner("BitTim")
         .repo_name(env!("CARGO_PKG_NAME"))
@@ -23,6 +23,9 @@ pub fn update() -> Result<()> {
         .build()?
         .update()?;
 
-    println!("Update status: '{}'!", status.version());
+    let output = format!("Update status: '{}'!", status.version());
+    tx.send(Event::Log {
+        message: Message::Transparent(output),
+    })?;
     Ok(())
 }

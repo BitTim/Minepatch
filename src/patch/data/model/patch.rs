@@ -6,7 +6,7 @@
  *
  * File:       patch.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   08.02.25, 16:02
+ * Modified:   11.02.25, 17:21
  */
 
 use crate::common::db::Entity;
@@ -19,16 +19,14 @@ pub struct Patch {
     pub name: String,
     pub pack: String,
     pub dependency: String,
-    pub src_dir_hash: String,
 }
 
 impl Patch {
-    pub(crate) fn new(name: &str, pack: &str, dependency: &str, src_dir_hash: &str) -> Self {
+    pub(crate) fn new(name: &str, pack: &str, dependency: &str) -> Self {
         Self {
             name: name.to_owned(),
             pack: pack.to_owned(),
             dependency: dependency.to_owned(),
-            src_dir_hash: src_dir_hash.to_owned(),
         }
     }
 }
@@ -43,7 +41,6 @@ impl Entity for Patch {
             name: row.get(0)?,
             pack: row.get(1)?,
             dependency: row.get(2)?,
-            src_dir_hash: row.get(3)?,
         }))
     }
 
@@ -52,7 +49,6 @@ impl Entity for Patch {
             Box::new(self.name.to_owned()),
             Box::new(self.pack.to_owned()),
             Box::new(self.dependency.to_owned()),
-            Box::new(self.src_dir_hash.to_owned()),
         ]
     }
 }

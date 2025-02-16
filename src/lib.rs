@@ -6,16 +6,16 @@
  *
  * File:       lib.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   05.02.25, 18:42
+ * Modified:   12.02.25, 03:44
  */
 mod common;
 pub use common::*;
 mod error;
 pub mod instance;
+pub mod msg;
 pub mod pack;
 pub mod patch;
 pub mod patch_with_mods;
 pub mod prelude;
 pub mod template;
-pub mod update;
 pub mod vault;

@@ -6,7 +6,7 @@
  *
  * File:       update.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   08.02.25, 21:42
+ * Modified:   10.02.25, 19:05
  */
 use crate::db::Repo;
 use crate::instance::data::{InstanceFilter, InstanceRepo};
@@ -20,10 +20,9 @@ pub fn update_patch(connection: &Connection, name: &str, patch: &str) -> Result<
     };
     let instance = InstanceRepo::query_single(connection, &filter)?;
 
-    InstanceRepo::remove(connection, &filter)?;
-    InstanceRepo::insert(
+    InstanceRepo::update(
         connection,
+        &filter,
         Instance::new(name, &instance.path, &instance.pack, patch),
-    )?;
-    Ok(())
+    )
 }

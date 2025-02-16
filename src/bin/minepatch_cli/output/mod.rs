@@ -6,21 +6,14 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   05.02.25, 21:00
+ * Modified:   14.02.25, 20:55
  */
 use colored::Colorize;
-use std::fmt::{Debug, Display};
 
 pub(crate) mod detailed;
 pub(crate) mod list_items;
 pub(crate) mod status;
 pub(crate) mod table;
-
-pub trait Output: Debug + Display {
-    fn print(&self) {
-        println!("{}", self)
-    }
-}
 
 pub fn format_bool(value: &bool) -> String {
     match value {

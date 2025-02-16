@@ -6,26 +6,30 @@
  *
  * File:       link.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   08.02.25, 22:14
+ * Modified:   14.02.25, 19:11
  */
+use crate::common::event;
+use crate::common::event::Event;
 use crate::common::file::error::FileError;
 use crate::common::file::filename_from_path;
-use crate::common::hash;
 use crate::db::Repo;
+use crate::instance;
 use crate::instance::data::{InstanceFilter, InstanceRepo};
-use crate::instance::{validate, Instance, InstanceError};
+use crate::instance::{validate, Instance, InstanceError, InstanceMessage, InstanceProcess};
 use crate::prelude::*;
-use crate::{file, instance, pack, patch};
 use rusqlite::Connection;
 use std::fs;
 use std::path::Path;
+use std::sync::mpsc::Sender;
 
 pub fn link(
     connection: &Connection,
+    tx: &Sender<Event>,
     path: &Path,
-    name: &Option<String>,
-    pack: &str,
+    name: Option<&str>,
+    pack: Option<&str>,
 ) -> Result<String> {
+    event::init_progress(tx, Process::Instance(InstanceProcess::Link), None)?;
     if !fs::exists(path)? {
         return Err(Error::File(FileError::PathNotFound(
             path.display().to_string(),
@@ -46,26 +50,22 @@ pub fn link(
         }));
     }
 
-    pack::validate(connection, pack, true)?;
+    // FIXME: Introduce error if path is already present in DB
 
-    let mod_paths = file::mod_paths_from_instance_path(path)?;
-    let src_dir_hash = hash::hash_state_from_path(&mod_paths)?;
-    let patch = patch::query_by_src_dir_hash_single(connection, &src_dir_hash, pack)?;
-    let dependency = &patch.dependency;
+    let (patch, pack) = instance::detect(connection, tx, path, pack)?;
+    let instance = Instance::new(actual_name, path, &pack, &patch);
 
-    if dependency.is_empty() {
-        return Err(Error::Instance(InstanceError::NoPatchFound {
-            pack: pack.to_owned(),
-            src_dir_hash,
-        }));
-    }
+    InstanceRepo::insert(connection, instance.clone())?;
+    validate(connection, tx, actual_name, false)?;
 
-    InstanceRepo::insert(
-        connection,
-        Instance::new(actual_name, path, pack, dependency),
+    instance::apply(connection, tx, actual_name, &patch)?;
+
+    event::end_progress(
+        tx,
+        Process::Instance(InstanceProcess::Link),
+        Some(Message::Instance(InstanceMessage::LinkSuccess {
+            instance: Box::new(instance),
+        })),
     )?;
-    validate(connection, actual_name, false)?;
-
-    instance::apply(connection, actual_name, dependency)?;
     Ok(actual_name.to_owned())
 }
