@@ -6,12 +6,17 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   27.01.25, 10:05
+ * Modified:   17.02.25, 19:42
  */
 mod create;
-pub(crate) use create::*;
 
+use std::path::PathBuf;
+
+mod export;
 mod list;
+
+pub(crate) use create::*;
+pub(crate) use export::*;
 pub(crate) use list::*;
 
 use clap::Subcommand;
@@ -41,5 +46,15 @@ pub enum TemplateCommands {
         /// Name of the template. Must be unique.
         #[arg(short, long)]
         name: Option<String>,
+    },
+
+    /// Export a template to a file
+    Export {
+        /// Name of the template. Must be unique.
+        name: String,
+
+        /// Path of the exported file. Defaults to the current dir with <NAME>.mpt as filename if omitted.
+        #[arg(short, long)]
+        path: Option<PathBuf>,
     },
 }

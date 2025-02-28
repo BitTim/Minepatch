@@ -6,7 +6,7 @@
  *
  * File:       include.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   12.02.25, 17:33
+ * Modified:   26.02.25, 00:40
  */
 use minepatch::patch;
 use minepatch::prelude::*;
@@ -14,11 +14,11 @@ use rusqlite::Connection;
 use std::sync::mpsc::Sender;
 
 pub(crate) fn include(
-    connection: &Connection,
+    conn: &Connection,
     tx: &Sender<Event>,
     name: &str,
-    pack: &str,
+    bundle: &str,
     mod_hash: &str,
 ) -> Result<()> {
-    patch::include(connection, tx, name, pack, mod_hash)
+    patch::include(conn, tx, name, bundle, mod_hash)
 }

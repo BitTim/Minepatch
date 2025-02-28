@@ -6,10 +6,10 @@
  *
  * File:       model.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   08.02.25, 01:06
+ * Modified:   18.02.25, 15:48
  */
-use crate::common::db::Entity;
-use crate::prelude::*;
+use crate::db::Entity;
+use crate::prelude;
 use rusqlite::{Row, ToSql};
 use serde::{Deserialize, Serialize};
 
@@ -42,7 +42,11 @@ impl Entity for Template {
         "template".to_owned()
     }
 
-    fn from_row(row: &Row) -> Result<Box<Self>> {
+    fn file_extension() -> String {
+        "mpt".to_owned()
+    }
+
+    fn from_row(row: &Row) -> prelude::Result<Box<Self>> {
         Ok(Box::new(Self {
             name: row.get(0)?,
             version: row.get(1)?,

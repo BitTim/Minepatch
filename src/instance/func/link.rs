@@ -6,7 +6,7 @@
  *
  * File:       link.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   14.02.25, 19:11
+ * Modified:   01.03.25, 00:43
  */
 use crate::common::event;
 use crate::common::event::Event;
@@ -15,7 +15,7 @@ use crate::common::file::filename_from_path;
 use crate::db::Repo;
 use crate::instance;
 use crate::instance::data::{InstanceFilter, InstanceRepo};
-use crate::instance::{validate, Instance, InstanceError, InstanceMessage, InstanceProcess};
+use crate::instance::{Instance, InstanceError, InstanceMessage, InstanceProcess, validate};
 use crate::prelude::*;
 use rusqlite::Connection;
 use std::fs;
@@ -23,17 +23,17 @@ use std::path::Path;
 use std::sync::mpsc::Sender;
 
 pub fn link(
-    connection: &Connection,
+    conn: &Connection,
     tx: &Sender<Event>,
     path: &Path,
     name: Option<&str>,
-    pack: Option<&str>,
+    bundle: Option<&str>,
 ) -> Result<String> {
     event::init_progress(tx, Process::Instance(InstanceProcess::Link), None)?;
     if !fs::exists(path)? {
-        return Err(Error::File(FileError::PathNotFound(
-            path.display().to_string(),
-        )));
+        return Err(Error::File(FileError::PathNotFound {
+            path: path.to_owned(),
+        }));
     }
 
     let actual_name = match name {
@@ -44,7 +44,7 @@ pub fn link(
     let query = InstanceFilter::ByExactName {
         name: actual_name.to_owned(),
     };
-    if InstanceRepo::exists(connection, &query)? {
+    if InstanceRepo::exists(conn, &query)? {
         return Err(Error::Instance(InstanceError::NameTaken {
             name: actual_name.to_owned(),
         }));
@@ -52,13 +52,13 @@ pub fn link(
 
     // FIXME: Introduce error if path is already present in DB
 
-    let (patch, pack) = instance::detect(connection, tx, path, pack)?;
-    let instance = Instance::new(actual_name, path, &pack, &patch);
+    let (patch, bundle) = instance::detect(conn, tx, path, bundle)?;
+    let instance = Instance::new(actual_name, path, &bundle, &patch);
 
-    InstanceRepo::insert(connection, instance.clone())?;
-    validate(connection, tx, actual_name, false)?;
+    InstanceRepo::insert(conn, instance.clone())?;
+    validate(conn, tx, actual_name, false)?;
 
-    instance::apply(connection, tx, actual_name, &patch)?;
+    instance::apply(conn, tx, actual_name, &patch)?;
 
     event::end_progress(
         tx,

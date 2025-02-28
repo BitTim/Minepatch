@@ -6,7 +6,7 @@
  *
  * File:       simulate.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   14.02.25, 19:11
+ * Modified:   01.03.25, 00:53
  */
 use crate::common::event;
 use crate::common::event::Event;
@@ -21,10 +21,10 @@ use std::collections::HashSet;
 use std::sync::mpsc::Sender;
 
 pub fn simulate(
-    connection: &Connection,
+    conn: &Connection,
     tx: &Sender<Event>,
     name: &str,
-    pack: &str,
+    bundle: &str,
 ) -> Result<HashSet<String>> {
     event::init_progress(tx, Process::Patch(PatchProcess::Simulate), None)?;
     event::tick_progress(
@@ -42,18 +42,18 @@ pub fn simulate(
 
     let patch_filter = PatchFilter::ByNameAndPackExact {
         name: name.to_owned(),
-        pack: pack.to_owned(),
+        bundle: bundle.to_owned(),
     };
-    let patch = PatchRepo::query_single(connection, &patch_filter)?;
+    let patch = PatchRepo::query_single(conn, &patch_filter)?;
 
     let mut mod_hashes = HashSet::new();
-    mod_hashes.extend(simulate(connection, tx, &patch.dependency, pack)?);
+    mod_hashes.extend(simulate(conn, tx, &patch.dependency, bundle)?);
 
     let rel_filter = PatchModRelFilter::ByPatchAndPackExact {
         patch: name.to_owned(),
-        pack: pack.to_owned(),
+        bundle: bundle.to_owned(),
     };
-    let mod_relations = PatchModRelRepo::query_multiple(connection, &rel_filter)?;
+    let mod_relations = PatchModRelRepo::query_multiple(conn, &rel_filter)?;
     for relation in mod_relations {
         match relation.removed {
             true => mod_hashes.remove(&relation.mod_hash),
@@ -66,11 +66,11 @@ pub fn simulate(
 }
 
 pub fn simulate_dir_hash(
-    connection: &Connection,
+    conn: &Connection,
     tx: &Sender<Event>,
     name: &str,
-    pack: &str,
+    bundle: &str,
 ) -> Result<String> {
-    let sim_hashes = simulate(connection, tx, name, pack)?;
+    let sim_hashes = simulate(conn, tx, name, bundle)?;
     Ok(hash::hash_state(&sim_hashes))
 }

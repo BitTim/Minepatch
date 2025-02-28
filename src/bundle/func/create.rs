@@ -6,76 +6,78 @@
  *
  * File:       create.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   14.02.25, 19:11
+ * Modified:   01.03.25, 00:53
  */
+use crate::bundle::BundleProcess;
+use crate::bundle::data::{Bundle, BundleFilter, BundleRepo};
+use crate::bundle::error::BundleError;
+use crate::bundle::msg::BundleMessage;
 use crate::common::event::Event;
 use crate::common::{event, file};
 use crate::db::Repo;
-use crate::pack::data::{Pack, PackFilter, PackRepo};
-use crate::pack::error::PackError;
-use crate::pack::msg::{PackMessage, PackProcess};
 use crate::prelude::*;
 use crate::{instance, patch, template, vault};
 use rusqlite::Connection;
 use std::collections::HashSet;
+use std::path::Path;
 use std::sync::mpsc::Sender;
 
 const INIT_PATCH_NAME: &str = "init";
 
 pub fn create(
-    connection: &Connection,
+    conn: &Connection,
     tx: &Sender<Event>,
     name: &str,
     description: Option<&str>,
     template: Option<&str>,
-    from: Option<&str>,
+    from: Option<&Path>,
     instance: Option<&str>,
 ) -> Result<()> {
-    event::init_progress(tx, Process::Pack(PackProcess::Create), None)?;
-    let exists_query = PackFilter::QueryExactName {
+    event::init_progress(tx, Process::Bundle(BundleProcess::Create), None)?;
+    let exists_query = BundleFilter::QueryExactName {
         name: name.to_owned(),
     };
 
-    if PackRepo::exists(connection, &exists_query)? {
-        return Err(Error::Pack(PackError::NameTaken(name.to_owned())));
+    if BundleRepo::exists(conn, &exists_query)? {
+        return Err(Error::Bundle(BundleError::NameTaken(name.to_owned())));
     }
 
     if template.is_some() {
-        template::validate(connection, tx, template.as_ref().unwrap())?;
+        template::validate(conn, tx, template.as_ref().unwrap())?;
     }
 
-    let pack = Pack::new(name, description, template);
-    PackRepo::insert(connection, pack.to_owned())?;
+    let bundle = Bundle::new(name, description, template);
+    BundleRepo::insert(conn, bundle.to_owned())?;
 
     if let Some(from) = from {
-        file::check_exists(from.as_ref())?;
-        let mod_paths = file::mod_paths_from_instance_path(from.as_ref())?;
+        file::check_exists(from)?;
+        let mod_paths = file::mod_paths_from_instance_path(from)?;
         event::init_progress(
             tx,
-            Process::Pack(PackProcess::AddModFiles),
+            Process::Bundle(BundleProcess::AddModFiles),
             Some(mod_paths.len() as u64),
         )?;
 
         let mut hashes = HashSet::new();
         for mod_path in mod_paths {
-            let hash = vault::add(connection, tx, &mod_path, false)?;
+            let hash = vault::add(conn, tx, &mod_path, false)?;
             hashes.insert(hash.clone());
             event::tick_progress(
                 tx,
-                Process::Pack(PackProcess::AddModFiles),
-                Message::Pack(PackMessage::AddModFileStatus {
+                Process::Bundle(BundleProcess::AddModFiles),
+                Message::Bundle(BundleMessage::AddModFileStatus {
                     path: mod_path.to_path_buf(),
                     hash,
                 }),
             )?;
         }
 
-        event::end_progress(tx, Process::Pack(PackProcess::AddModFiles), None)?;
+        event::end_progress(tx, Process::Bundle(BundleProcess::AddModFiles), None)?;
         patch::create(
-            connection,
+            conn,
             tx,
             INIT_PATCH_NAME,
-            &name,
+            name,
             "",
             &hashes,
             &HashSet::new(),
@@ -87,15 +89,15 @@ pub fn create(
                 false => Some(instance),
             };
 
-            instance::link(connection, tx, from.as_ref(), instance_name, Some(&name))?;
+            instance::link(conn, tx, from, instance_name, Some(name))?;
         };
     }
 
     event::end_progress(
         tx,
-        Process::Pack(PackProcess::Create),
-        Some(Message::Pack(PackMessage::CreateSuccess {
-            pack: Box::new(pack),
+        Process::Bundle(BundleProcess::Create),
+        Some(Message::Bundle(BundleMessage::CreateSuccess {
+            bundle: Box::new(bundle),
         })),
     )?;
     Ok(())

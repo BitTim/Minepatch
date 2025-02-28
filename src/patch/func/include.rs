@@ -6,7 +6,7 @@
  *
  * File:       include.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   14.02.25, 19:11
+ * Modified:   01.03.25, 00:53
  */
 use crate::common::event::Event;
 use crate::db::Repo;
@@ -18,41 +18,41 @@ use rusqlite::Connection;
 use std::sync::mpsc::Sender;
 
 pub fn include(
-    connection: &Connection,
+    conn: &Connection,
     tx: &Sender<Event>,
     name: &str,
-    pack: &str,
+    bundle: &str,
     mod_hash: &str,
 ) -> Result<()> {
     let rel_filter = PatchModRelFilter::ByPatchAndPackAndModHashExact {
         patch: name.to_owned(),
-        pack: pack.to_owned(),
+        bundle: bundle.to_owned(),
         mod_hash: mod_hash.to_owned(),
     };
-    let relation = PatchModRelRepo::query_single(connection, &rel_filter);
+    let relation = PatchModRelRepo::query_single(conn, &rel_filter);
 
-    let mods = patch::simulate(connection, tx, name, pack)?;
+    let mods = patch::simulate(conn, tx, name, bundle)?;
     if mods.contains(mod_hash) {
         return Err(Error::Patch(PatchError::ModIncluded {
             hash: mod_hash.to_owned(),
-            pack: pack.to_owned(),
+            bundle: bundle.to_owned(),
             name: name.to_owned(),
         }));
     }
 
     if let Ok(relation) = relation {
         if relation.removed {
-            PatchModRelRepo::remove(connection, &rel_filter)?;
+            PatchModRelRepo::remove(conn, &rel_filter)?;
             Ok(())
         } else {
             Err(Error::Patch(PatchError::RelTaken {
                 hash: mod_hash.to_owned(),
                 name: name.to_owned(),
-                pack: pack.to_owned(),
+                bundle: bundle.to_owned(),
             }))
         }
     } else {
-        PatchModRelRepo::insert(connection, PatchWithMods::new(name, pack, mod_hash, false))?;
+        PatchModRelRepo::insert(conn, PatchWithMods::new(name, bundle, mod_hash, false))?;
         Ok(())
     }
 }

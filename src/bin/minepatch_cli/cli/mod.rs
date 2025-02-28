@@ -6,12 +6,12 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   12.02.25, 03:44
+ * Modified:   01.03.25, 00:53
  */
 use clap::{Parser, Subcommand};
 
+pub(crate) mod bundle;
 pub(crate) mod instance;
-pub(crate) mod pack;
 pub(crate) mod patch;
 pub(crate) mod template;
 pub mod update;
@@ -41,7 +41,7 @@ pub enum Commands {
         vault_commands: vault::VaultCommands,
     },
 
-    /// Manage mod pack templates.
+    /// Manage bundle templates.
     Template {
         #[command(subcommand)]
         template_commands: template::TemplateCommands,
@@ -54,8 +54,8 @@ pub enum Commands {
     },
 
     /// Manage mod packs.
-    Pack {
+    Bundle {
         #[command(subcommand)]
-        pack_commands: pack::PackCommands,
+        bundle_commands: bundle::BundleCommands,
     },
 }

@@ -6,8 +6,9 @@
  *
  * File:       init.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   11.02.25, 17:39
+ * Modified:   01.03.25, 00:53
  */
+use crate::db::{get_schema_version, set_schema_version};
 use crate::{file, prelude};
 use rusqlite::Connection;
 
@@ -20,10 +21,12 @@ fn connect() -> prelude::Result<Connection> {
     Ok(Connection::open(path)?)
 }
 
-fn create_tables(connection: &Connection) -> prelude::Result<()> {
-    Ok(connection.execute_batch(
+fn create_tables(conn: &Connection) -> prelude::Result<()> {
+    conn.execute_batch(
         "
         BEGIN;
+        CREATE TABLE IF NOT EXISTS schema_version (version INTEGER NOT NULL);
+
         CREATE TABLE IF NOT EXISTS mod (
             hash TEXT NOT NULL PRIMARY KEY,
             path TEXT NOT NULL,
@@ -44,7 +47,7 @@ fn create_tables(connection: &Connection) -> prelude::Result<()> {
             download TEXT
         );
 
-        CREATE TABLE IF NOT EXISTS pack (
+        CREATE TABLE IF NOT EXISTS bundle (
             name TEXT NOT NULL PRIMARY KEY,
             description TEXT,
             template TEXT,
@@ -54,42 +57,48 @@ fn create_tables(connection: &Connection) -> prelude::Result<()> {
 
         CREATE TABLE IF NOT EXISTS patch (
             name TEXT NOT NULL,
-            pack TEXT NOT NULL,
+            bundle TEXT NOT NULL,
             dependency TEXT,
 
-            PRIMARY KEY (name, pack),
-            FOREIGN KEY (pack) REFERENCES pack(name)
+            PRIMARY KEY (name, bundle),
+            FOREIGN KEY (bundle) REFERENCES bundle(name)
         );
 
         CREATE TABLE IF NOT EXISTS patch_with_mods (
             patch TEXT NOT NULL,
-            pack TEXT NOT NULL,
+            bundle TEXT NOT NULL,
             mod TEXT NOT NULL,
             removed BOOLEAN NOT NULL,
             
-            PRIMARY KEY (patch, pack, mod),
-            FOREIGN KEY (patch, pack) REFERENCES patch(name, pack),
-            FOREIGN KEY (pack) REFERENCES pack(name),
+            PRIMARY KEY (patch, bundle, mod),
+            FOREIGN KEY (patch, bundle) REFERENCES patch(name, bundle),
+            FOREIGN KEY (bundle) REFERENCES bundle(name),
             FOREIGN KEY (mod) REFERENCES mod(hash)
         );
 
         CREATE TABLE IF NOT EXISTS instance (
             name TEXT NOT NULL PRIMARY KEY,
             path TEXT NOT NULL,
-            pack TEXT NOT NULL,
+            bundle TEXT NOT NULL,
             patch TEXT NOT NULL,
             
-            FOREIGN KEY (pack) REFERENCES pack(name),
-            FOREIGN KEY (patch, pack) REFERENCES patch(name, pack)
+            FOREIGN KEY (bundle) REFERENCES bundle(name),
+            FOREIGN KEY (patch, bundle) REFERENCES patch(name, bundle)
         );
         COMMIT;
     ",
-    )?)
+    )?;
+
+    if get_schema_version(conn).is_err() {
+        set_schema_version(conn, 1)?;
+    }
+
+    Ok(())
 }
 
 pub fn init() -> prelude::Result<Connection> {
-    let connection = connect()?;
-    create_tables(&connection)?;
+    let conn = connect()?;
+    create_tables(&conn)?;
 
-    Ok(connection)
+    Ok(conn)
 }

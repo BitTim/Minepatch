@@ -6,7 +6,7 @@
  *
  * File:       add.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   16.02.25, 13:49
+ * Modified:   01.03.25, 00:53
  */
 
 use crate::common::event::Event;
@@ -21,12 +21,7 @@ use std::fs;
 use std::path::Path;
 use std::sync::mpsc::Sender;
 
-pub fn add(
-    connection: &Connection,
-    tx: &Sender<Event>,
-    path: &Path,
-    overwrite: bool,
-) -> Result<String> {
+pub fn add(conn: &Connection, tx: &Sender<Event>, path: &Path, overwrite: bool) -> Result<String> {
     event::init_progress(tx, Process::Mod(ModProcess::Add), None)?;
 
     file::check_exists(path)?;
@@ -36,7 +31,7 @@ pub fn add(
         hash: hash.to_owned(),
     };
 
-    if VaultRepo::exists(connection, &exists_query)? && !overwrite {
+    if VaultRepo::exists(conn, &exists_query)? && !overwrite {
         event::warning(
             tx,
             Box::new(Error::Vault(VaultError::AlreadyExists {
@@ -62,7 +57,7 @@ pub fn add(
 
     fs::copy(path, &mod_file_path)?;
     let value = Mod::new(&hash, &mod_file_path, meta);
-    VaultRepo::insert(connection, value.to_owned())?;
+    VaultRepo::insert(conn, value.to_owned())?;
 
     event::end_progress(
         tx,

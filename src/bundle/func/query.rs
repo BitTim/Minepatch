@@ -6,18 +6,18 @@
  *
  * File:       query.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   08.02.25, 11:19
+ * Modified:   01.03.25, 00:36
  */
+use crate::bundle::Bundle;
+use crate::bundle::data::{BundleFilter, BundleRepo};
 use crate::db::Repo;
-use crate::pack::data::{PackFilter, PackRepo};
-use crate::pack::Pack;
 use crate::prelude::*;
 use rusqlite::Connection;
 use std::collections::HashSet;
 
-pub fn query(connection: &Connection, name: Option<&str>) -> Result<HashSet<Pack>> {
-    let query = PackFilter::QuerySimilarName {
+pub fn query(conn: &Connection, name: Option<&str>) -> Result<HashSet<Bundle>> {
+    let query = BundleFilter::QuerySimilarName {
         name: name.unwrap_or_default().to_owned(),
     };
-    PackRepo::query_multiple(connection, &query)
+    BundleRepo::query_multiple(conn, &query)
 }

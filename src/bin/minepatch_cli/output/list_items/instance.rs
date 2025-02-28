@@ -6,7 +6,7 @@
  *
  * File:       instance.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   11.02.25, 04:01
+ * Modified:   01.03.25, 00:53
  */
 use crate::output::format_bool;
 use minepatch::instance;
@@ -22,8 +22,8 @@ pub(crate) struct InstanceListItem {
     pub(crate) name: String,
     #[tabled(rename = "Path")]
     pub(crate) path: String,
-    #[tabled(rename = "Pack")]
-    pub(crate) pack: String,
+    #[tabled(rename = "Bundle")]
+    pub(crate) bundle: String,
     #[tabled(rename = "Patch")]
     pub(crate) patch: String,
     #[tabled(rename = "Valid")]
@@ -31,13 +31,13 @@ pub(crate) struct InstanceListItem {
 }
 
 impl InstanceListItem {
-    pub(crate) fn from(connection: &Connection, tx: &Sender<Event>, instance: &Instance) -> Self {
-        let valid = instance::validate(connection, tx, &instance.name, false).is_ok();
+    pub(crate) fn from(conn: &Connection, tx: &Sender<Event>, instance: &Instance) -> Self {
+        let valid = instance::validate(conn, tx, &instance.name, false).is_ok();
 
         Self {
             name: instance.name.to_owned(),
             path: instance.path.display().to_string(),
-            pack: instance.pack.to_owned(),
+            bundle: instance.bundle.to_owned(),
             patch: instance.patch.to_owned(),
             valid: format_bool(&valid),
         }

@@ -6,7 +6,7 @@
  *
  * File:       template.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   27.01.25, 10:05
+ * Modified:   17.02.25, 19:29
  */
 use crate::output::format_string_option;
 use minepatch::template::Template;

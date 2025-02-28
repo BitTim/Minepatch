@@ -6,21 +6,21 @@
  *
  * File:       msg.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   15.02.25, 02:01
+ * Modified:   01.03.25, 00:53
  */
-use crate::pack::Pack;
+use crate::bundle::Bundle;
 use std::path::PathBuf;
 
 #[derive(Clone, Hash, Eq, PartialEq, Debug)]
-pub enum PackProcess {
+pub enum BundleProcess {
     Create,
     AddModFiles,
     Validate,
 }
 
 #[derive(Clone, Hash, Eq, PartialEq, Debug)]
-pub enum PackMessage {
-    CreateSuccess { pack: Box<Pack> },
+pub enum BundleMessage {
+    CreateSuccess { bundle: Box<Bundle> },
     AddModFileStatus { path: PathBuf, hash: String },
     ValidateSuccess { name: String },
     ValidateStatus { name: String },

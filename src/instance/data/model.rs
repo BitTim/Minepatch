@@ -6,7 +6,7 @@
  *
  * File:       model.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   08.02.25, 01:04
+ * Modified:   01.03.25, 00:43
  */
 
 use crate::common::db::Entity;
@@ -19,16 +19,16 @@ use std::path::{Path, PathBuf};
 pub struct Instance {
     pub name: String,
     pub path: PathBuf,
-    pub pack: String,
+    pub bundle: String,
     pub patch: String,
 }
 
 impl Instance {
-    pub fn new(name: &str, path: &Path, pack: &str, patch: &str) -> Self {
+    pub fn new(name: &str, path: &Path, bundle: &str, patch: &str) -> Self {
         Self {
             name: name.to_owned(),
             path: path.to_owned(),
-            pack: pack.to_owned(),
+            bundle: bundle.to_owned(),
             patch: patch.to_owned(),
         }
     }
@@ -38,6 +38,9 @@ impl Entity for Instance {
     fn table_name() -> String {
         "instance".to_owned()
     }
+    fn file_extension() -> String {
+        "mpi".to_owned()
+    }
 
     fn from_row(value: &Row) -> Result<Box<Self>> {
         let path: String = value.get(1)?;
@@ -46,7 +49,7 @@ impl Entity for Instance {
         Ok(Box::new(Self {
             name: value.get(0)?,
             path,
-            pack: value.get(2)?,
+            bundle: value.get(2)?,
             patch: value.get(3)?,
         }))
     }
@@ -55,7 +58,7 @@ impl Entity for Instance {
         vec![
             Box::new(self.name.to_owned()),
             Box::new(self.path.display().to_string()),
-            Box::new(self.pack.to_owned()),
+            Box::new(self.bundle.to_owned()),
             Box::new(self.patch.to_owned()),
         ]
     }

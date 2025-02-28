@@ -4,13 +4,7 @@
  * Project:    Minepatch
  * License:    GPLv3
  *
- * File:       mod.rs
+ * File:       import.rs
  * Author:     Tim Anhalt (BitTim)
  * Modified:   01.03.25, 00:58
  */
-pub mod comp;
-pub mod db;
-pub mod event;
-pub mod file;
-pub mod hash;
-pub mod meta;

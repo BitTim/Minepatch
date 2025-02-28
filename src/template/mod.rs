@@ -6,14 +6,14 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   12.02.25, 03:38
+ * Modified:   01.03.25, 00:53
  */
 pub(super) mod data;
-pub use data::Template;
 mod error;
-pub use error::*;
 mod func;
 mod msg;
 
+pub use data::Template;
+pub use error::*;
 pub use func::*;
 pub use msg::*;

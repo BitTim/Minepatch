@@ -6,7 +6,7 @@
  *
  * File:       apply.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   14.02.25, 19:11
+ * Modified:   01.03.25, 00:53
  */
 use crate::common::event;
 use crate::common::event::Event;
@@ -17,14 +17,9 @@ use rusqlite::Connection;
 use std::sync::mpsc::Sender;
 use std::{fs, process};
 
-pub fn apply(
-    connection: &Connection,
-    tx: &Sender<Event>,
-    instance: &str,
-    patch: &str,
-) -> Result<()> {
+pub fn apply(conn: &Connection, tx: &Sender<Event>, instance: &str, patch: &str) -> Result<()> {
     event::init_progress(tx, Process::Instance(InstanceProcess::Apply), None)?;
-    let instance = instance::query_single(connection, instance)?;
+    let instance = instance::query_single(conn, instance)?;
 
     let mods_path = instance.path.join("mods");
     let tmp_mods_path = mods_path.with_extension(process::id().to_string());
@@ -38,10 +33,10 @@ pub fn apply(
     fs::rename(&mods_path, &tmp_mods_path)?;
     fs::create_dir(&mods_path)?;
 
-    let hashes = patch::simulate(connection, tx, patch, &instance.pack)?;
+    let hashes = patch::simulate(conn, tx, patch, &instance.bundle)?;
 
     for hash in hashes {
-        let mod_entry = vault::query_single(connection, &hash)?;
+        let mod_entry = vault::query_single(conn, &hash)?;
         let filename = file::filename_from_path(&mod_entry.path)?;
         let path = mods_path.join(filename);
 
@@ -51,7 +46,7 @@ pub fn apply(
         }
     }
 
-    if let Err(err) = instance::update_patch(connection, &instance.name, patch) {
+    if let Err(err) = instance::update_patch(conn, &instance.name, patch) {
         cleanup()?;
         return Err(err);
     }
@@ -61,7 +56,7 @@ pub fn apply(
         tx,
         Process::Instance(InstanceProcess::Apply),
         Some(Message::Instance(InstanceMessage::ApplySuccess {
-            pack: instance.pack,
+            bundle: instance.bundle,
             patch: patch.to_owned(),
         })),
     )?;

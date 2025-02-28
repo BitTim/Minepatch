@@ -6,19 +6,20 @@
  *
  * File:       add.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   12.02.25, 17:34
+ * Modified:   18.02.25, 15:29
  */
 use minepatch::prelude::*;
 use minepatch::vault;
 use rusqlite::Connection;
+use std::path;
 use std::path::Path;
 use std::sync::mpsc::Sender;
 
 pub(crate) fn add(
-    connection: &Connection,
+    conn: &Connection,
     tx: &Sender<Event>,
     path: &Path,
     overwrite: &bool,
 ) -> Result<()> {
-    Ok(_ = vault::add(connection, tx, path, *overwrite)?)
+    Ok(_ = vault::add(conn, tx, &path::absolute(path)?.canonicalize()?, *overwrite)?)
 }

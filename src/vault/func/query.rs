@@ -6,7 +6,7 @@
  *
  * File:       query.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   08.02.25, 02:00
+ * Modified:   01.03.25, 00:53
  */
 use crate::db::Repo;
 use crate::prelude::*;
@@ -15,7 +15,7 @@ use rusqlite::Connection;
 use std::collections::HashSet;
 
 pub fn query_multiple(
-    connection: &Connection,
+    conn: &Connection,
     hash: Option<&str>,
     id: Option<&str>,
     name: Option<&str>,
@@ -25,12 +25,12 @@ pub fn query_multiple(
         mod_id: id.unwrap_or_default().to_owned(),
         name: name.unwrap_or_default().to_owned(),
     };
-    VaultRepo::query_multiple(connection, &query)
+    VaultRepo::query_multiple(conn, &query)
 }
 
-pub fn query_single(connection: &Connection, hash: &str) -> Result<Mod> {
+pub fn query_single(conn: &Connection, hash: &str) -> Result<Mod> {
     let query = ModFilter::QueryHashExact {
         hash: hash.to_owned(),
     };
-    VaultRepo::query_single(connection, &query)
+    VaultRepo::query_single(conn, &query)
 }

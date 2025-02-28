@@ -6,13 +6,13 @@
  *
  * File:       main.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   15.02.25, 01:51
+ * Modified:   01.03.25, 00:53
  */
+use crate::cli::bundle::BundleCommands;
 use crate::cli::instance::InstanceCommands;
-use crate::cli::pack::PackCommands;
 use crate::cli::patch::PatchCommands;
 use crate::cli::template::TemplateCommands;
-use crate::cli::{instance, pack, patch, template, vault, Cli, Commands};
+use crate::cli::{Cli, Commands, bundle, instance, patch, template, vault};
 use crate::output::format_string_option;
 use crate::output::status::{Status, StatusOutput};
 use clap::Parser;
@@ -21,12 +21,12 @@ use cli::vault::VaultCommands;
 use colored::Colorize;
 use indicatif::{MultiProgress, ProgressBar, ProgressStyle};
 use inquire::{Confirm, MultiSelect, Select};
+use minepatch::bundle::{BundleMessage, BundleProcess};
 use minepatch::db;
 use minepatch::event::EventError;
 use minepatch::hash::{HashMessage, HashProcess};
 use minepatch::instance::{InstanceMessage, InstanceProcess};
 use minepatch::msg::Process;
-use minepatch::pack::{PackMessage, PackProcess};
 use minepatch::patch::{PatchMessage, PatchProcess};
 use minepatch::prelude::*;
 use minepatch::template::{TemplateMessage, TemplateProcess};
@@ -42,25 +42,23 @@ use std::time::Duration;
 mod cli;
 mod output;
 
-fn match_command(command: &Commands, connection: &Connection, tx: &Sender<Event>) -> Result<()> {
+fn match_command(command: &Commands, conn: &Connection, tx: &Sender<Event>) -> Result<()> {
     match command {
         Commands::Update => func::update::update(tx)?,
         Commands::Instance {
             instance_commands: instance_command,
         } => match instance_command {
-            InstanceCommands::Apply { name, patch } => {
-                instance::apply(connection, tx, name, patch)?
-            }
-            InstanceCommands::List { name } => instance::list(connection, tx, name)?,
-            InstanceCommands::Link { path, name, pack } => {
-                instance::link(connection, tx, path, name, pack)?;
+            InstanceCommands::Apply { name, patch } => instance::apply(conn, tx, name, patch)?,
+            InstanceCommands::List { name } => instance::list(conn, tx, name)?,
+            InstanceCommands::Link { path, name, bundle } => {
+                instance::link(conn, tx, path, name, bundle)?;
             }
         },
         Commands::Vault {
             vault_commands: vault_command,
         } => match vault_command {
             VaultCommands::Add { path, overwrite } => {
-                vault::add(connection, tx, path, overwrite)?;
+                vault::add(conn, tx, path, overwrite)?;
             }
             VaultCommands::List {
                 detailed,
@@ -68,10 +66,10 @@ fn match_command(command: &Commands, connection: &Connection, tx: &Sender<Event>
                 id,
                 name,
             } => {
-                vault::list(connection, tx, detailed, hash, id, name)?;
+                vault::list(conn, tx, detailed, hash, id, name)?;
             }
             VaultCommands::Remove { hash, all, yes } => {
-                vault::remove(connection, tx, hash, *all, *yes)?;
+                vault::remove(conn, tx, hash, *all, *yes)?;
             }
         },
         Commands::Template {
@@ -82,8 +80,11 @@ fn match_command(command: &Commands, connection: &Connection, tx: &Sender<Event>
                 version,
                 loader,
                 download,
-            } => template::create(connection, tx, name, version, loader, download)?,
-            TemplateCommands::List { name } => template::list(connection, tx, name)?,
+            } => template::create(conn, tx, name, version, loader, download)?,
+            TemplateCommands::List { name } => template::list(conn, tx, name)?,
+            TemplateCommands::Export { name, path } => {
+                template::export(conn, tx, name, path.as_deref())?
+            }
         },
         Commands::Patch {
             patch_commands: patch_command,
@@ -91,41 +92,49 @@ fn match_command(command: &Commands, connection: &Connection, tx: &Sender<Event>
             PatchCommands::Create {
                 name,
                 dependency,
-                pack,
-            } => patch::create(connection, tx, name, pack, dependency)?,
+                bundle,
+            } => patch::create(conn, tx, name, bundle, dependency)?,
             PatchCommands::Exclude {
                 name,
-                pack,
+                bundle,
                 mod_hash,
-            } => patch::exclude(connection, tx, name, pack, mod_hash)?,
+            } => patch::exclude(conn, tx, name, bundle, mod_hash)?,
             PatchCommands::Generate { name, instance } => {
-                patch::generate(connection, tx, name, instance)?
+                patch::generate(conn, tx, name, instance)?
             }
             PatchCommands::Include {
                 name,
-                pack,
+                bundle,
                 mod_hash,
-            } => patch::include(connection, tx, name, pack, mod_hash)?,
-            PatchCommands::List { name, pack } => patch::list(connection, tx, name, pack)?,
+            } => patch::include(conn, tx, name, bundle, mod_hash)?,
+            PatchCommands::List { name, bundle } => patch::list(conn, tx, name, bundle)?,
             PatchCommands::Simulate {
                 name,
-                pack,
+                bundle,
                 dir_hash,
-            } => patch::simulate(connection, tx, name, pack, dir_hash)?,
-            PatchCommands::View { name, pack } => patch::view(connection, tx, name, pack)?,
+            } => patch::simulate(conn, tx, name, bundle, dir_hash)?,
+            PatchCommands::View { name, bundle } => patch::view(conn, tx, name, bundle)?,
         },
-        Commands::Pack {
-            pack_commands: pack_command,
-        } => match pack_command {
-            PackCommands::List { name } => pack::list(connection, tx, name)?,
-            PackCommands::Create {
+        Commands::Bundle {
+            bundle_commands: bundle_command,
+        } => match bundle_command {
+            BundleCommands::List { name } => bundle::list(conn, tx, name)?,
+            BundleCommands::Create {
                 name,
                 description,
                 template,
                 from,
                 instance,
-            } => pack::create(connection, tx, name, description, template, from, instance)?,
-            PackCommands::Delete => {}
+            } => bundle::create(
+                conn,
+                tx,
+                name,
+                description,
+                template,
+                from.as_deref(),
+                instance,
+            )?,
+            BundleCommands::Delete => {}
         },
     }
 
@@ -138,15 +147,15 @@ fn match_process(process: &Process) -> String {
             HashProcess::HashFiles => "Hash mod files",
         },
         Process::Instance(process) => match process {
-            InstanceProcess::Detect => "Detect patch and pack",
+            InstanceProcess::Detect => "Detect patch and bundle",
             InstanceProcess::Link => "Link instance",
             InstanceProcess::Apply => "Apply patch",
             InstanceProcess::Validate => "Validate instance",
         },
-        Process::Pack(process) => match process {
-            PackProcess::Create => "Create pack",
-            PackProcess::AddModFiles => "Add mod files",
-            PackProcess::Validate => "Validate pack",
+        Process::Bundle(process) => match process {
+            BundleProcess::Create => "Create bundle",
+            BundleProcess::AddModFiles => "Add mod files",
+            BundleProcess::Validate => "Validate bundle",
         },
         Process::Patch(process) => match process {
             PatchProcess::Simulate => "Simulate patch",
@@ -165,6 +174,7 @@ fn match_process(process: &Process) -> String {
         Process::Template(process) => match process {
             TemplateProcess::Create => "Create template",
             TemplateProcess::Validate => "Validate template",
+            TemplateProcess::Export => "Export template",
         },
     }
     .to_owned()
@@ -180,22 +190,22 @@ fn match_message(message: &Message) -> String {
         },
         Message::Instance(message) => match message {
             InstanceMessage::LinkSuccess { instance } => format!(
-                "Linked '{}' with pack '{}' and patch '{}'",
+                "Linked '{}' with bundle '{}' and patch '{}'",
                 instance.name.cyan(),
-                instance.pack.cyan(),
+                instance.bundle.cyan(),
                 instance.patch.cyan()
             ),
-            InstanceMessage::DetectSuccess { pack, patch } => {
+            InstanceMessage::DetectSuccess { bundle, patch } => {
                 format!(
-                    "Detected pack '{}' and patch '{}'",
-                    pack.cyan(),
+                    "Detected bundle '{}' and patch '{}'",
+                    bundle.cyan(),
                     patch.cyan()
                 )
             }
-            InstanceMessage::ApplySuccess { pack, patch } => format!(
-                "Applied patch '{}' from pack '{}'",
+            InstanceMessage::ApplySuccess { bundle, patch } => format!(
+                "Applied patch '{}' from bundle '{}'",
                 patch.cyan(),
-                pack.cyan()
+                bundle.cyan()
             ),
             InstanceMessage::ValidateSuccess { name } => {
                 format!("Validated instance '{}'", name.cyan())
@@ -204,24 +214,28 @@ fn match_message(message: &Message) -> String {
                 format!("{}", name.cyan())
             }
         },
-        Message::Pack(message) => match message {
-            PackMessage::AddModFileStatus { path, hash } => {
+        Message::Bundle(message) => match message {
+            BundleMessage::AddModFileStatus { path, hash } => {
                 format!(
                     "Mod file path: '{}' ['{}']",
                     path.display().to_string().cyan(),
                     hash.yellow()
                 )
             }
-            PackMessage::CreateSuccess { pack } => format!("Created pack '{}'", pack.name.cyan()),
-            PackMessage::ValidateSuccess { name } => format!("Validated pack '{}'", name.cyan()),
-            PackMessage::ValidateStatus { name } => format!("{}", name.cyan()),
+            BundleMessage::CreateSuccess { bundle } => {
+                format!("Created bundle '{}'", bundle.name.cyan())
+            }
+            BundleMessage::ValidateSuccess { name } => {
+                format!("Validated bundle '{}'", name.cyan())
+            }
+            BundleMessage::ValidateStatus { name } => format!("{}", name.cyan()),
         },
         Message::Patch(message) => match message {
             PatchMessage::SimulateStatus { name } => format!("Patch: '{}'", name.cyan()),
             PatchMessage::CreateSuccess { patch } => format!(
-                "Created patch '{}' for pack '{}' depending on patch '{}'",
+                "Created patch '{}' for bundle '{}' depending on patch '{}'",
                 patch.name.cyan(),
-                patch.pack.cyan(),
+                patch.bundle.cyan(),
                 patch.dependency.cyan()
             ),
             PatchMessage::ExcludeSuccess { hash } => {
@@ -241,7 +255,9 @@ fn match_message(message: &Message) -> String {
                 format!("Included mod with hash '{}'", hash.yellow())
             }
             PatchMessage::ValidateSuccess { name } => format!("Validated patch '{}'", name.cyan()),
-            PatchMessage::ValidateStatus { pack, name } => format!("{} for {}", name.cyan(), pack.cyan()),
+            PatchMessage::ValidateStatus { bundle, name } => {
+                format!("{} for {}", name.cyan(), bundle.cyan())
+            }
         },
         Message::Mod(message) => match message {
             ModMessage::AddSuccess { value } => {
@@ -261,7 +277,9 @@ fn match_message(message: &Message) -> String {
                 format_string_option(&value.meta.minecraft_version),
                 value.hash.yellow()
             ),
-            ModMessage::RemoveSelect => String::from("Multiple mods match the supplied filters. Please select the one you wish to remove:"),
+            ModMessage::RemoveSelect => String::from(
+                "Multiple mods match the supplied filters. Please select the one you wish to remove:",
+            ),
             ModMessage::RemoveOption { value } => format!(
                 "{} ({}, {}, {}) [{}]",
                 value.meta.name.bold().cyan(),
@@ -278,8 +296,11 @@ fn match_message(message: &Message) -> String {
             }
             TemplateMessage::ValidateSuccess { name } => {
                 format!("Validated template '{}'", name.cyan())
-            },
-            TemplateMessage::ValidateStatus { name } => format!("{}", name.cyan())
+            }
+            TemplateMessage::ValidateStatus { name } => format!("{}", name.cyan()),
+            TemplateMessage::ExportSuccess { name, path } => {
+                format!("Exported template '{}' to file '{}'", name, path.display())
+            }
         },
     }
 }
@@ -426,8 +447,8 @@ fn main() {
     let cli = Cli::parse();
 
     let thread = thread::spawn(move || {
-        let mut connection = db::init()?;
-        let transaction = connection.transaction()?;
+        let mut conn = db::init()?;
+        let transaction = conn.transaction()?;
         let result = match_command(&cli.command, &transaction, &tx);
         if result.is_ok() {
             transaction.commit()?

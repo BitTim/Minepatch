@@ -6,7 +6,7 @@
  *
  * File:       msg.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   15.02.25, 00:59
+ * Modified:   01.03.25, 00:53
  */
 use crate::instance::Instance;
 
@@ -20,8 +20,8 @@ pub enum InstanceProcess {
 
 #[derive(Clone, Hash, Eq, PartialEq, Debug)]
 pub enum InstanceMessage {
-    ApplySuccess { pack: String, patch: String },
-    DetectSuccess { pack: String, patch: String },
+    ApplySuccess { bundle: String, patch: String },
+    DetectSuccess { bundle: String, patch: String },
     LinkSuccess { instance: Box<Instance> },
     ValidateSuccess { name: String },
     ValidateStatus { name: String },

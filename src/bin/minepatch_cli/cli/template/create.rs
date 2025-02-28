@@ -6,7 +6,7 @@
  *
  * File:       create.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   12.02.25, 17:33
+ * Modified:   01.03.25, 00:53
  */
 use minepatch::prelude::*;
 use minepatch::template;
@@ -14,7 +14,7 @@ use rusqlite::Connection;
 use std::sync::mpsc::Sender;
 
 pub(crate) fn create(
-    connection: &Connection,
+    conn: &Connection,
     tx: &Sender<Event>,
     name: &str,
     loader: &Option<String>,
@@ -22,7 +22,7 @@ pub(crate) fn create(
     download: &Option<String>,
 ) -> Result<()> {
     template::create(
-        connection,
+        conn,
         tx,
         name,
         loader.to_owned(),

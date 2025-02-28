@@ -6,7 +6,7 @@
  *
  * File:       model.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   12.02.25, 03:55
+ * Modified:   01.03.25, 00:31
  */
 use crate::common::db::Entity;
 use crate::common::meta::data::Meta;
@@ -35,6 +35,10 @@ impl Mod {
 impl Entity for Mod {
     fn table_name() -> String {
         "mod".to_owned()
+    }
+
+    fn file_extension() -> String {
+        "mpm".to_owned()
     }
 
     fn from_row(row: &Row) -> Result<Box<Self>> {

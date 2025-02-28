@@ -6,14 +6,14 @@
  *
  * File:       error.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   22.01.25, 02:37
+ * Modified:   01.03.25, 00:53
  */
 use thiserror::Error;
 
 #[derive(Error, Debug)]
-pub enum PackError {
-    #[error("No pack with name '{0}' was found.")]
+pub enum BundleError {
+    #[error("No bundle with name '{0}' was found.")]
     NotFound(String),
-    #[error("Name '{0}' is already taken by another pack.")]
+    #[error("Name '{0}' is already taken by another bundle.")]
     NameTaken(String),
 }

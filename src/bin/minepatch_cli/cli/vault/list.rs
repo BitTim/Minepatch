@@ -6,7 +6,7 @@
  *
  * File:       list.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   15.02.25, 01:41
+ * Modified:   01.03.25, 00:53
  */
 use crate::output::detailed::{DetailedDisplayObject, DetailedOutput};
 use crate::output::list_items::vault::ModListItem;
@@ -17,7 +17,7 @@ use rusqlite::Connection;
 use std::sync::mpsc::Sender;
 
 pub(crate) fn list(
-    connection: &Connection,
+    conn: &Connection,
     tx: &Sender<Event>,
     detailed: &bool,
     hash: &Option<String>,
@@ -25,7 +25,7 @@ pub(crate) fn list(
     name: &Option<String>,
 ) -> Result<()> {
     let results = query_multiple(
-        connection,
+        conn,
         hash.to_owned().as_deref(),
         id.to_owned().as_deref(),
         name.to_owned().as_deref(),
@@ -35,7 +35,7 @@ pub(crate) fn list(
         true => {
             let displays = results
                 .iter()
-                .map(|value| DetailedDisplayObject::from_mod(connection, tx, value))
+                .map(|value| DetailedDisplayObject::from_mod(conn, tx, value))
                 .collect::<Vec<DetailedDisplayObject>>();
 
             DetailedOutput::new(displays).to_string()
@@ -43,7 +43,7 @@ pub(crate) fn list(
         false => {
             let displays = results
                 .iter()
-                .map(|value| ModListItem::from(connection, tx, value))
+                .map(|value| ModListItem::from(conn, tx, value))
                 .collect::<Vec<ModListItem>>();
 
             TableOutput::new(displays, "No mods added to vault yet".to_owned()).to_string()

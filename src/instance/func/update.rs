@@ -6,23 +6,23 @@
  *
  * File:       update.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   10.02.25, 19:05
+ * Modified:   01.03.25, 00:53
  */
 use crate::db::Repo;
-use crate::instance::data::{InstanceFilter, InstanceRepo};
 use crate::instance::Instance;
+use crate::instance::data::{InstanceFilter, InstanceRepo};
 use crate::prelude::*;
 use rusqlite::Connection;
 
-pub fn update_patch(connection: &Connection, name: &str, patch: &str) -> Result<()> {
+pub fn update_patch(conn: &Connection, name: &str, patch: &str) -> Result<()> {
     let filter = InstanceFilter::ByExactName {
         name: name.to_owned(),
     };
-    let instance = InstanceRepo::query_single(connection, &filter)?;
+    let instance = InstanceRepo::query_single(conn, &filter)?;
 
     InstanceRepo::update(
-        connection,
+        conn,
         &filter,
-        Instance::new(name, &instance.path, &instance.pack, patch),
+        Instance::new(name, &instance.path, &instance.bundle, patch),
     )
 }

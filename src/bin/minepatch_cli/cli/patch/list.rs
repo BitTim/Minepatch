@@ -6,7 +6,7 @@
  *
  * File:       list.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   14.02.25, 19:38
+ * Modified:   26.02.25, 00:40
  */
 use crate::output::list_items::patch::PatchListItem;
 use crate::output::table::TableOutput;
@@ -16,19 +16,19 @@ use rusqlite::Connection;
 use std::sync::mpsc::Sender;
 
 pub(crate) fn list(
-    connection: &Connection,
+    conn: &Connection,
     tx: &Sender<Event>,
     name: &Option<String>,
-    pack: &Option<String>,
+    bundle: &Option<String>,
 ) -> Result<()> {
     let results = query_multiple(
-        connection,
+        conn,
         name.to_owned().as_deref(),
-        pack.to_owned().as_deref(),
+        bundle.to_owned().as_deref(),
     )?;
     let displays = results
         .iter()
-        .map(|value| PatchListItem::from(connection, tx, value))
+        .map(|value| PatchListItem::from(conn, tx, value))
         .collect::<Result<Vec<PatchListItem>>>()?;
 
     let output = TableOutput::new(displays, "No patches present yet".to_owned()).to_string();
