@@ -6,7 +6,7 @@
  *
  * File:       model.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   01.03.25, 00:53
+ * Modified:   01.03.25, 19:13
  */
 use crate::common::db::Entity;
 use crate::prelude::*;
@@ -35,10 +35,6 @@ impl PatchWithMods {
 impl Entity for PatchWithMods {
     fn table_name() -> String {
         "patch_with_mods".to_owned()
-    }
-
-    fn file_extension() -> String {
-        "".to_owned()
     }
 
     fn from_row(row: &Row) -> Result<Box<Self>> {

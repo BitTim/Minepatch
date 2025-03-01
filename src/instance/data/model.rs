@@ -6,7 +6,7 @@
  *
  * File:       model.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   01.03.25, 00:43
+ * Modified:   01.03.25, 19:13
  */
 
 use crate::common::db::Entity;
@@ -37,9 +37,6 @@ impl Instance {
 impl Entity for Instance {
     fn table_name() -> String {
         "instance".to_owned()
-    }
-    fn file_extension() -> String {
-        "mpi".to_owned()
     }
 
     fn from_row(value: &Row) -> Result<Box<Self>> {

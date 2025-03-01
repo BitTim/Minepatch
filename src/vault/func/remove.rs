@@ -6,17 +6,18 @@
  *
  * File:       remove.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   01.03.25, 00:53
+ * Modified:   01.03.25, 19:26
  */
 use crate::common::event;
 use crate::common::event::EventError;
 use crate::db::Repo;
 use crate::file;
+use crate::file::get_base_vault_path;
 use crate::patch_with_mods::{PatchModRelFilter, PatchModRelRepo};
 use crate::prelude::*;
-use crate::vault::data::{Mod, ModFilter, VaultRepo};
+use crate::vault::data::Mod;
+use crate::vault::data::{ModFilter, VaultRepo};
 use crate::vault::error::VaultError;
-use crate::vault::func::common::path::get_base_mod_dir_path;
 use crate::vault::{ModMessage, ModProcess};
 use rusqlite::Connection;
 use std::fs;
@@ -103,7 +104,7 @@ pub fn remove(
 
         file::check_exists(&value.path)?;
         fs::remove_file(&value.path)?;
-        file::remove_empty_dirs(&get_base_mod_dir_path()?)?;
+        file::remove_empty_dirs(&get_base_vault_path()?)?;
 
         event::tick_progress(
             tx,

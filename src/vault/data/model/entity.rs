@@ -4,13 +4,13 @@
  * Project:    Minepatch
  * License:    GPLv3
  *
- * File:       model.rs
+ * File:       entity.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   01.03.25, 00:31
+ * Modified:   01.03.25, 19:25
  */
-use crate::common::db::Entity;
-use crate::common::meta::data::Meta;
-use crate::prelude::*;
+use crate::db::Entity;
+use crate::meta::data::Meta;
+use crate::prelude;
 use rusqlite::{Row, ToSql};
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
@@ -37,11 +37,7 @@ impl Entity for Mod {
         "mod".to_owned()
     }
 
-    fn file_extension() -> String {
-        "mpm".to_owned()
-    }
-
-    fn from_row(row: &Row) -> Result<Box<Self>> {
+    fn from_row(row: &Row) -> prelude::Result<Box<Self>> {
         let path: String = row.get(1)?;
         let path = PathBuf::from(path);
 

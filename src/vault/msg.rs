@@ -6,15 +6,18 @@
  *
  * File:       msg.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   15.02.25, 01:48
+ * Modified:   01.03.25, 19:26
  */
-use crate::vault::Mod;
+use crate::vault::data::Mod;
+use std::path::PathBuf;
 
 #[derive(Clone, Hash, Eq, PartialEq, Debug)]
 pub enum ModProcess {
     Add,
     Remove,
     Validate,
+    Export,
+    Import,
 }
 
 #[derive(Clone, Hash, Eq, PartialEq, Debug)]
@@ -26,4 +29,6 @@ pub enum ModMessage {
     RemoveSelect,
     RemoveOption { value: Box<Mod> },
     ValidateStatus { hash: String },
+    ExportSuccess { hash: String, path: PathBuf },
+    ImportSuccess { hash: String, path: PathBuf },
 }

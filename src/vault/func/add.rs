@@ -6,15 +6,16 @@
  *
  * File:       add.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   01.03.25, 00:53
+ * Modified:   01.03.25, 19:26
  */
 
 use crate::common::event::Event;
 use crate::common::{event, file, hash};
 use crate::db::Repo;
+use crate::meta::{detect_loader, extract_meta};
 use crate::prelude::*;
-use crate::vault::data::{Mod, ModFilter, VaultRepo};
-use crate::vault::func::common::meta::{detect_loader, extract_meta};
+use crate::vault::data::Mod;
+use crate::vault::data::{ModFilter, VaultRepo};
 use crate::vault::{ModMessage, ModProcess, VaultError};
 use rusqlite::Connection;
 use std::fs;

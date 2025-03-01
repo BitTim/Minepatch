@@ -6,13 +6,14 @@
  *
  * File:       import.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   01.03.25, 18:27
+ * Modified:   01.03.25, 19:21
  */
 use crate::db::Repo;
 use crate::event::Event;
 use crate::prelude::*;
+use crate::template::data::Template;
 use crate::template::data::TemplateRepo;
-use crate::template::{Template, TemplateMessage, TemplateProcess};
+use crate::template::{TemplateMessage, TemplateProcess};
 use crate::{comp, event};
 use rusqlite::Connection;
 use std::fs::File;

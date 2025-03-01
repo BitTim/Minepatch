@@ -6,7 +6,7 @@
  *
  * File:       model.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   01.03.25, 00:53
+ * Modified:   01.03.25, 19:13
  */
 use crate::common::db::Entity;
 use crate::prelude::*;
@@ -33,10 +33,6 @@ impl Bundle {
 impl Entity for Bundle {
     fn table_name() -> String {
         "bundle".to_owned()
-    }
-
-    fn file_extension() -> String {
-        "mpb".to_owned()
     }
 
     fn from_row(value: &Row) -> Result<Box<Self>> {

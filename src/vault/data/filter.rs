@@ -6,11 +6,12 @@
  *
  * File:       filter.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   08.02.25, 00:32
+ * Modified:   01.03.25, 19:26
  */
 use crate::common::db::{Entity, Filter, InsertableFilter};
 use crate::error::Error;
-use crate::vault::{Mod, VaultError};
+use crate::vault::VaultError;
+use crate::vault::data::Mod;
 use rusqlite::ToSql;
 
 pub(crate) enum ModFilter {

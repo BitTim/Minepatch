@@ -6,7 +6,7 @@
  *
  * File:       simulate.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   01.03.25, 00:57
+ * Modified:   01.03.25, 23:55
  */
 use crate::output::list_items::vault::ModListItem;
 use crate::output::table::TableOutput;

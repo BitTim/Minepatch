@@ -6,7 +6,7 @@
  *
  * File:       filter.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   17.02.25, 19:28
+ * Modified:   01.03.25, 19:21
  */
 use crate::common::db::{Entity, Filter, InsertableFilter};
 use crate::error::Error;

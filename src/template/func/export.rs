@@ -6,11 +6,11 @@
  *
  * File:       export.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   01.03.25, 00:51
+ * Modified:   01.03.25, 19:23
  */
 use crate::event::Event;
 use crate::prelude::*;
-use crate::template::{Template, TemplateMessage, TemplateProcess};
+use crate::template::{PortableTemplate, TemplateMessage, TemplateProcess};
 use crate::{comp, event, file, template};
 use rusqlite::Connection;
 use std::fs::File;
@@ -21,9 +21,11 @@ use std::sync::mpsc::Sender;
 pub fn export(conn: &Connection, tx: &Sender<Event>, name: &str, path: &Path) -> Result<()> {
     event::init_progress(tx, Process::Template(TemplateProcess::Export), None)?;
 
-    let path = file::canonicalize_entity_path::<Template>(path.to_owned(), name)?;
     let template = template::query_single(conn, name)?;
-    let serialized = bincode::serialize(&template)?;
+    let portable = PortableTemplate::new(template);
+
+    let path = file::canonicalize_entity_path::<PortableTemplate>(path.to_owned(), &portable)?;
+    let serialized = bincode::serialize(&portable)?;
     let compressed = comp::compress(&serialized)?;
 
     let mut file = File::create_new(&path)?;

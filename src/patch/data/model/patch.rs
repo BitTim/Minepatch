@@ -6,7 +6,7 @@
  *
  * File:       patch.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   01.03.25, 00:53
+ * Modified:   01.03.25, 19:13
  */
 
 use crate::common::db::Entity;
@@ -34,10 +34,6 @@ impl Patch {
 impl Entity for Patch {
     fn table_name() -> String {
         "patch".to_owned()
-    }
-
-    fn file_extension() -> String {
-        "mpp".to_owned()
     }
 
     fn from_row(row: &Row) -> Result<Box<Self>> {

@@ -4,9 +4,9 @@
  * Project:    Minepatch
  * License:    GPLv3
  *
- * File:       model.rs
+ * File:       template.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   18.02.25, 15:48
+ * Modified:   01.03.25, 19:17
  */
 use crate::db::Entity;
 use crate::prelude;
@@ -40,10 +40,6 @@ impl Template {
 impl Entity for Template {
     fn table_name() -> String {
         "template".to_owned()
-    }
-
-    fn file_extension() -> String {
-        "mpt".to_owned()
     }
 
     fn from_row(row: &Row) -> prelude::Result<Box<Self>> {

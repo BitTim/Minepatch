@@ -6,7 +6,7 @@
  *
  * File:       main.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   01.03.25, 18:31
+ * Modified:   02.03.25, 00:17
  */
 use crate::cli::bundle::BundleCommands;
 use crate::cli::instance::InstanceCommands;
@@ -71,6 +71,8 @@ fn match_command(command: &Commands, conn: &Connection, tx: &Sender<Event>) -> R
             VaultCommands::Remove { hash, all, yes } => {
                 vault::remove(conn, tx, hash, *all, *yes)?;
             }
+            VaultCommands::Export { hash, path } => vault::export(conn, tx, hash, path.as_deref())?,
+            VaultCommands::Import { path } => vault::import(conn, tx, path)?,
         },
         Commands::Template {
             template_commands: template_command,
@@ -173,6 +175,8 @@ fn match_process(process: &Process) -> String {
             ModProcess::Add => "Add mod to vault",
             ModProcess::Remove => "Remove mod from vault",
             ModProcess::Validate => "Validate mod",
+            ModProcess::Export => "Export mod",
+            ModProcess::Import => "Import mod",
         },
         Process::Template(process) => match process {
             TemplateProcess::Create => "Create template",
@@ -293,6 +297,16 @@ fn match_message(message: &Message) -> String {
                 value.hash.yellow()
             ),
             ModMessage::ValidateStatus { hash } => format!("{}", hash.yellow()),
+            ModMessage::ExportSuccess { hash, path } => format!(
+                "Exported mod with hash '{}' to file '{}'",
+                hash,
+                path.display()
+            ),
+            ModMessage::ImportSuccess { hash, path } => format!(
+                "Imported mod with hash '{}' from file '{}'",
+                hash,
+                path.display()
+            ),
         },
         Message::Template(message) => match message {
             TemplateMessage::CreateSuccess { template } => {

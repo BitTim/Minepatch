@@ -6,9 +6,9 @@
  *
  * File:       path_utils.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   01.03.25, 00:53
+ * Modified:   01.03.25, 19:23
  */
-use crate::db::Entity;
+use crate::db::Portable;
 use crate::file::error::FileError;
 use crate::file::file_utils::check_exists;
 use crate::file::{ORGANIZATION, QUALIFIER};
@@ -63,9 +63,9 @@ pub fn mod_paths_from_instance_path(path: &Path) -> Result<Vec<PathBuf>> {
     Ok(mod_paths)
 }
 
-pub(crate) fn canonicalize_entity_path<T>(mut path: PathBuf, entity_name: &str) -> Result<PathBuf>
+pub(crate) fn canonicalize_entity_path<'a, T>(mut path: PathBuf, entity: &T) -> Result<PathBuf>
 where
-    T: Entity,
+    T: Portable<'a>,
 {
     let extension = path.extension().map(ToOwned::to_owned);
 
@@ -90,7 +90,27 @@ where
         Ok(canonicalized_parent)
     } else {
         let mut canonicalized_dir = path::absolute(path)?.canonicalize()?;
-        canonicalized_dir.push(format!("{}.{}", entity_name, T::file_extension()));
+        canonicalized_dir.push(format!("{}.{}", entity.object_name(), T::file_extension()));
         Ok(canonicalized_dir)
     }
+}
+
+pub(crate) fn get_base_vault_path() -> Result<PathBuf> {
+    let mut dir = get_data_path()?;
+    dir.push("mods");
+
+    fs::create_dir_all(&dir)?;
+    Ok(dir)
+}
+
+pub(crate) fn build_vault_path(mod_id: &str, loader: &str, filename: &str) -> Result<PathBuf> {
+    let mut dir = get_base_vault_path()?;
+    dir.push(mod_id);
+    dir.push(loader);
+
+    fs::create_dir_all(&dir)?;
+
+    let mut path = dir;
+    path.push(filename);
+    Ok(path)
 }
