@@ -4,27 +4,22 @@
  * Project:    Minepatch
  * License:    GPLv3
  *
- * File:       export.rs
+ * File:       import.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   01.03.25, 18:28
+ * Modified:   01.03.25, 18:35
  */
+use minepatch::event::Event;
 use minepatch::prelude::*;
 use minepatch::template;
 use rusqlite::Connection;
-use std::env::current_dir;
 use std::path::Path;
 use std::sync::mpsc::Sender;
 
-pub(crate) fn export(
+pub(crate) fn import(
     conn: &Connection,
     tx: &Sender<Event>,
-    name: &str,
-    path: Option<&Path>,
+    path: &Path,
+    name: Option<&str>,
 ) -> Result<()> {
-    let path = match path {
-        Some(path) => path.to_owned(),
-        None => current_dir()?,
-    };
-
-    template::export(conn, tx, name, &path)
+    template::import(conn, tx, path, name)
 }

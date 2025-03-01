@@ -6,7 +6,7 @@
  *
  * File:       main.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   01.03.25, 00:53
+ * Modified:   01.03.25, 18:31
  */
 use crate::cli::bundle::BundleCommands;
 use crate::cli::instance::InstanceCommands;
@@ -84,6 +84,9 @@ fn match_command(command: &Commands, conn: &Connection, tx: &Sender<Event>) -> R
             TemplateCommands::List { name } => template::list(conn, tx, name)?,
             TemplateCommands::Export { name, path } => {
                 template::export(conn, tx, name, path.as_deref())?
+            }
+            TemplateCommands::Import { name, path } => {
+                template::import(conn, tx, path, name.as_deref())?
             }
         },
         Commands::Patch {
@@ -175,6 +178,7 @@ fn match_process(process: &Process) -> String {
             TemplateProcess::Create => "Create template",
             TemplateProcess::Validate => "Validate template",
             TemplateProcess::Export => "Export template",
+            TemplateProcess::Import => "Import template",
         },
     }
     .to_owned()
@@ -300,6 +304,9 @@ fn match_message(message: &Message) -> String {
             TemplateMessage::ValidateStatus { name } => format!("{}", name.cyan()),
             TemplateMessage::ExportSuccess { name, path } => {
                 format!("Exported template '{}' to file '{}'", name, path.display())
+            }
+            TemplateMessage::ImportSuccess { name, path } => {
+                format!("Imported template '{}' from file '{}", name, path.display())
             }
         },
     }
