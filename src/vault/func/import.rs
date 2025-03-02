@@ -6,14 +6,14 @@
  *
  * File:       import.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   02.03.25, 00:17
+ * Modified:   02.03.25, 16:25
  */
 use crate::db::Repo;
 use crate::file::build_vault_path;
 use crate::prelude::*;
 use crate::vault::data::VaultRepo;
-use crate::vault::{ModMessage, ModProcess, PortableMod};
-use crate::{comp, event, file};
+use crate::vault::{Mod, ModMessage, ModProcess, PortableMod};
+use crate::{comp, event};
 use rusqlite::Connection;
 use std::fs::File;
 use std::io::{Read, Write};
@@ -28,20 +28,19 @@ pub fn import(conn: &Connection, tx: &Sender<Event>, path: &Path) -> Result<()> 
     file.read_to_end(&mut data)?;
 
     let decompressed = comp::decompress(&data)?;
-    let mut deserialized = bincode::deserialize::<PortableMod>(&decompressed)?;
+    let deserialized = bincode::deserialize::<PortableMod>(&decompressed)?;
 
     let new_vault_path = build_vault_path(
-        &deserialized.entity.meta.id,
-        &deserialized.entity.meta.loader,
-        file::filename_from_path(&deserialized.entity.path)?,
+        &deserialized.meta.id,
+        &deserialized.meta.loader,
+        &deserialized.filename,
     )?;
 
     let mut jar = File::create_new(&new_vault_path)?;
     jar.write_all(&deserialized.jar_binary)?;
-    deserialized.entity.path = new_vault_path;
 
-    let hash = deserialized.entity.hash.to_owned();
-    VaultRepo::insert(conn, deserialized.entity)?;
+    let hash = deserialized.hash.to_owned();
+    VaultRepo::insert(conn, Mod::new(&hash, &new_vault_path, deserialized.meta))?;
 
     event::end_progress(
         tx,

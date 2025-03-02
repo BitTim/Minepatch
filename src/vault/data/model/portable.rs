@@ -6,9 +6,11 @@
  *
  * File:       portable.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   01.03.25, 23:42
+ * Modified:   02.03.25, 16:24
  */
 use crate::db::Portable;
+use crate::file;
+use crate::meta::data::Meta;
 use crate::prelude::*;
 use crate::vault::data::Mod;
 use serde::{Deserialize, Serialize};
@@ -17,7 +19,9 @@ use std::io::Read;
 
 #[derive(Eq, PartialEq, Hash, Debug, Clone, Serialize, Deserialize)]
 pub struct PortableMod {
-    pub entity: Mod,
+    pub hash: String,
+    pub meta: Meta,
+    pub filename: String,
     pub jar_binary: Vec<u8>,
 }
 
@@ -28,7 +32,9 @@ impl PortableMod {
         jar_file.read_to_end(&mut jar_binary)?;
 
         Ok(Self {
-            entity: value,
+            hash: value.hash,
+            meta: value.meta,
+            filename: file::filename_from_path(&value.path)?.to_owned(),
             jar_binary,
         })
     }
@@ -40,6 +46,6 @@ impl Portable<'_> for PortableMod {
     }
 
     fn object_name(&self) -> String {
-        self.entity.meta.id.to_owned()
+        self.meta.id.to_owned()
     }
 }
