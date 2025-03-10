@@ -6,7 +6,7 @@
  *
  * File:       main.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   02.03.25, 00:17
+ * Modified:   10.03.25, 09:31
  */
 use crate::cli::bundle::BundleCommands;
 use crate::cli::instance::InstanceCommands;
@@ -84,12 +84,6 @@ fn match_command(command: &Commands, conn: &Connection, tx: &Sender<Event>) -> R
                 download,
             } => template::create(conn, tx, name, version, loader, download)?,
             TemplateCommands::List { name } => template::list(conn, tx, name)?,
-            TemplateCommands::Export { name, path } => {
-                template::export(conn, tx, name, path.as_deref())?
-            }
-            TemplateCommands::Import { name, path } => {
-                template::import(conn, tx, path, name.as_deref())?
-            }
         },
         Commands::Patch {
             patch_commands: patch_command,
@@ -140,6 +134,12 @@ fn match_command(command: &Commands, conn: &Connection, tx: &Sender<Event>) -> R
                 instance,
             )?,
             BundleCommands::Delete => {}
+            BundleCommands::Export { name, path } => {
+                bundle::export(conn, tx, name, path.as_deref())?
+            }
+            BundleCommands::Import { path, name } => {
+                bundle::import(conn, tx, path, name.as_deref())?
+            }
         },
     }
 
@@ -161,6 +161,8 @@ fn match_process(process: &Process) -> String {
             BundleProcess::Create => "Create bundle",
             BundleProcess::AddModFiles => "Add mod files",
             BundleProcess::Validate => "Validate bundle",
+            BundleProcess::Export => "Export bundle",
+            BundleProcess::Import => "Import bundle",
         },
         Process::Patch(process) => match process {
             PatchProcess::Simulate => "Simulate patch",
@@ -237,6 +239,9 @@ fn match_message(message: &Message) -> String {
                 format!("Validated bundle '{}'", name.cyan())
             }
             BundleMessage::ValidateStatus { name } => format!("{}", name.cyan()),
+            BundleMessage::ExportSuccess { bundle, path } => {
+                format!("Exported bundle '{}' to file '{}'", bundle, path.display())
+            }
         },
         Message::Patch(message) => match message {
             PatchMessage::SimulateStatus { name } => format!("Patch: '{}'", name.cyan()),

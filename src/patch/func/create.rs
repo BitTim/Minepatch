@@ -6,7 +6,7 @@
  *
  * File:       create.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   01.03.25, 00:53
+ * Modified:   10.03.25, 10:26
  */
 use crate::bundle;
 use crate::common::event;
@@ -15,7 +15,7 @@ use crate::db::Repo;
 use crate::error::Error;
 use crate::patch::data::{PatchFilter, PatchRepo};
 use crate::patch::{Patch, PatchError, PatchMessage, PatchProcess};
-use crate::patch_with_mods::{PatchModRelRepo, PatchWithMods};
+use crate::patch_with_mods::{PatchModRelRepo, PatchModRelation};
 use crate::prelude::*;
 use rusqlite::Connection;
 use std::collections::HashSet;
@@ -48,11 +48,11 @@ pub fn create(
     PatchRepo::insert(conn, patch.to_owned())?;
 
     for hash in added {
-        PatchModRelRepo::insert(conn, PatchWithMods::new(name, bundle, hash, false))?;
+        PatchModRelRepo::insert(conn, PatchModRelation::new(name, bundle, hash, false))?;
     }
 
     for hash in removed {
-        PatchModRelRepo::insert(conn, PatchWithMods::new(name, bundle, hash, true))?;
+        PatchModRelRepo::insert(conn, PatchModRelation::new(name, bundle, hash, true))?;
     }
 
     event::end_progress(

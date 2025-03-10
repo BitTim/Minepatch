@@ -6,13 +6,13 @@
  *
  * File:       include.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   01.03.25, 00:53
+ * Modified:   10.03.25, 10:26
  */
 use crate::common::event::Event;
 use crate::db::Repo;
 use crate::patch;
 use crate::patch::PatchError;
-use crate::patch_with_mods::{PatchModRelFilter, PatchModRelRepo, PatchWithMods};
+use crate::patch_with_mods::{PatchModRelFilter, PatchModRelRepo, PatchModRelation};
 use crate::prelude::*;
 use rusqlite::Connection;
 use std::sync::mpsc::Sender;
@@ -24,7 +24,7 @@ pub fn include(
     bundle: &str,
     mod_hash: &str,
 ) -> Result<()> {
-    let rel_filter = PatchModRelFilter::ByPatchAndPackAndModHashExact {
+    let rel_filter = PatchModRelFilter::ByPatchAndBundleAndModHashExact {
         patch: name.to_owned(),
         bundle: bundle.to_owned(),
         mod_hash: mod_hash.to_owned(),
@@ -52,7 +52,7 @@ pub fn include(
             }))
         }
     } else {
-        PatchModRelRepo::insert(conn, PatchWithMods::new(name, bundle, mod_hash, false))?;
+        PatchModRelRepo::insert(conn, PatchModRelation::new(name, bundle, mod_hash, false))?;
         Ok(())
     }
 }

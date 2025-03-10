@@ -6,16 +6,18 @@
  *
  * File:       portable.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   02.03.25, 16:24
+ * Modified:   10.03.25, 09:47
  */
-use crate::db::Portable;
+use crate::db::{Portable, Repo};
 use crate::file;
+use crate::file::build_vault_path;
 use crate::meta::data::Meta;
 use crate::prelude::*;
-use crate::vault::data::Mod;
+use crate::vault::data::{Mod, VaultRepo};
+use rusqlite::Connection;
 use serde::{Deserialize, Serialize};
 use std::fs::File;
-use std::io::Read;
+use std::io::{Read, Write};
 
 #[derive(Eq, PartialEq, Hash, Debug, Clone, Serialize, Deserialize)]
 pub struct PortableMod {
@@ -38,9 +40,20 @@ impl PortableMod {
             jar_binary,
         })
     }
+
+    pub fn insert(&self, conn: &Connection) -> Result<()> {
+        let new_vault_path = build_vault_path(&self.meta.id, &self.meta.loader, &self.filename)?;
+
+        let mut jar = File::create_new(&new_vault_path)?;
+        jar.write_all(&self.jar_binary)?;
+
+        let hash = self.hash.to_owned();
+        VaultRepo::insert(conn, Mod::new(&hash, &new_vault_path, self.meta.to_owned()))?;
+        Ok(())
+    }
 }
 
-impl Portable<'_> for PortableMod {
+impl Portable for PortableMod {
     fn file_extension() -> String {
         "mpm".to_owned()
     }

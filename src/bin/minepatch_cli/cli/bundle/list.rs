@@ -6,7 +6,7 @@
  *
  * File:       list.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   01.03.25, 00:53
+ * Modified:   10.03.25, 05:47
  */
 use crate::output::list_items::bundle::PackListItem;
 use crate::output::table::TableOutput;
@@ -16,7 +16,7 @@ use rusqlite::Connection;
 use std::sync::mpsc::Sender;
 
 pub(crate) fn list(conn: &Connection, tx: &Sender<Event>, name: &Option<String>) -> Result<()> {
-    let results = bundle::query(conn, name.to_owned().as_deref())?;
+    let results = bundle::query_multiple(conn, name.to_owned().as_deref())?;
     let list_items = results
         .iter()
         .map(|value| PackListItem::from(conn, tx, value))

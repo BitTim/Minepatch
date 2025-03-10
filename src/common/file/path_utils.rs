@@ -6,7 +6,7 @@
  *
  * File:       path_utils.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   01.03.25, 19:23
+ * Modified:   10.03.25, 07:38
  */
 use crate::db::Portable;
 use crate::file::error::FileError;
@@ -65,7 +65,7 @@ pub fn mod_paths_from_instance_path(path: &Path) -> Result<Vec<PathBuf>> {
 
 pub(crate) fn canonicalize_entity_path<'a, T>(mut path: PathBuf, entity: &T) -> Result<PathBuf>
 where
-    T: Portable<'a>,
+    T: Portable,
 {
     let extension = path.extension().map(ToOwned::to_owned);
 

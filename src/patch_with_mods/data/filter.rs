@@ -6,24 +6,27 @@
  *
  * File:       filter.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   01.03.25, 00:53
+ * Modified:   10.03.25, 10:26
  */
 use crate::common::db::{Entity, Filter, InsertableFilter};
 use crate::error::Error;
 use crate::patch::PatchError;
-use crate::patch_with_mods::PatchWithMods;
+use crate::patch_with_mods::PatchModRelation;
 use crate::vault::VaultError;
 use rusqlite::ToSql;
 
 pub(crate) enum PatchModRelFilter {
     Insert {
-        relation: PatchWithMods,
+        relation: PatchModRelation,
     },
-    ByPatchAndPackExact {
+    ByBundleExact {
+        bundle: String,
+    },
+    ByPatchAndBundleExact {
         patch: String,
         bundle: String,
     },
-    ByPatchAndPackAndModHashExact {
+    ByPatchAndBundleAndModHashExact {
         patch: String,
         bundle: String,
         mod_hash: String,
@@ -37,8 +40,9 @@ impl Filter for PatchModRelFilter {
     fn value(&self) -> String {
         match self {
             PatchModRelFilter::Insert { .. } => "VALUES (?1, ?2, ?3, ?4)",
-            PatchModRelFilter::ByPatchAndPackExact { .. } => "WHERE patch = ?1 AND bundle = ?2",
-            PatchModRelFilter::ByPatchAndPackAndModHashExact { .. } => {
+            PatchModRelFilter::ByBundleExact { .. } => "WHERE bundle = ?1",
+            PatchModRelFilter::ByPatchAndBundleExact { .. } => "WHERE patch = ?1 AND bundle = ?2",
+            PatchModRelFilter::ByPatchAndBundleAndModHashExact { .. } => {
                 "WHERE patch = ?1 AND bundle = ?2 AND mod = ?3"
             }
             PatchModRelFilter::ByModHashExact { .. } => "WHERE mod = ?1",
@@ -49,10 +53,11 @@ impl Filter for PatchModRelFilter {
     fn params(&self) -> Vec<Box<dyn ToSql>> {
         match self {
             PatchModRelFilter::Insert { relation } => relation.to_params(),
-            PatchModRelFilter::ByPatchAndPackExact { patch, bundle } => {
+            PatchModRelFilter::ByBundleExact { bundle } => vec![Box::new(bundle.to_owned())],
+            PatchModRelFilter::ByPatchAndBundleExact { patch, bundle } => {
                 vec![Box::new(patch.to_owned()), Box::new(bundle.to_owned())]
             }
-            PatchModRelFilter::ByPatchAndPackAndModHashExact {
+            PatchModRelFilter::ByPatchAndBundleAndModHashExact {
                 patch,
                 bundle,
                 mod_hash,
@@ -74,13 +79,18 @@ impl Filter for PatchModRelFilter {
                 bundle: relation.bundle.to_owned(),
                 hash: relation.mod_hash.to_owned(),
             }),
-            PatchModRelFilter::ByPatchAndPackExact { patch, bundle } => {
+            PatchModRelFilter::ByBundleExact { bundle } => {
+                Error::Patch(PatchError::BundleNotFound {
+                    bundle: bundle.to_owned(),
+                })
+            }
+            PatchModRelFilter::ByPatchAndBundleExact { patch, bundle } => {
                 Error::Patch(PatchError::RelEmpty {
                     name: patch.to_owned(),
                     bundle: bundle.to_owned(),
                 })
             }
-            PatchModRelFilter::ByPatchAndPackAndModHashExact {
+            PatchModRelFilter::ByPatchAndBundleAndModHashExact {
                 patch,
                 bundle,
                 mod_hash,
@@ -98,8 +108,8 @@ impl Filter for PatchModRelFilter {
     }
 }
 
-impl InsertableFilter<PatchWithMods> for PatchModRelFilter {
-    fn insert(value: PatchWithMods) -> Self {
+impl InsertableFilter<PatchModRelation> for PatchModRelFilter {
+    fn insert(value: PatchModRelation) -> Self {
         Self::Insert { relation: value }
     }
 }

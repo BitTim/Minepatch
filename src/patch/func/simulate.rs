@@ -6,7 +6,7 @@
  *
  * File:       simulate.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   01.03.25, 00:53
+ * Modified:   10.03.25, 10:26
  */
 use crate::common::event;
 use crate::common::event::Event;
@@ -49,7 +49,7 @@ pub fn simulate(
     let mut mod_hashes = HashSet::new();
     mod_hashes.extend(simulate(conn, tx, &patch.dependency, bundle)?);
 
-    let rel_filter = PatchModRelFilter::ByPatchAndPackExact {
+    let rel_filter = PatchModRelFilter::ByPatchAndBundleExact {
         patch: name.to_owned(),
         bundle: bundle.to_owned(),
     };

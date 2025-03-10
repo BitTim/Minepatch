@@ -6,13 +6,13 @@
  *
  * File:       view.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   01.03.25, 23:55
+ * Modified:   10.03.25, 10:26
  */
 use crate::output::list_items::vault::ModListItem;
 use crate::output::table::TableOutput;
 use crate::output::{format_bool_valid, format_string_option};
 use colored::Colorize;
-use minepatch::patch_with_mods::PatchWithMods;
+use minepatch::patch_with_mods::PatchModRelation;
 use minepatch::prelude::*;
 use minepatch::vault::Mod;
 use minepatch::{patch, patch_with_mods, vault};
@@ -77,7 +77,7 @@ pub(crate) fn view(conn: &Connection, tx: &Sender<Event>, name: &str, bundle: &s
     Ok(())
 }
 
-fn query_mods(relations: &[&PatchWithMods], conn: &Connection) -> Result<Vec<Mod>> {
+fn query_mods(relations: &[&PatchModRelation], conn: &Connection) -> Result<Vec<Mod>> {
     relations
         .iter()
         .map(|rel| vault::query_single(conn, &rel.mod_hash))

@@ -6,10 +6,10 @@
  *
  * File:       export.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   01.03.25, 18:28
+ * Modified:   10.03.25, 10:25
  */
+use minepatch::bundle;
 use minepatch::prelude::*;
-use minepatch::template;
 use rusqlite::Connection;
 use std::env::current_dir;
 use std::path::Path;
@@ -26,5 +26,5 @@ pub(crate) fn export(
         None => current_dir()?,
     };
 
-    template::export(conn, tx, name, &path)
+    bundle::export(conn, tx, name, &path)
 }

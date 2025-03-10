@@ -6,7 +6,7 @@
  *
  * File:       error.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   01.03.25, 00:43
+ * Modified:   10.03.25, 10:26
  */
 use thiserror::Error;
 
@@ -17,7 +17,7 @@ pub enum PatchError {
     #[error("No patch with dependency '{dependency}' was found for bundle '{bundle}'.")]
     DepNotFound { dependency: String, bundle: String },
     #[error("No patches for bundle '{bundle}' were found.")]
-    PackNotFound { bundle: String },
+    BundleNotFound { bundle: String },
     #[error("No patches with dir state '{src_dir_hash}' found for bundle '{bundle}'")]
     SrcDirHashNotFound {
         src_dir_hash: String,

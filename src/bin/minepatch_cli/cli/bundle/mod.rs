@@ -6,12 +6,16 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   01.03.25, 00:53
+ * Modified:   10.03.25, 10:26
  */
 mod create;
+mod export;
+mod import;
 mod list;
 
 pub(crate) use create::*;
+pub(crate) use export::*;
+pub(crate) use import::*;
 pub(crate) use list::*;
 use std::path::PathBuf;
 
@@ -50,4 +54,24 @@ pub enum BundleCommands {
 
     /// Delete a bundle.
     Delete,
+
+    /// Export a bundle to a file
+    Export {
+        /// Name of the bundle. Must be unique.
+        name: String,
+
+        /// Path of the exported file. Defaults to the current dir with <NAME>.mpb as filename if omitted.
+        #[arg(short, long)]
+        path: Option<PathBuf>,
+    },
+
+    /// Import a bundle from a file
+    Import {
+        /// Path to the file that should be imported
+        path: PathBuf,
+
+        /// Name for the imported bundle. If omitted, the exported name will be used. Must be unique.
+        #[arg(short, long)]
+        name: Option<String>,
+    },
 }

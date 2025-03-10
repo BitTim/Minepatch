@@ -6,8 +6,10 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   10.03.25, 10:26
+ * Modified:   10.03.25, 06:18
  */
-mod template;
+mod entity;
+mod portable;
 
-pub use template::*;
+pub use entity::*;
+pub use portable::*;

@@ -6,7 +6,7 @@
  *
  * File:       filter.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   01.03.25, 00:53
+ * Modified:   10.03.25, 10:26
  */
 use crate::common::db::{Filter, InsertableFilter};
 use crate::error::Error;
@@ -74,7 +74,7 @@ impl Filter for PatchFilter {
                     bundle: bundle.to_owned(),
                 })
             }
-            PatchFilter::ByPackExact { bundle } => Error::Patch(PatchError::PackNotFound {
+            PatchFilter::ByPackExact { bundle } => Error::Patch(PatchError::BundleNotFound {
                 bundle: bundle.to_owned(),
             }),
         }

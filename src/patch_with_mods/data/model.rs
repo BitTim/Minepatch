@@ -6,7 +6,7 @@
  *
  * File:       model.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   01.03.25, 19:13
+ * Modified:   10.03.25, 10:26
  */
 use crate::common::db::Entity;
 use crate::prelude::*;
@@ -14,14 +14,14 @@ use rusqlite::{Row, ToSql};
 use serde::{Deserialize, Serialize};
 
 #[derive(Eq, PartialEq, Hash, Debug, Clone, Serialize, Deserialize)]
-pub struct PatchWithMods {
+pub struct PatchModRelation {
     pub patch: String,
     pub bundle: String,
     pub mod_hash: String,
     pub removed: bool,
 }
 
-impl PatchWithMods {
+impl PatchModRelation {
     pub fn new(patch: &str, bundle: &str, mod_hash: &str, removed: bool) -> Self {
         Self {
             patch: patch.to_owned(),
@@ -32,7 +32,7 @@ impl PatchWithMods {
     }
 }
 
-impl Entity for PatchWithMods {
+impl Entity for PatchModRelation {
     fn table_name() -> String {
         "patch_with_mods".to_owned()
     }

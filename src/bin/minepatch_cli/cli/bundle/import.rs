@@ -6,11 +6,11 @@
  *
  * File:       import.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   01.03.25, 18:35
+ * Modified:   10.03.25, 08:36
  */
+use minepatch::bundle;
 use minepatch::event::Event;
 use minepatch::prelude::*;
-use minepatch::template;
 use rusqlite::Connection;
 use std::path::Path;
 use std::sync::mpsc::Sender;
@@ -21,5 +21,5 @@ pub(crate) fn import(
     path: &Path,
     name: Option<&str>,
 ) -> Result<()> {
-    template::import(conn, tx, path, name)
+    bundle::import(conn, tx, path, name)
 }

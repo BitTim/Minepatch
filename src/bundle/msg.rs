@@ -6,7 +6,7 @@
  *
  * File:       msg.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   01.03.25, 00:53
+ * Modified:   10.03.25, 07:55
  */
 use crate::bundle::Bundle;
 use std::path::PathBuf;
@@ -16,6 +16,8 @@ pub enum BundleProcess {
     Create,
     AddModFiles,
     Validate,
+    Export,
+    Import,
 }
 
 #[derive(Clone, Hash, Eq, PartialEq, Debug)]
@@ -24,4 +26,5 @@ pub enum BundleMessage {
     AddModFileStatus { path: PathBuf, hash: String },
     ValidateSuccess { name: String },
     ValidateStatus { name: String },
+    ExportSuccess { bundle: String, path: PathBuf },
 }

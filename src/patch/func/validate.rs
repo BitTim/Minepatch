@@ -6,7 +6,7 @@
  *
  * File:       validate.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   01.03.25, 00:53
+ * Modified:   10.03.25, 10:26
  */
 use crate::common::event;
 use crate::db::Repo;
@@ -63,7 +63,7 @@ fn validate_patch_dependency(conn: &Connection, tx: &Sender<Event>, patch: &Patc
 }
 
 fn validate_mods(conn: &Connection, tx: &Sender<Event>, name: &str, bundle: &str) -> Result<()> {
-    let query = PatchModRelFilter::ByPatchAndPackExact {
+    let query = PatchModRelFilter::ByPatchAndBundleExact {
         patch: name.to_owned(),
         bundle: bundle.to_owned(),
     };
