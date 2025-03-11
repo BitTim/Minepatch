@@ -6,7 +6,7 @@
  *
  * File:       msg.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   10.03.25, 07:55
+ * Modified:   11.03.25, 05:59
  */
 use crate::bundle::Bundle;
 use std::path::PathBuf;

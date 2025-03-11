@@ -6,7 +6,7 @@
  *
  * File:       remove.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   01.03.25, 19:26
+ * Modified:   11.03.25, 06:46
  */
 use crate::common::event;
 use crate::common::event::EventError;
@@ -112,6 +112,7 @@ pub fn remove(
             Message::Mod(ModMessage::RemoveStatus {
                 hash: hash.to_owned(),
             }),
+            1,
         )?;
     }
 

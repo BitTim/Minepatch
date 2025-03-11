@@ -6,20 +6,16 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   02.03.25, 00:17
+ * Modified:   11.03.25, 06:18
  */
 use clap::Subcommand;
 use std::path::PathBuf;
 
 mod add;
-mod export;
-mod import;
 mod list;
 mod remove;
 
 pub(crate) use add::*;
-pub(crate) use export::*;
-pub(crate) use import::*;
 pub(crate) use list::*;
 pub(crate) use remove::*;
 
@@ -67,21 +63,5 @@ pub enum VaultCommands {
         /// Use this flag to skip the confirmation prompt.
         #[arg(short, long)]
         yes: bool,
-    },
-
-    /// Export a mod from the vault
-    Export {
-        /// Hash of the mod file to be exported
-        hash: String,
-
-        /// Path of the resulting .mpm file
-        #[arg(short, long)]
-        path: Option<PathBuf>,
-    },
-
-    /// Import a mod into the vault
-    Import {
-        /// Path of the file to be imported
-        path: PathBuf,
     },
 }

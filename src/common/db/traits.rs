@@ -6,7 +6,7 @@
  *
  * File:       traits.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   10.03.25, 10:25
+ * Modified:   11.03.25, 06:15
  */
 use crate::error::Error;
 use crate::prelude::*;
@@ -40,8 +40,8 @@ pub(crate) trait Portable:
         event::init_progress(tx, process.to_owned(), None)?;
 
         let path = file::canonicalize_entity_path(path.to_owned(), self)?;
-        let serialized = bincode::serialize(self)?;
-        let compressed = comp::compress(&serialized)?;
+        let serialized = comp::serialize(tx, self)?;
+        let compressed = comp::compress(tx, &serialized)?;
 
         let mut file = File::create_new(&path)?;
         file.write_all(&compressed)?;
@@ -63,8 +63,8 @@ pub(crate) trait Portable:
 
         file.read_to_end(&mut data)?;
 
-        let decompressed = comp::decompress(&data)?;
-        let deserialized = bincode::deserialize::<Self>(&decompressed)?;
+        let decompressed = comp::decompress(tx, &data)?;
+        let deserialized = comp::deserialize::<Self>(tx, &decompressed)?;
 
         event::end_progress(tx, process, success_msg)?;
         Ok(deserialized)

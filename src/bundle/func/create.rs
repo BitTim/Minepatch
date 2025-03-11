@@ -6,7 +6,7 @@
  *
  * File:       create.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   01.03.25, 00:53
+ * Modified:   11.03.25, 06:45
  */
 use crate::bundle::BundleProcess;
 use crate::bundle::data::{Bundle, BundleFilter, BundleRepo};
@@ -69,6 +69,7 @@ pub fn create(
                     path: mod_path.to_path_buf(),
                     hash,
                 }),
+                1,
             )?;
         }
 

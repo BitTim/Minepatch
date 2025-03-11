@@ -6,7 +6,7 @@
  *
  * File:       validate.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   01.03.25, 00:43
+ * Modified:   11.03.25, 06:45
  */
 use crate::bundle::data::{BundleFilter, BundleRepo};
 use crate::bundle::{BundleMessage, BundleProcess};
@@ -25,6 +25,7 @@ pub fn validate(conn: &Connection, tx: &Sender<Event>, name: &str, exist_only: b
         Message::Bundle(BundleMessage::ValidateStatus {
             name: name.to_owned(),
         }),
+        1,
     )?;
     let query = BundleFilter::QueryExactName {
         name: name.to_owned(),

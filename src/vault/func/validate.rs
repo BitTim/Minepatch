@@ -6,7 +6,7 @@
  *
  * File:       validate.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   01.03.25, 00:53
+ * Modified:   11.03.25, 06:46
  */
 use crate::common::event;
 use crate::db::Repo;
@@ -25,6 +25,7 @@ pub fn validate(conn: &Connection, tx: &Sender<Event>, hash: &str) -> Result<()>
         Message::Mod(ModMessage::ValidateStatus {
             hash: hash.to_owned(),
         }),
+        1,
     )?;
 
     let query = ModFilter::QueryHashExact {

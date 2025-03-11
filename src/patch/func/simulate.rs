@@ -6,7 +6,7 @@
  *
  * File:       simulate.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   10.03.25, 10:26
+ * Modified:   11.03.25, 06:46
  */
 use crate::common::event;
 use crate::common::event::Event;
@@ -33,6 +33,7 @@ pub fn simulate(
         Message::Patch(PatchMessage::SimulateStatus {
             name: name.to_owned(),
         }),
+        1,
     )?;
 
     if name.is_empty() {

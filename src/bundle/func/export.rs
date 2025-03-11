@@ -6,7 +6,7 @@
  *
  * File:       export.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   10.03.25, 06:31
+ * Modified:   11.03.25, 05:59
  */
 use crate::bundle::data::PortableBundle;
 use crate::bundle::{BundleMessage, BundleProcess};

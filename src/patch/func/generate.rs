@@ -6,7 +6,7 @@
  *
  * File:       generate.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   01.03.25, 00:53
+ * Modified:   11.03.25, 06:45
  */
 use crate::common::event;
 use crate::common::event::Event;
@@ -45,6 +45,7 @@ pub fn generate(conn: &Connection, tx: &Sender<Event>, name: &str, instance: &st
                     path: path.to_path_buf(),
                     hash: hash.to_owned(),
                 }),
+                1,
             )?;
 
             Ok((path.to_owned(), hash))

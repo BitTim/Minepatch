@@ -6,7 +6,7 @@
  *
  * File:       main.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   10.03.25, 09:31
+ * Modified:   11.03.25, 06:43
  */
 use crate::cli::bundle::BundleCommands;
 use crate::cli::instance::InstanceCommands;
@@ -22,6 +22,7 @@ use colored::Colorize;
 use indicatif::{MultiProgress, ProgressBar, ProgressStyle};
 use inquire::{Confirm, MultiSelect, Select};
 use minepatch::bundle::{BundleMessage, BundleProcess};
+use minepatch::comp::CompProcess;
 use minepatch::db;
 use minepatch::event::EventError;
 use minepatch::hash::{HashMessage, HashProcess};
@@ -71,8 +72,6 @@ fn match_command(command: &Commands, conn: &Connection, tx: &Sender<Event>) -> R
             VaultCommands::Remove { hash, all, yes } => {
                 vault::remove(conn, tx, hash, *all, *yes)?;
             }
-            VaultCommands::Export { hash, path } => vault::export(conn, tx, hash, path.as_deref())?,
-            VaultCommands::Import { path } => vault::import(conn, tx, path)?,
         },
         Commands::Template {
             template_commands: template_command,
@@ -185,6 +184,12 @@ fn match_process(process: &Process) -> String {
             TemplateProcess::Validate => "Validate template",
             TemplateProcess::Export => "Export template",
             TemplateProcess::Import => "Import template",
+        },
+        Process::Comp(process) => match process {
+            CompProcess::Serialize => "Serialize",
+            CompProcess::Deserialize => "Deserialize",
+            CompProcess::Compress => "Compress",
+            CompProcess::Decompress => "Decompress",
         },
     }
     .to_owned()
@@ -328,6 +333,7 @@ fn match_message(message: &Message) -> String {
                 format!("Imported template '{}' from file '{}", name, path.display())
             }
         },
+        Message::Comp(_message) => "".to_owned(),
     }
 }
 
@@ -372,13 +378,17 @@ fn match_event(rx: Receiver<Event>, processes: &mut HashMap<Process, ProgressBar
                 let progress_bar = multi_progress.add(progress_bar);
                 processes.insert(process, progress_bar);
             }
-            Event::ProgressTick { process, message } => {
+            Event::ProgressTick {
+                process,
+                message,
+                increment,
+            } => {
                 let progress_bar = processes
                     .get(&process)
                     .ok_or(Error::Event(EventError::ProcessNotFound))?;
 
                 progress_bar.set_message(match_message(&message));
-                progress_bar.inc(1);
+                progress_bar.inc(increment);
             }
             Event::ProgressFinish { process, message } => {
                 let progress_bar = processes

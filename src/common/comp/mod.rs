@@ -6,14 +6,10 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   11.03.25, 06:15
+ * Modified:   11.03.25, 06:45
  */
-mod add;
-mod query;
-mod remove;
-mod validate;
+mod func;
+mod msg;
 
-pub use add::*;
-pub use query::*;
-pub use remove::*;
-pub use validate::*;
+pub(crate) use func::*;
+pub use msg::*;

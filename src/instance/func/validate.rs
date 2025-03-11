@@ -6,7 +6,7 @@
  *
  * File:       validate.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   01.03.25, 00:53
+ * Modified:   11.03.25, 06:45
  */
 use crate::common::event;
 use crate::common::event::Event;
@@ -27,6 +27,7 @@ pub fn validate(conn: &Connection, tx: &Sender<Event>, name: &str, exist_only: b
         Message::Instance(InstanceMessage::ValidateStatus {
             name: name.to_owned(),
         }),
+        1,
     )?;
     let query = InstanceFilter::ByExactName {
         name: name.to_owned(),

@@ -6,7 +6,7 @@
  *
  * File:       portable.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   10.03.25, 10:07
+ * Modified:   11.03.25, 05:58
  */
 use crate::bundle::Bundle;
 use crate::bundle::data::BundleRepo;
@@ -48,8 +48,8 @@ impl PortableBundle {
 
         let mods = mod_hashes
             .iter()
-            .map(|hash| vault::query_single(conn, hash).map(PortableMod::new))
-            .collect::<Result<Result<Vec<PortableMod>>>>()??;
+            .map(|hash| vault::query_single(conn, hash).map(PortableMod::new)?)
+            .collect::<Result<Vec<PortableMod>>>()?;
 
         Ok(Self {
             bundle,

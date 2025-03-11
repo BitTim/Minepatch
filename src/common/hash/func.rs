@@ -6,7 +6,7 @@
  *
  * File:       func.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   14.02.25, 19:11
+ * Modified:   11.03.25, 06:45
  */
 use crate::common::event;
 use crate::common::event::Event;
@@ -53,6 +53,7 @@ pub(crate) fn hash_state_from_path(tx: &Sender<Event>, paths: &[PathBuf]) -> Res
                 Message::Hash(HashMessage::HashFilesStatus {
                     path: mod_path.to_path_buf(),
                 }),
+                1,
             )?;
             hash_file(mod_path)
         })

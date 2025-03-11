@@ -6,9 +6,10 @@
  *
  * File:       msg.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   01.03.25, 00:39
+ * Modified:   11.03.25, 06:10
  */
 use crate::bundle::{BundleMessage, BundleProcess};
+use crate::comp::{CompMessage, CompProcess};
 use crate::hash::{HashMessage, HashProcess};
 use crate::instance::{InstanceMessage, InstanceProcess};
 use crate::patch::{PatchMessage, PatchProcess};
@@ -18,6 +19,7 @@ use crate::vault::{ModMessage, ModProcess};
 #[derive(Clone, Hash, Eq, PartialEq, Debug)]
 pub enum Process {
     Hash(HashProcess),
+    Comp(CompProcess),
     Instance(InstanceProcess),
     Bundle(BundleProcess),
     Patch(PatchProcess),
@@ -28,6 +30,7 @@ pub enum Process {
 pub enum Message {
     Transparent(String),
     Hash(HashMessage),
+    Comp(CompMessage),
     Instance(InstanceMessage),
     Bundle(BundleMessage),
     Patch(PatchMessage),
