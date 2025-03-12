@@ -6,20 +6,27 @@
  *
  * File:       link.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   11.02.25, 04:00
+ * Modified:   26.02.25, 00:40
  */
 use minepatch::instance;
 use minepatch::prelude::*;
 use rusqlite::Connection;
+use std::path;
 use std::path::Path;
 use std::sync::mpsc::Sender;
 
 pub(crate) fn link(
-    connection: &Connection,
+    conn: &Connection,
     tx: &Sender<Event>,
     path: &Path,
     name: &Option<String>,
-    pack: &Option<String>,
+    bundle: &Option<String>,
 ) -> Result<()> {
-    Ok(_ = instance::link(connection, tx, path, name.as_deref(), pack.as_deref())?)
+    Ok(_ = instance::link(
+        conn,
+        tx,
+        &path::absolute(path)?.canonicalize()?,
+        name.as_deref(),
+        bundle.as_deref(),
+    )?)
 }

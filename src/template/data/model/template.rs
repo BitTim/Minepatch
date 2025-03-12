@@ -4,12 +4,12 @@
  * Project:    Minepatch
  * License:    GPLv3
  *
- * File:       model.rs
+ * File:       template.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   08.02.25, 01:06
+ * Modified:   01.03.25, 19:17
  */
-use crate::common::db::Entity;
-use crate::prelude::*;
+use crate::db::Entity;
+use crate::prelude;
 use rusqlite::{Row, ToSql};
 use serde::{Deserialize, Serialize};
 
@@ -42,7 +42,7 @@ impl Entity for Template {
         "template".to_owned()
     }
 
-    fn from_row(row: &Row) -> Result<Box<Self>> {
+    fn from_row(row: &Row) -> prelude::Result<Box<Self>> {
         Ok(Box::new(Self {
             name: row.get(0)?,
             version: row.get(1)?,

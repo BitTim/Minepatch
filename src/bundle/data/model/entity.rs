@@ -4,23 +4,24 @@
  * Project:    Minepatch
  * License:    GPLv3
  *
- * File:       model.rs
+ * File:       entity.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   12.02.25, 03:51
+ * Modified:   02.03.25, 17:12
  */
+
 use crate::common::db::Entity;
 use crate::prelude::*;
 use rusqlite::{Row, ToSql};
 use serde::{Deserialize, Serialize};
 
 #[derive(Eq, PartialEq, Hash, Debug, Clone, Serialize, Deserialize)]
-pub struct Pack {
+pub struct Bundle {
     pub name: String,
     pub description: Option<String>,
     pub template: Option<String>,
 }
 
-impl Pack {
+impl Bundle {
     pub fn new(name: &str, description: Option<&str>, template: Option<&str>) -> Self {
         Self {
             name: name.to_owned(),
@@ -30,9 +31,9 @@ impl Pack {
     }
 }
 
-impl Entity for Pack {
+impl Entity for Bundle {
     fn table_name() -> String {
-        "pack".to_owned()
+        "bundle".to_owned()
     }
 
     fn from_row(value: &Row) -> Result<Box<Self>> {

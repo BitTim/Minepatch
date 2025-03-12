@@ -6,7 +6,7 @@
  *
  * File:       validate.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   15.02.25, 01:46
+ * Modified:   11.03.25, 06:46
  */
 use crate::common::event;
 use crate::db::Repo;
@@ -14,15 +14,15 @@ use crate::patch::data::{PatchFilter, PatchRepo};
 use crate::patch::{Patch, PatchMessage, PatchProcess};
 use crate::patch_with_mods::{PatchModRelFilter, PatchModRelRepo};
 use crate::prelude::*;
-use crate::{pack, vault};
+use crate::{bundle, vault};
 use rusqlite::Connection;
 use std::sync::mpsc::Sender;
 
 pub fn validate(
-    connection: &Connection,
+    conn: &Connection,
     tx: &Sender<Event>,
     name: &str,
-    pack: &str,
+    bundle: &str,
     exist_only: bool,
 ) -> Result<()> {
     event::init_progress(tx, Process::Patch(PatchProcess::Validate), None)?;
@@ -30,56 +30,48 @@ pub fn validate(
         tx,
         Process::Patch(PatchProcess::Validate),
         Message::Patch(PatchMessage::ValidateStatus {
-            pack: pack.to_owned(),
+            bundle: bundle.to_owned(),
             name: name.to_owned(),
         }),
+        1,
     )?;
 
     let query = PatchFilter::ByNameAndPackExact {
         name: name.to_owned(),
-        pack: pack.to_owned(),
+        bundle: bundle.to_owned(),
     };
-    let patch = PatchRepo::query_single(connection, &query)?;
+    let patch = PatchRepo::query_single(conn, &query)?;
 
     if exist_only {
         event::end_progress(tx, Process::Patch(PatchProcess::Validate), None)?;
         return Ok(());
     }
 
-    pack::validate(connection, tx, pack, true)?;
-    validate_patch_dependency(connection, tx, &patch)?;
-    validate_mods(connection, tx, name, pack)?;
+    bundle::validate(conn, tx, bundle, true)?;
+    validate_patch_dependency(conn, tx, &patch)?;
+    validate_mods(conn, tx, name, bundle)?;
 
     event::end_progress(tx, Process::Patch(PatchProcess::Validate), None)?;
     Ok(())
 }
 
-fn validate_patch_dependency(
-    connection: &Connection,
-    tx: &Sender<Event>,
-    patch: &Patch,
-) -> Result<()> {
+fn validate_patch_dependency(conn: &Connection, tx: &Sender<Event>, patch: &Patch) -> Result<()> {
     if !patch.dependency.is_empty() {
-        validate(connection, tx, &patch.dependency, &patch.pack, false)?;
+        validate(conn, tx, &patch.dependency, &patch.bundle, false)?;
     }
 
     Ok(())
 }
 
-fn validate_mods(
-    connection: &Connection,
-    tx: &Sender<Event>,
-    name: &str,
-    pack: &str,
-) -> Result<()> {
-    let query = PatchModRelFilter::ByPatchAndPackExact {
+fn validate_mods(conn: &Connection, tx: &Sender<Event>, name: &str, bundle: &str) -> Result<()> {
+    let query = PatchModRelFilter::ByPatchAndBundleExact {
         patch: name.to_owned(),
-        pack: pack.to_owned(),
+        bundle: bundle.to_owned(),
     };
 
-    PatchModRelRepo::query_multiple(connection, &query)?
+    PatchModRelRepo::query_multiple(conn, &query)?
         .iter()
-        .try_for_each(|value| vault::validate(connection, tx, &value.mod_hash))?;
+        .try_for_each(|value| vault::validate(conn, tx, &value.mod_hash))?;
 
     Ok(())
 }

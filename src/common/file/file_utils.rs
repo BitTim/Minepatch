@@ -6,7 +6,7 @@
  *
  * File:       file_utils.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   26.01.25, 21:22
+ * Modified:   18.02.25, 16:02
  */
 use crate::error::Error;
 use crate::file::error::FileError;
@@ -16,9 +16,9 @@ use std::path::Path;
 
 pub fn check_exists(path: &Path) -> Result<()> {
     if !path.exists() {
-        Err(Error::File(FileError::PathNotFound(
-            path.display().to_string(),
-        )))
+        Err(Error::File(FileError::PathNotFound {
+            path: path.to_owned(),
+        }))
     } else {
         Ok(())
     }

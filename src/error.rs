@@ -6,13 +6,13 @@
  *
  * File:       error.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   14.02.25, 18:56
+ * Modified:   01.03.25, 00:53
  */
+use crate::bundle::BundleError;
 use crate::common::event::{Event, EventError};
 use crate::common::file::error::FileError;
 use crate::common::meta::error::MetaError;
 use crate::instance::InstanceError;
-use crate::pack::PackError;
 use crate::patch::PatchError;
 use crate::template::TemplateError;
 use crate::vault::VaultError;
@@ -36,7 +36,7 @@ pub enum Error {
     #[error(transparent)]
     Patch(#[from] PatchError),
     #[error(transparent)]
-    Pack(#[from] PackError),
+    Bundle(#[from] BundleError),
     #[error(transparent)]
     Instance(#[from] InstanceError),
 
@@ -68,4 +68,6 @@ pub enum Error {
     RONSer(#[from] ron::error::Error),
     #[error(transparent)]
     RONDe(#[from] ron::error::SpannedError),
+    #[error(transparent)]
+    BinCode(#[from] bincode::Error),
 }

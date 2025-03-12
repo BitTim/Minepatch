@@ -6,7 +6,7 @@
  *
  * File:       func.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   16.02.25, 13:47
+ * Modified:   11.03.25, 06:54
  */
 use crate::common::event::{Event, EventError};
 use crate::prelude::*;
@@ -23,8 +23,17 @@ pub(crate) fn init_progress(
     Ok(tx.send(Event::Progress { process, total })?)
 }
 
-pub(crate) fn tick_progress(tx: &Sender<Event>, process: Process, message: Message) -> Result<()> {
-    Ok(tx.send(Event::ProgressTick { process, message })?)
+pub(crate) fn tick_progress(
+    tx: &Sender<Event>,
+    process: Process,
+    message: Message,
+    increment: u64,
+) -> Result<()> {
+    Ok(tx.send(Event::ProgressTick {
+        process,
+        message,
+        increment,
+    })?)
 }
 
 pub(crate) fn end_progress(

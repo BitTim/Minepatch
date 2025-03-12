@@ -6,18 +6,25 @@
  *
  * File:       query.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   08.02.25, 01:59
+ * Modified:   01.03.25, 19:21
  */
 use crate::db::Repo;
 use crate::prelude::*;
+use crate::template::data::Template;
 use crate::template::data::{TemplateFilter, TemplateRepo};
-use crate::template::Template;
 use rusqlite::Connection;
 use std::collections::HashSet;
 
-pub fn query(connection: &Connection, name: Option<&str>) -> Result<HashSet<Template>> {
+pub fn query_single(conn: &Connection, name: &str) -> Result<Template> {
+    let query = TemplateFilter::QueryNameSimilar {
+        name: name.to_owned(),
+    };
+    TemplateRepo::query_single(conn, &query)
+}
+
+pub fn query_multiple(conn: &Connection, name: Option<&str>) -> Result<HashSet<Template>> {
     let query = TemplateFilter::QueryNameSimilar {
         name: name.unwrap_or_default().to_owned(),
     };
-    TemplateRepo::query_multiple(connection, &query)
+    TemplateRepo::query_multiple(conn, &query)
 }

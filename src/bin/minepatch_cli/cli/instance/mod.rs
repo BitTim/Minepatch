@@ -6,7 +6,7 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   10.02.25, 19:01
+ * Modified:   01.03.25, 00:53
  */
 mod apply;
 mod link;
@@ -49,9 +49,9 @@ pub enum InstanceCommands {
         #[arg(short, long)]
         name: Option<String>,
 
-        /// The pack this instance belongs to. Tries to detect if omitted.
+        /// The bundle this instance belongs to. Tries to detect if omitted.
         #[arg(short = 'p', long)]
-        pack: Option<String>,
+        bundle: Option<String>,
     },
     // /// Change the unique name of an already linked instance
     // Rename {

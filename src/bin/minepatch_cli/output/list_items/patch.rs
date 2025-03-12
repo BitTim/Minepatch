@@ -6,7 +6,7 @@
  *
  * File:       patch.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   12.02.25, 04:12
+ * Modified:   01.03.25, 00:53
  */
 use crate::output::format_bool;
 use minepatch::patch;
@@ -20,8 +20,8 @@ use tabled::Tabled;
 pub struct PatchListItem {
     #[tabled(rename = "Name")]
     name: String,
-    #[tabled(rename = "Pack")]
-    pack: String,
+    #[tabled(rename = "Bundle")]
+    bundle: String,
     #[tabled(rename = "Dependency")]
     dependency: String,
     #[tabled(rename = "Valid")]
@@ -29,12 +29,12 @@ pub struct PatchListItem {
 }
 
 impl PatchListItem {
-    pub(crate) fn from(connection: &Connection, tx: &Sender<Event>, value: &Patch) -> Result<Self> {
-        let valid = patch::validate(connection, tx, &value.name, &value.pack, false).is_ok();
+    pub(crate) fn from(conn: &Connection, tx: &Sender<Event>, value: &Patch) -> Result<Self> {
+        let valid = patch::validate(conn, tx, &value.name, &value.bundle, false).is_ok();
 
         Ok(PatchListItem {
             name: value.name.to_owned(),
-            pack: value.pack.to_owned(),
+            bundle: value.bundle.to_owned(),
             dependency: value.dependency.to_owned(),
             valid: format_bool(&valid),
         })

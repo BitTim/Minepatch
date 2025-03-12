@@ -6,11 +6,11 @@
  *
  * File:       repo.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   06.02.25, 02:18
+ * Modified:   10.03.25, 10:26
  */
 use crate::db::Repo;
 use crate::patch_with_mods::data::filter::PatchModRelFilter;
-use crate::patch_with_mods::data::model::PatchWithMods;
+use crate::patch_with_mods::data::model::PatchModRelation;
 
 pub(crate) struct PatchModRelRepo {}
-impl Repo<PatchModRelFilter, PatchWithMods> for PatchModRelRepo {}
+impl Repo<PatchModRelFilter, PatchModRelation> for PatchModRelRepo {}

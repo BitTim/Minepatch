@@ -4,13 +4,13 @@
  * Project:    Minepatch
  * License:    GPLv3
  *
- * File:       pack.rs
+ * File:       bundle.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   12.02.25, 04:12
+ * Modified:   01.03.25, 00:53
  */
 use crate::output::{format_bool, format_string_option};
-use minepatch::pack;
-use minepatch::pack::Pack;
+use minepatch::bundle;
+use minepatch::bundle::Bundle;
 use minepatch::prelude::*;
 use rusqlite::Connection;
 use std::sync::mpsc::Sender;
@@ -29,8 +29,8 @@ pub struct PackListItem {
 }
 
 impl PackListItem {
-    pub(crate) fn from(connection: &Connection, tx: &Sender<Event>, value: &Pack) -> Result<Self> {
-        let valid = pack::validate(connection, tx, &value.name, false).is_ok();
+    pub(crate) fn from(conn: &Connection, tx: &Sender<Event>, value: &Bundle) -> Result<Self> {
+        let valid = bundle::validate(conn, tx, &value.name, false).is_ok();
 
         Ok(PackListItem {
             name: value.name.to_owned(),

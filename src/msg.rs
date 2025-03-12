@@ -6,11 +6,12 @@
  *
  * File:       msg.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   15.02.25, 01:41
+ * Modified:   11.03.25, 06:10
  */
+use crate::bundle::{BundleMessage, BundleProcess};
+use crate::comp::{CompMessage, CompProcess};
 use crate::hash::{HashMessage, HashProcess};
 use crate::instance::{InstanceMessage, InstanceProcess};
-use crate::pack::{PackMessage, PackProcess};
 use crate::patch::{PatchMessage, PatchProcess};
 use crate::template::{TemplateMessage, TemplateProcess};
 use crate::vault::{ModMessage, ModProcess};
@@ -18,8 +19,9 @@ use crate::vault::{ModMessage, ModProcess};
 #[derive(Clone, Hash, Eq, PartialEq, Debug)]
 pub enum Process {
     Hash(HashProcess),
+    Comp(CompProcess),
     Instance(InstanceProcess),
-    Pack(PackProcess),
+    Bundle(BundleProcess),
     Patch(PatchProcess),
     Template(TemplateProcess),
     Mod(ModProcess),
@@ -28,8 +30,9 @@ pub enum Process {
 pub enum Message {
     Transparent(String),
     Hash(HashMessage),
+    Comp(CompMessage),
     Instance(InstanceMessage),
-    Pack(PackMessage),
+    Bundle(BundleMessage),
     Patch(PatchMessage),
     Template(TemplateMessage),
     Mod(ModMessage),

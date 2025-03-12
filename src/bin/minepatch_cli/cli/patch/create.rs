@@ -6,7 +6,7 @@
  *
  * File:       create.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   12.02.25, 17:33
+ * Modified:   26.02.25, 00:40
  */
 use minepatch::patch;
 use minepatch::prelude::*;
@@ -15,17 +15,17 @@ use std::collections::HashSet;
 use std::sync::mpsc::Sender;
 
 pub(crate) fn create(
-    connection: &Connection,
+    conn: &Connection,
     tx: &Sender<Event>,
     name: &str,
-    pack: &str,
+    bundle: &str,
     dependency: &str,
 ) -> Result<()> {
     patch::create(
-        connection,
+        conn,
         tx,
         name,
-        pack,
+        bundle,
         dependency,
         &HashSet::new(),
         &HashSet::new(),

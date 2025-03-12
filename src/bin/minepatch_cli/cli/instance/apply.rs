@@ -6,7 +6,7 @@
  *
  * File:       apply.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   12.02.25, 17:32
+ * Modified:   01.03.25, 00:53
  */
 use minepatch::instance;
 use minepatch::prelude::*;
@@ -14,10 +14,10 @@ use rusqlite::Connection;
 use std::sync::mpsc::Sender;
 
 pub(crate) fn apply(
-    connection: &Connection,
+    conn: &Connection,
     tx: &Sender<Event>,
     instance: &str,
     patch: &str,
 ) -> Result<()> {
-    instance::apply(connection, tx, instance, patch)
+    instance::apply(conn, tx, instance, patch)
 }

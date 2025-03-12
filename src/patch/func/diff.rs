@@ -6,7 +6,7 @@
  *
  * File:       diff.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   14.02.25, 19:11
+ * Modified:   01.03.25, 00:53
  */
 use crate::common::event::Event;
 use crate::patch;
@@ -17,14 +17,14 @@ use std::collections::HashSet;
 use std::sync::mpsc::Sender;
 
 pub fn diff(
-    connection: &Connection,
+    conn: &Connection,
     tx: &Sender<Event>,
-    pack: &str,
+    bundle: &str,
     from: &str,
     to: &str,
 ) -> Result<PatchDiff> {
-    let from_sim_hashes = patch::simulate(connection, tx, from, pack)?;
-    let to_sim_hashes = patch::simulate(connection, tx, to, pack)?;
+    let from_sim_hashes = patch::simulate(conn, tx, from, bundle)?;
+    let to_sim_hashes = patch::simulate(conn, tx, to, bundle)?;
 
     let added = to_sim_hashes
         .difference(&from_sim_hashes)

@@ -6,11 +6,11 @@
  *
  * File:       repo.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   06.02.25, 02:00
+ * Modified:   01.03.25, 19:26
  */
 use crate::db::Repo;
+use crate::vault::data::Mod;
 use crate::vault::data::filter::ModFilter;
-use crate::vault::data::model::Mod;
 
 pub(crate) struct VaultRepo {}
 impl Repo<ModFilter, Mod> for VaultRepo {}

@@ -6,7 +6,7 @@
  *
  * File:       list.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   14.02.25, 19:40
+ * Modified:   01.03.25, 00:53
  */
 use crate::output::list_items::template::TemplateListItem;
 use crate::output::table::TableOutput;
@@ -15,12 +15,8 @@ use minepatch::template;
 use rusqlite::Connection;
 use std::sync::mpsc::Sender;
 
-pub(crate) fn list(
-    connection: &Connection,
-    tx: &Sender<Event>,
-    name: &Option<String>,
-) -> Result<()> {
-    let templates = template::query(connection, name.to_owned().as_deref())?
+pub(crate) fn list(conn: &Connection, tx: &Sender<Event>, name: &Option<String>) -> Result<()> {
+    let templates = template::query_multiple(conn, name.to_owned().as_deref())?
         .iter()
         .map(TemplateListItem::from)
         .collect::<Vec<TemplateListItem>>();

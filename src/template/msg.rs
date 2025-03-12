@@ -6,14 +6,16 @@
  *
  * File:       msg.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   15.02.25, 01:47
+ * Modified:   01.03.25, 19:21
  */
-use crate::template::Template;
-
+use crate::template::data::Template;
+use std::path::PathBuf;
 #[derive(Clone, Hash, Eq, PartialEq, Debug)]
 pub enum TemplateProcess {
     Create,
     Validate,
+    Export,
+    Import,
 }
 
 #[derive(Clone, Hash, Eq, PartialEq, Debug)]
@@ -21,4 +23,6 @@ pub enum TemplateMessage {
     CreateSuccess { template: Box<Template> },
     ValidateSuccess { name: String },
     ValidateStatus { name: String },
+    ExportSuccess { name: String, path: PathBuf },
+    ImportSuccess { name: String, path: PathBuf },
 }

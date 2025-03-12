@@ -6,11 +6,10 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   26.01.25, 22:15
+ * Modified:   11.03.25, 06:45
  */
-mod create;
-pub use create::*;
-mod query;
-pub use query::*;
-mod validate;
-pub use validate::*;
+mod func;
+mod msg;
+
+pub(crate) use func::*;
+pub use msg::*;

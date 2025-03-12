@@ -6,14 +6,10 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   11.02.25, 03:17
+ * Modified:   10.03.25, 06:18
  */
-pub(super) mod data;
-pub use data::Pack;
-mod error;
-pub use error::*;
-mod func;
-mod msg;
+mod entity;
+mod portable;
 
-pub use func::*;
-pub use msg::*;
+pub use entity::*;
+pub use portable::*;

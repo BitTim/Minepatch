@@ -6,16 +6,17 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.01.25, 03:13
+ * Modified:   11.03.25, 06:18
  */
 use clap::Subcommand;
 use std::path::PathBuf;
 
 mod add;
-pub(crate) use add::*;
 mod list;
-pub(crate) use list::*;
 mod remove;
+
+pub(crate) use add::*;
+pub(crate) use list::*;
 pub(crate) use remove::*;
 
 #[derive(Subcommand, Debug)]
@@ -51,7 +52,7 @@ pub enum VaultCommands {
 
     /// Removes a mod from the vault
     Remove {
-        /// Full hash of the mod file that should be removed.
+        /// Hash of the mod file that should be removed.
         #[arg(required_unless_present = "all")]
         hash: Option<String>,
 

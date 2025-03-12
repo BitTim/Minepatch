@@ -6,7 +6,7 @@
  *
  * File:       simulate.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   14.02.25, 19:46
+ * Modified:   01.03.25, 23:55
  */
 use crate::output::list_items::vault::ModListItem;
 use crate::output::table::TableOutput;
@@ -18,21 +18,21 @@ use rusqlite::Connection;
 use std::sync::mpsc::Sender;
 
 pub(crate) fn simulate(
-    connection: &Connection,
+    conn: &Connection,
     tx: &Sender<Event>,
     name: &str,
-    pack: &str,
+    bundle: &str,
     dir_hash: &bool,
 ) -> Result<()> {
     let header_line = format!(
-        "Simulation result for patch '{}' for pack '{}'",
+        "Simulation result for patch '{}' for bundle '{}'",
         name.cyan(),
-        pack.blue()
+        bundle.blue()
     )
     .bold();
 
     if *dir_hash {
-        let hash = patch::simulate_dir_hash(connection, tx, name, pack)?;
+        let hash = patch::simulate_dir_hash(conn, tx, name, bundle)?;
         let hash_line = format!("Dir Hash: '{}'", hash.purple());
         let output = format!("{}\n{}", header_line, hash_line);
         tx.send(Event::Log {
@@ -42,19 +42,23 @@ pub(crate) fn simulate(
         return Ok(());
     }
 
-    let mods = patch::simulate(connection, tx, name, pack)?
+    let mods = patch::simulate(conn, tx, name, bundle)?
         .iter()
-        .map(|hash| vault::query_single(connection, hash))
+        .map(|hash| vault::query_single(conn, hash))
         .collect::<Result<Vec<Mod>>>()?;
     let displays = mods
         .iter()
-        .map(|value| ModListItem::from(connection, tx, value))
+        .map(|value| ModListItem::from(conn, tx, value))
         .collect::<Vec<ModListItem>>();
 
     let output = format!(
         "{}\n{}",
         header_line,
-        TableOutput::new(displays, "No mods present in pack in simulation".to_owned()).to_string()
+        TableOutput::new(
+            displays,
+            "No mods present in bundle in simulation".to_owned()
+        )
+        .to_string()
     );
     tx.send(Event::Log {
         message: Message::Transparent(output),

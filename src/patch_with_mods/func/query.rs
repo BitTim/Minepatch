@@ -6,36 +6,46 @@
  *
  * File:       query.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   08.02.25, 14:29
+ * Modified:   10.03.25, 06:12
  */
 use crate::db::Repo;
-use crate::patch_with_mods::{PatchModRelFilter, PatchModRelRepo, PatchWithMods};
+use crate::patch_with_mods::{PatchModRelFilter, PatchModRelRepo, PatchModRelation};
 use crate::prelude::*;
 use rusqlite::Connection;
 use std::collections::HashSet;
 
 pub fn query_single(
-    connection: &Connection,
+    conn: &Connection,
     name: &str,
-    pack: &str,
+    bundle: &str,
     mod_hash: &str,
-) -> Result<PatchWithMods> {
-    let query = PatchModRelFilter::ByPatchAndPackAndModHashExact {
+) -> Result<PatchModRelation> {
+    let query = PatchModRelFilter::ByPatchAndBundleAndModHashExact {
         patch: name.to_owned(),
-        pack: pack.to_owned(),
+        bundle: bundle.to_owned(),
         mod_hash: mod_hash.to_owned(),
     };
-    PatchModRelRepo::query_single(connection, &query)
+    PatchModRelRepo::query_single(conn, &query)
 }
 
 pub fn query_multiple(
-    connection: &Connection,
+    conn: &Connection,
     name: &str,
-    pack: &str,
-) -> Result<HashSet<PatchWithMods>> {
-    let query = PatchModRelFilter::ByPatchAndPackExact {
+    bundle: &str,
+) -> Result<HashSet<PatchModRelation>> {
+    let query = PatchModRelFilter::ByPatchAndBundleExact {
         patch: name.to_owned(),
-        pack: pack.to_owned(),
+        bundle: bundle.to_owned(),
     };
-    PatchModRelRepo::query_multiple(connection, &query)
+    PatchModRelRepo::query_multiple(conn, &query)
+}
+
+pub fn query_multiple_by_bundle(
+    conn: &Connection,
+    bundle: &str,
+) -> Result<HashSet<PatchModRelation>> {
+    let query = PatchModRelFilter::ByBundleExact {
+        bundle: bundle.to_owned(),
+    };
+    PatchModRelRepo::query_multiple(conn, &query)
 }

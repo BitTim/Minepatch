@@ -6,7 +6,7 @@
  *
  * File:       generate.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   14.02.25, 19:11
+ * Modified:   11.03.25, 06:45
  */
 use crate::common::event;
 use crate::common::event::Event;
@@ -20,18 +20,13 @@ use std::collections::HashSet;
 use std::path::PathBuf;
 use std::sync::mpsc::Sender;
 
-pub fn generate(
-    connection: &Connection,
-    tx: &Sender<Event>,
-    name: &str,
-    instance: &str,
-) -> Result<()> {
+pub fn generate(conn: &Connection, tx: &Sender<Event>, name: &str, instance: &str) -> Result<()> {
     event::init_progress(tx, Process::Patch(PatchProcess::Generate), None)?;
 
-    let instance = instance::query_single(connection, instance)?;
-    instance::validate(connection, tx, &instance.name, true)?;
+    let instance = instance::query_single(conn, instance)?;
+    instance::validate(conn, tx, &instance.name, true)?;
 
-    let sim_hashes = patch::simulate(connection, tx, &instance.patch, &instance.pack)?;
+    let sim_hashes = patch::simulate(conn, tx, &instance.patch, &instance.bundle)?;
     let mod_paths = file::mod_paths_from_instance_path(&instance.path)?;
 
     event::init_progress(
@@ -50,6 +45,7 @@ pub fn generate(
                     path: path.to_path_buf(),
                     hash: hash.to_owned(),
                 }),
+                1,
             )?;
 
             Ok((path.to_owned(), hash))
@@ -64,21 +60,21 @@ pub fn generate(
         removed.remove(&hash);
 
         if !sim_hashes.contains(&hash) {
-            added.insert(vault::add(connection, tx, &path, false)?);
+            added.insert(vault::add(conn, tx, &path, false)?);
         }
     }
 
     patch::create(
-        connection,
+        conn,
         tx,
         name,
-        &instance.pack,
+        &instance.bundle,
         &instance.patch,
         &added,
         &removed,
     )?;
 
-    instance::apply(connection, tx, &instance.name, name)?;
+    instance::apply(conn, tx, &instance.name, name)?;
     event::end_progress(
         tx,
         Process::Patch(PatchProcess::Generate),

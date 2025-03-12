@@ -6,7 +6,7 @@
  *
  * File:       event.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   14.02.25, 19:32
+ * Modified:   11.03.25, 06:43
  */
 use crate::prelude::*;
 use std::sync::mpsc;
@@ -20,6 +20,7 @@ pub enum Event {
     ProgressTick {
         process: Process,
         message: Message,
+        increment: u64,
     },
     ProgressFinish {
         process: Process,

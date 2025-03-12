@@ -6,24 +6,25 @@
  *
  * File:       remove.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   16.02.25, 14:01
+ * Modified:   11.03.25, 06:46
  */
 use crate::common::event;
 use crate::common::event::EventError;
 use crate::db::Repo;
 use crate::file;
+use crate::file::get_base_vault_path;
 use crate::patch_with_mods::{PatchModRelFilter, PatchModRelRepo};
 use crate::prelude::*;
-use crate::vault::data::{Mod, ModFilter, VaultRepo};
+use crate::vault::data::Mod;
+use crate::vault::data::{ModFilter, VaultRepo};
 use crate::vault::error::VaultError;
-use crate::vault::func::common::path::get_base_mod_dir_path;
 use crate::vault::{ModMessage, ModProcess};
 use rusqlite::Connection;
 use std::fs;
 use std::sync::mpsc::Sender;
 
 pub fn remove(
-    connection: &Connection,
+    conn: &Connection,
     tx: &Sender<Event>,
     hash: Option<&String>,
     all: bool,
@@ -31,7 +32,7 @@ pub fn remove(
 ) -> Result<()> {
     let hashes: Vec<String> = if all {
         let query_all = ModFilter::QueryAll;
-        VaultRepo::query_multiple(connection, &query_all)?
+        VaultRepo::query_multiple(conn, &query_all)?
             .iter()
             .map(|entry: &Mod| entry.hash.to_owned())
             .collect()
@@ -53,7 +54,7 @@ pub fn remove(
             mod_id: "".to_string(),
             name: "".to_string(),
         };
-        let matches = VaultRepo::query_multiple(connection, &query)?;
+        let matches = VaultRepo::query_multiple(conn, &query)?;
         if matches.is_empty() {
             return Err(Error::Vault(VaultError::NotFound { hash }));
         }
@@ -88,7 +89,7 @@ pub fn remove(
         let rel_filter = PatchModRelFilter::ByModHashExact {
             hash: value.hash.to_owned(),
         };
-        let relations = PatchModRelRepo::query_multiple(connection, &rel_filter)?;
+        let relations = PatchModRelRepo::query_multiple(conn, &rel_filter)?;
 
         if !relations.is_empty() {
             return Err(Error::Vault(VaultError::RelUsed {
@@ -99,11 +100,11 @@ pub fn remove(
         let remove_filter = ModFilter::QueryHashExact {
             hash: value.hash.to_owned(),
         };
-        VaultRepo::remove(connection, &remove_filter)?;
+        VaultRepo::remove(conn, &remove_filter)?;
 
         file::check_exists(&value.path)?;
         fs::remove_file(&value.path)?;
-        file::remove_empty_dirs(&get_base_mod_dir_path()?)?;
+        file::remove_empty_dirs(&get_base_vault_path()?)?;
 
         event::tick_progress(
             tx,
@@ -111,6 +112,7 @@ pub fn remove(
             Message::Mod(ModMessage::RemoveStatus {
                 hash: hash.to_owned(),
             }),
+            1,
         )?;
     }
 

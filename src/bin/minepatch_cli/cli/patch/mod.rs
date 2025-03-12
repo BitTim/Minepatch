@@ -6,7 +6,7 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   08.02.25, 11:12
+ * Modified:   01.03.25, 00:53
  */
 use clap::Subcommand;
 
@@ -38,9 +38,9 @@ pub enum PatchCommands {
         #[arg(short, long)]
         dependency: String,
 
-        /// The pack this patch belongs to.
+        /// The bundle this patch belongs to.
         #[arg(short, long)]
-        pack: String,
+        bundle: String,
     },
 
     /// Excludes a mod with a patch.
@@ -49,9 +49,9 @@ pub enum PatchCommands {
         #[arg(short, long)]
         name: String,
 
-        /// The pack this patch belongs to.
+        /// The bundle this patch belongs to.
         #[arg(short, long)]
-        pack: String,
+        bundle: String,
 
         /// The hash of the mod that should be added to this patch.
         #[arg(short, long)]
@@ -75,9 +75,9 @@ pub enum PatchCommands {
         #[arg(short, long)]
         name: String,
 
-        /// The pack this patch belongs to.
+        /// The bundle this patch belongs to.
         #[arg(short, long)]
-        pack: String,
+        bundle: String,
 
         /// The hash of the mod that should be added to this patch.
         #[arg(short, long)]
@@ -90,9 +90,9 @@ pub enum PatchCommands {
         #[arg(short, long)]
         name: Option<String>,
 
-        /// The pack this patch belongs to.
+        /// The bundle this patch belongs to.
         #[arg(short, long)]
-        pack: Option<String>,
+        bundle: Option<String>,
     },
 
     /// Simulates all patches up to and including the selected one.
@@ -101,9 +101,9 @@ pub enum PatchCommands {
         #[arg(short, long)]
         name: String,
 
-        /// The pack this patch belongs to.
+        /// The bundle this patch belongs to.
         #[arg(short, long)]
-        pack: String,
+        bundle: String,
 
         /// Set this flag if you want to only know the resulting dir hash.
         #[arg(short, long)]
@@ -116,8 +116,8 @@ pub enum PatchCommands {
         #[arg(short, long)]
         name: String,
 
-        /// The pack this patch belongs to.
+        /// The bundle this patch belongs to.
         #[arg(short, long)]
-        pack: String,
+        bundle: String,
     },
 }

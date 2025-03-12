@@ -6,11 +6,12 @@
  *
  * File:       filter.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   06.02.25, 01:59
+ * Modified:   01.03.25, 19:21
  */
 use crate::common::db::{Entity, Filter, InsertableFilter};
 use crate::error::Error;
-use crate::template::{Template, TemplateError};
+use crate::template::TemplateError;
+use crate::template::data::Template;
 use rusqlite::ToSql;
 
 pub(crate) enum TemplateFilter {

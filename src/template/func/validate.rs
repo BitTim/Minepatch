@@ -6,7 +6,7 @@
  *
  * File:       validate.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   15.02.25, 01:47
+ * Modified:   11.03.25, 06:46
  */
 use crate::common::event;
 use crate::db::Repo;
@@ -16,7 +16,7 @@ use crate::template::{TemplateError, TemplateMessage, TemplateProcess};
 use rusqlite::Connection;
 use std::sync::mpsc::Sender;
 
-pub fn validate(connection: &Connection, tx: &Sender<Event>, name: &str) -> Result<()> {
+pub fn validate(conn: &Connection, tx: &Sender<Event>, name: &str) -> Result<()> {
     event::init_progress(tx, Process::Template(TemplateProcess::Validate), None)?;
     event::tick_progress(
         tx,
@@ -24,13 +24,14 @@ pub fn validate(connection: &Connection, tx: &Sender<Event>, name: &str) -> Resu
         Message::Template(TemplateMessage::ValidateStatus {
             name: name.to_owned(),
         }),
+        1,
     )?;
 
     let query = TemplateFilter::QueryNameExact {
         name: name.to_owned(),
     };
 
-    if !TemplateRepo::exists(connection, &query)? {
+    if !TemplateRepo::exists(conn, &query)? {
         return Err(Error::Template(TemplateError::NotFound(name.to_owned())));
     }
 

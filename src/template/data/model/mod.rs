@@ -6,7 +6,8 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.01.25, 01:39
+ * Modified:   10.03.25, 10:26
  */
-pub mod meta;
-pub mod path;
+mod template;
+
+pub use template::*;
