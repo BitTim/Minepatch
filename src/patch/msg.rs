@@ -6,7 +6,7 @@
  *
  * File:       msg.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   10.03.25, 06:35
+ * Modified:   12.03.25, 11:26
  */
 use crate::patch::Patch;
 use std::path::PathBuf;
@@ -20,16 +20,46 @@ pub enum PatchProcess {
     Include,
     Simulate,
     Validate,
+    Delete,
+    Rename,
 }
 
 #[derive(Clone, Hash, Eq, PartialEq, Debug)]
 pub enum PatchMessage {
-    CreateSuccess { patch: Box<Patch> },
-    ExcludeSuccess { hash: String },
-    GenerateSuccess { name: String, instance: String },
-    HashModFileStatus { path: PathBuf, hash: String },
-    IncludeSuccess { hash: String },
-    SimulateStatus { name: String },
-    ValidateSuccess { name: String },
-    ValidateStatus { bundle: String, name: String },
+    CreateSuccess {
+        patch: Box<Patch>,
+    },
+    ExcludeSuccess {
+        hash: String,
+    },
+    GenerateSuccess {
+        name: String,
+        instance: String,
+    },
+    HashModFileStatus {
+        path: PathBuf,
+        hash: String,
+    },
+    IncludeSuccess {
+        hash: String,
+    },
+    SimulateStatus {
+        name: String,
+    },
+    ValidateSuccess {
+        name: String,
+    },
+    ValidateStatus {
+        bundle: String,
+        name: String,
+    },
+    DeleteSuccess {
+        name: String,
+        bundle: String,
+    },
+    RenameSuccess {
+        name: String,
+        bundle: String,
+        new_name: String,
+    },
 }

@@ -6,7 +6,7 @@
  *
  * File:       query.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   01.03.25, 00:53
+ * Modified:   12.03.25, 10:48
  */
 use crate::db::Repo;
 use crate::patch::{Patch, PatchFilter, PatchRepo};
@@ -15,7 +15,7 @@ use rusqlite::Connection;
 use std::collections::HashSet;
 
 pub fn query_single(conn: &Connection, name: &str, bundle: &str) -> Result<Patch> {
-    let query = PatchFilter::ByNameAndPackExact {
+    let query = PatchFilter::ByNameAndBundleExact {
         name: name.to_owned(),
         bundle: bundle.to_owned(),
     };
@@ -27,7 +27,7 @@ pub fn query_multiple(
     name: Option<&str>,
     bundle: Option<&str>,
 ) -> Result<HashSet<Patch>> {
-    let query = PatchFilter::ByNameAndPackSimilar {
+    let query = PatchFilter::ByNameAndBundleSimilar {
         name: name.unwrap_or_default().to_owned(),
         bundle: bundle.unwrap_or_default().to_owned(),
     };
@@ -39,7 +39,7 @@ pub fn query_by_dependency_single(
     dependency: &str,
     bundle: &str,
 ) -> Result<Patch> {
-    let query = PatchFilter::ByDepAndPackExact {
+    let query = PatchFilter::ByDepAndBundleExact {
         dependency: dependency.to_owned(),
         bundle: bundle.to_owned(),
     };
@@ -47,7 +47,7 @@ pub fn query_by_dependency_single(
 }
 
 pub fn query_by_pack_multiple(conn: &Connection, bundle: &str) -> Result<HashSet<Patch>> {
-    let query = PatchFilter::ByPackExact {
+    let query = PatchFilter::ByBundleExact {
         bundle: bundle.to_owned(),
     };
     PatchRepo::query_multiple(conn, &query)
