@@ -6,7 +6,7 @@
  *
  * File:       delete.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   12.03.25, 10:56
+ * Modified:   12.03.25, 14:28
  */
 use crate::db::Repo;
 use crate::event::Event;
@@ -19,6 +19,18 @@ use std::sync::mpsc::Sender;
 
 pub fn delete(conn: &Connection, tx: &Sender<Event>, name: &str, bundle: &str) -> Result<()> {
     event::init_progress(tx, Process::Patch(PatchProcess::Delete), None)?;
+
+    let filter = PatchFilter::ByNameAndBundleExact {
+        name: name.to_owned(),
+        bundle: bundle.to_owned(),
+    };
+
+    if !PatchRepo::exists(conn, &filter)? {
+        return Err(Error::Patch(PatchError::NotFound {
+            name: name.to_owned(),
+            bundle: bundle.to_owned(),
+        }));
+    }
 
     let dependant = patch::query_by_dependency_single(conn, name, bundle);
     if dependant.is_ok() {
@@ -43,11 +55,6 @@ pub fn delete(conn: &Connection, tx: &Sender<Event>, name: &str, bundle: &str) -
         bundle: bundle.to_owned(),
     };
     PatchModRelRepo::remove(conn, &rel_filter)?;
-
-    let filter = PatchFilter::ByNameAndBundleExact {
-        name: name.to_owned(),
-        bundle: bundle.to_owned(),
-    };
     PatchRepo::remove(conn, &filter)?;
 
     event::end_progress(

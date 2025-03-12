@@ -6,7 +6,7 @@
  *
  * File:       main.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   12.03.25, 11:38
+ * Modified:   12.03.25, 14:24
  */
 use crate::cli::bundle::BundleCommands;
 use crate::cli::instance::InstanceCommands;
@@ -72,6 +72,7 @@ fn match_command(command: &Commands, conn: &Connection, tx: &Sender<Event>) -> R
             VaultCommands::Remove { hash, all, yes } => {
                 vault::remove(conn, tx, hash, *all, *yes)?;
             }
+            VaultCommands::Clean => vault::clean(conn, tx)?,
         },
         Commands::Template {
             template_commands: template_command,
@@ -186,6 +187,7 @@ fn match_process(process: &Process) -> String {
             ModProcess::Validate => "Validate mod",
             ModProcess::Export => "Export mod",
             ModProcess::Import => "Import mod",
+            ModProcess::Clean => "Cleaning vault",
         },
         Process::Template(process) => match process {
             TemplateProcess::Create => "Create template",
@@ -340,6 +342,19 @@ fn match_message(message: &Message) -> String {
                 hash,
                 path.display()
             ),
+            ModMessage::CleanSuccess { values } => {
+                let mut msg = format!(
+                    "Cleaned vault, removed {} mods:",
+                    values.len().to_string().purple()
+                );
+
+                for (hash, id) in values {
+                    msg = msg + &format!("\n\t'{}' [{}]", id.cyan(), hash.yellow())
+                }
+
+                msg
+            }
+            ModMessage::CleanStatus { hash, id } => format!("'{}' [{}]", id.cyan(), hash.yellow()),
         },
         Message::Template(message) => match message {
             TemplateMessage::CreateSuccess { template } => {

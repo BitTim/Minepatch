@@ -6,7 +6,7 @@
  *
  * File:       msg.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   01.03.25, 19:26
+ * Modified:   12.03.25, 13:56
  */
 use crate::vault::data::Mod;
 use std::path::PathBuf;
@@ -18,6 +18,7 @@ pub enum ModProcess {
     Validate,
     Export,
     Import,
+    Clean,
 }
 
 #[derive(Clone, Hash, Eq, PartialEq, Debug)]
@@ -31,4 +32,6 @@ pub enum ModMessage {
     ValidateStatus { hash: String },
     ExportSuccess { hash: String, path: PathBuf },
     ImportSuccess { hash: String, path: PathBuf },
+    CleanSuccess { values: Vec<(String, String)> },
+    CleanStatus { hash: String, id: String },
 }

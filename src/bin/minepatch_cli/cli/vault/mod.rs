@@ -6,16 +6,18 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   11.03.25, 06:18
+ * Modified:   12.03.25, 14:16
  */
 use clap::Subcommand;
 use std::path::PathBuf;
 
 mod add;
+mod clean;
 mod list;
 mod remove;
 
 pub(crate) use add::*;
+pub(crate) use clean::*;
 pub(crate) use list::*;
 pub(crate) use remove::*;
 
@@ -64,4 +66,7 @@ pub enum VaultCommands {
         #[arg(short, long)]
         yes: bool,
     },
+
+    /// Removes all unused mods from the vault. Mods that are marked as removed in a patch will not be deleted.
+    Clean,
 }
