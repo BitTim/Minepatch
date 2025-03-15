@@ -6,7 +6,7 @@
  *
  * File:       error.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   10.02.25, 18:25
+ * Modified:   12.03.25, 10:40
  */
 use thiserror::Error;
 
@@ -31,4 +31,6 @@ pub enum InstanceError {
     NoPatchDetected { dir_hash: String },
     #[error("Failed to update instance '{name}' to patch '{patch}'.")]
     PatchUpdateFailed { name: String, patch: String },
+    #[error("No instance with applied patch '{patch}' was found.")]
+    PatchNotFound { patch: String },
 }

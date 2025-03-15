@@ -6,23 +6,27 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   01.03.25, 00:53
+ * Modified:   12.03.25, 11:43
  */
 use clap::Subcommand;
 
 mod create;
+mod delete;
 mod exclude;
 mod generate;
 mod include;
 mod list;
+mod rename;
 mod simulate;
 mod view;
 
 pub(crate) use create::*;
+pub(crate) use delete::*;
 pub(crate) use exclude::*;
 pub(crate) use generate::*;
 pub(crate) use include::*;
 pub(crate) use list::*;
+pub(crate) use rename::*;
 pub(crate) use simulate::*;
 pub(crate) use view::*;
 
@@ -119,5 +123,30 @@ pub enum PatchCommands {
         /// The bundle this patch belongs to.
         #[arg(short, long)]
         bundle: String,
+    },
+
+    /// Deletes a patch. Patch must not be a dependency or currently applied.
+    Delete {
+        /// Name of the patch.
+        #[arg(short, long)]
+        name: String,
+
+        /// The bundle this patch belongs to.
+        #[arg(short, long)]
+        bundle: String,
+    },
+
+    /// Renames a patch.
+    Rename {
+        /// Name of the patch.
+        #[arg(short, long)]
+        name: String,
+
+        /// The bundle this patch belongs to.
+        #[arg(short, long)]
+        bundle: String,
+
+        /// The new name for the patch
+        new_name: String,
     },
 }

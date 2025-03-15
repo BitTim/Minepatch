@@ -6,7 +6,7 @@
  *
  * File:       query.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   01.03.25, 00:53
+ * Modified:   12.03.25, 10:41
  */
 use crate::db::Repo;
 use crate::instance::Instance;
@@ -27,4 +27,11 @@ pub fn query_multiple(conn: &Connection, name: Option<&str>) -> Result<HashSet<I
         name: name.unwrap_or_default().to_owned(),
     };
     InstanceRepo::query_multiple(conn, &query)
+}
+
+pub(crate) fn query_single_by_patch(conn: &Connection, patch: &str) -> Result<Instance> {
+    let query = InstanceFilter::ByExactPatch {
+        patch: patch.to_owned(),
+    };
+    InstanceRepo::query_single(conn, &query)
 }

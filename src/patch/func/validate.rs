@@ -6,7 +6,7 @@
  *
  * File:       validate.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   11.03.25, 06:46
+ * Modified:   12.03.25, 10:48
  */
 use crate::common::event;
 use crate::db::Repo;
@@ -36,7 +36,7 @@ pub fn validate(
         1,
     )?;
 
-    let query = PatchFilter::ByNameAndPackExact {
+    let query = PatchFilter::ByNameAndBundleExact {
         name: name.to_owned(),
         bundle: bundle.to_owned(),
     };

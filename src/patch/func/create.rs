@@ -6,7 +6,7 @@
  *
  * File:       create.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   10.03.25, 10:26
+ * Modified:   12.03.25, 10:48
  */
 use crate::bundle;
 use crate::common::event;
@@ -32,7 +32,7 @@ pub fn create(
 ) -> Result<()> {
     event::init_progress(tx, Process::Patch(PatchProcess::Create), None)?;
 
-    let exists_query = PatchFilter::ByNameAndPackExact {
+    let exists_query = PatchFilter::ByNameAndBundleExact {
         name: name.to_owned(),
         bundle: bundle.to_owned(),
     };

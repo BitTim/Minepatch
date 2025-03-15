@@ -6,7 +6,7 @@
  *
  * File:       main.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   11.03.25, 06:43
+ * Modified:   12.03.25, 14:24
  */
 use crate::cli::bundle::BundleCommands;
 use crate::cli::instance::InstanceCommands;
@@ -72,6 +72,7 @@ fn match_command(command: &Commands, conn: &Connection, tx: &Sender<Event>) -> R
             VaultCommands::Remove { hash, all, yes } => {
                 vault::remove(conn, tx, hash, *all, *yes)?;
             }
+            VaultCommands::Clean => vault::clean(conn, tx)?,
         },
         Commands::Template {
             template_commands: template_command,
@@ -112,6 +113,12 @@ fn match_command(command: &Commands, conn: &Connection, tx: &Sender<Event>) -> R
                 dir_hash,
             } => patch::simulate(conn, tx, name, bundle, dir_hash)?,
             PatchCommands::View { name, bundle } => patch::view(conn, tx, name, bundle)?,
+            PatchCommands::Delete { name, bundle } => patch::delete(conn, tx, name, bundle)?,
+            PatchCommands::Rename {
+                name,
+                bundle,
+                new_name,
+            } => patch::rename(conn, tx, name, bundle, new_name)?,
         },
         Commands::Bundle {
             bundle_commands: bundle_command,
@@ -171,6 +178,8 @@ fn match_process(process: &Process) -> String {
             PatchProcess::HashModFiles => "Hash mod files",
             PatchProcess::Include => "Include mod with patch",
             PatchProcess::Validate => "Validate patch",
+            PatchProcess::Delete => "Delete patch",
+            PatchProcess::Rename => "Rename patch",
         },
         Process::Mod(process) => match process {
             ModProcess::Add => "Add mod to vault",
@@ -178,6 +187,7 @@ fn match_process(process: &Process) -> String {
             ModProcess::Validate => "Validate mod",
             ModProcess::Export => "Export mod",
             ModProcess::Import => "Import mod",
+            ModProcess::Clean => "Cleaning vault",
         },
         Process::Template(process) => match process {
             TemplateProcess::Create => "Create template",
@@ -276,6 +286,21 @@ fn match_message(message: &Message) -> String {
             PatchMessage::ValidateStatus { bundle, name } => {
                 format!("{} for {}", name.cyan(), bundle.cyan())
             }
+            PatchMessage::DeleteSuccess { name, bundle } => format!(
+                "Deleted patch '{}' from bundle '{}'",
+                name.cyan(),
+                bundle.cyan()
+            ),
+            PatchMessage::RenameSuccess {
+                name,
+                bundle,
+                new_name,
+            } => format!(
+                "Renamed patch '{}' for bundle '{}' to '{}'",
+                name.cyan(),
+                bundle.cyan(),
+                new_name.cyan()
+            ),
         },
         Message::Mod(message) => match message {
             ModMessage::AddSuccess { value } => {
@@ -317,6 +342,19 @@ fn match_message(message: &Message) -> String {
                 hash,
                 path.display()
             ),
+            ModMessage::CleanSuccess { values } => {
+                let mut msg = format!(
+                    "Cleaned vault, removed {} mods:",
+                    values.len().to_string().purple()
+                );
+
+                for (hash, id) in values {
+                    msg = msg + &format!("\n\t'{}' [{}]", id.cyan(), hash.yellow())
+                }
+
+                msg
+            }
+            ModMessage::CleanStatus { hash, id } => format!("'{}' [{}]", id.cyan(), hash.yellow()),
         },
         Message::Template(message) => match message {
             TemplateMessage::CreateSuccess { template } => {

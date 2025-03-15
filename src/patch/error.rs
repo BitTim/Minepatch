@@ -6,7 +6,7 @@
  *
  * File:       error.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   10.03.25, 10:26
+ * Modified:   12.03.25, 10:43
  */
 use thiserror::Error;
 
@@ -57,4 +57,16 @@ pub enum PatchError {
     },
     #[error("Patch '{name}' for bundle '{bundle}' does not have any associated mods")]
     RelEmpty { name: String, bundle: String },
+    #[error("Patch '{name}' for bundle '{bundle}' is a dependency for '{dependant}'")]
+    PatchInUseByPatch {
+        name: String,
+        bundle: String,
+        dependant: String,
+    },
+    #[error("Patch '{name}' for bundle '{bundle}' is used by instance '{instance}'")]
+    PatchInUseByInstance {
+        name: String,
+        bundle: String,
+        instance: String,
+    },
 }
