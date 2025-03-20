@@ -6,13 +6,13 @@
  *
  * File:       list.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.03.25, 11:17
+ * Modified:   20.03.25, 11:40
  */
 use crate::output::detailed::{DetailedDisplayObject, DetailedOutput};
 use crate::output::list_items::vault::ModListItem;
 use crate::output::table::TableOutput;
 use mpcore::prelude::*;
-use mpcore::vault::query_multiple;
+use mpcore::vault;
 use rusqlite::Connection;
 use std::sync::mpsc::Sender;
 
@@ -24,7 +24,7 @@ pub(crate) fn list(
     id: &Option<String>,
     name: &Option<String>,
 ) -> Result<()> {
-    let results = query_multiple(
+    let results = vault::query_multiple(
         conn,
         hash.to_owned().as_deref(),
         id.to_owned().as_deref(),

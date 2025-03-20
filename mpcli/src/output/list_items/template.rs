@@ -6,7 +6,7 @@
  *
  * File:       template.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.03.25, 11:26
+ * Modified:   20.03.25, 11:41
  */
 use crate::output::format_string_option;
 use mpcore::template::Template;

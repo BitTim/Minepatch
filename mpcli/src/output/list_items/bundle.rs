@@ -6,9 +6,10 @@
  *
  * File:       bundle.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.03.25, 11:17
+ * Modified:   20.03.25, 11:41
  */
 use crate::output::{format_bool, format_string_option};
+
 use mpcore::bundle;
 use mpcore::bundle::Bundle;
 use mpcore::prelude::*;

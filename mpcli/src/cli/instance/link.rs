@@ -6,7 +6,7 @@
  *
  * File:       link.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.03.25, 11:17
+ * Modified:   20.03.25, 11:35
  */
 use mpcore::instance;
 use mpcore::prelude::*;

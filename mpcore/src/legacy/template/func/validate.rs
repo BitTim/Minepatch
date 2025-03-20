@@ -1,0 +1,40 @@
+/*
+ * Copyright (c) 2025 Tim Anhalt (BitTim)
+ *
+ * Project:    Minepatch
+ * License:    GPLv3
+ *
+ * File:       validate.rs
+ * Author:     Tim Anhalt (BitTim)
+ * Modified:   20.03.25, 11:45
+ */
+use crate::db::Repo;
+use crate::legacy::common::event;
+use crate::legacy::template::data::{TemplateFilter, TemplateRepo};
+use crate::legacy::template::{TemplateError, TemplateMessage, TemplateProcess};
+use crate::prelude::*;
+use rusqlite::Connection;
+use std::sync::mpsc::Sender;
+
+pub fn validate(conn: &Connection, tx: &Sender<Event>, name: &str) -> Result<()> {
+    event::init_progress(tx, Process::Template(TemplateProcess::Validate), None)?;
+    event::tick_progress(
+        tx,
+        Process::Template(TemplateProcess::Validate),
+        Message::Template(TemplateMessage::ValidateStatus {
+            name: name.to_owned(),
+        }),
+        1,
+    )?;
+
+    let query = TemplateFilter::QueryNameExact {
+        name: name.to_owned(),
+    };
+
+    if !TemplateRepo::exists(conn, &query)? {
+        return Err(Error::Template(TemplateError::NotFound(name.to_owned())));
+    }
+
+    event::end_progress(tx, Process::Template(TemplateProcess::Validate), None)?;
+    Ok(())
+}
