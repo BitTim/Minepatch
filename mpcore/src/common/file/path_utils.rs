@@ -6,12 +6,12 @@
  *
  * File:       path_utils.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   10.03.25, 07:38
+ * Modified:   20.03.25, 11:27
  */
 use crate::db::Portable;
 use crate::file::error::FileError;
 use crate::file::file_utils::check_exists;
-use crate::file::{ORGANIZATION, QUALIFIER};
+use crate::file::{APPLICATION, ORGANIZATION, QUALIFIER};
 use crate::prelude::*;
 use directories::ProjectDirs;
 use std::ffi::OsString;
@@ -19,7 +19,7 @@ use std::path::{Path, PathBuf};
 use std::{fs, path};
 
 pub fn get_data_path() -> Result<PathBuf> {
-    match ProjectDirs::from(QUALIFIER, ORGANIZATION, env!("CARGO_PKG_NAME")) {
+    match ProjectDirs::from(QUALIFIER, ORGANIZATION, APPLICATION) {
         None => Err(FileError::DataPathError.into()),
         Some(project_dir) => {
             let dir = project_dir.data_dir().to_path_buf();

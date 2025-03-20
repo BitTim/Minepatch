@@ -1,0 +1,19 @@
+[package]
+name = "mpcli"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+description.workspace = true
+readme.workspace = true
+repository.workspace = true
+license.workspace = true
+
+[dependencies]
+mpcore = { path = "../mpcore" }
+clap = { version = "4.5.28", features = ["derive"] }
+tabled = { version = "0.18.0", features = ["ansi"] }
+colored = "3.0.0"
+inquire = "0.7.5"
+self_update = { version = "0.42.0", features = ["rustls"] }
+indicatif = "0.17.11"
+rusqlite = { version = "0.34.0", features = ["bundled"] }
