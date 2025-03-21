@@ -6,10 +6,9 @@
  *
  * File:       clean.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.03.25, 11:40
+ * Modified:   20.03.25, 11:17
  */
 use mpcore::prelude::*;
-
 use mpcore::vault;
 use rusqlite::Connection;
 use std::sync::mpsc::Sender;

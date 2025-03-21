@@ -6,11 +6,11 @@
  *
  * File:       prelude.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.03.25, 11:32
+ * Modified:   14.02.25, 19:11
  */
 
-pub use crate::event::Event;
-pub use crate::legacy::msg::*;
-pub use crate::Error;
+pub use crate::common::event::Event;
+pub use crate::error::Error;
+pub use crate::msg::*;
 pub type Result<T> = core::result::Result<T, Error>;
 pub struct W<T>(pub T);

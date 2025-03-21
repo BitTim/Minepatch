@@ -6,9 +6,8 @@
  *
  * File:       rename.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.03.25, 11:37
+ * Modified:   20.03.25, 11:26
  */
-
 use mpcore::patch;
 use mpcore::prelude::*;
 use rusqlite::Connection;

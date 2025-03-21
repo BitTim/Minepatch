@@ -6,7 +6,7 @@
  *
  * File:       view.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.03.25, 11:39
+ * Modified:   20.03.25, 11:26
  */
 use crate::output::list_items::vault::ModListItem;
 use crate::output::table::TableOutput;

@@ -6,11 +6,10 @@
  *
  * File:       list.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.03.25, 11:36
+ * Modified:   20.03.25, 11:17
  */
 use crate::output::list_items::bundle::PackListItem;
 use crate::output::table::TableOutput;
-
 use mpcore::bundle;
 use mpcore::prelude::*;
 use rusqlite::Connection;

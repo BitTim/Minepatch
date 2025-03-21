@@ -6,11 +6,11 @@
  *
  * File:       list.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.03.25, 11:37
+ * Modified:   20.03.25, 11:17
  */
 use crate::output::list_items::patch::PatchListItem;
 use crate::output::table::TableOutput;
-use mpcore::patch;
+use mpcore::patch::query_multiple;
 use mpcore::prelude::*;
 use rusqlite::Connection;
 use std::sync::mpsc::Sender;
@@ -21,7 +21,7 @@ pub(crate) fn list(
     name: &Option<String>,
     bundle: &Option<String>,
 ) -> Result<()> {
-    let results = patch::query_multiple(
+    let results = query_multiple(
         conn,
         name.to_owned().as_deref(),
         bundle.to_owned().as_deref(),

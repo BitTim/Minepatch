@@ -6,8 +6,16 @@
  *
  * File:       lib.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.03.25, 11:31
+ * Modified:   01.03.25, 00:53
  */
-mod legacy;
-pub use legacy::*;
+mod common;
+pub use common::*;
+pub mod bundle;
+mod error;
+pub mod instance;
+pub mod msg;
+pub mod patch;
+pub mod patch_with_mods;
 pub mod prelude;
+pub mod template;
+pub mod vault;

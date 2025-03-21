@@ -6,13 +6,13 @@
  *
  * File:       main.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.03.25, 11:35
+ * Modified:   20.03.25, 11:25
  */
 use crate::cli::bundle::BundleCommands;
 use crate::cli::instance::InstanceCommands;
 use crate::cli::patch::PatchCommands;
 use crate::cli::template::TemplateCommands;
-use crate::cli::{Cli, Commands, bundle, instance, patch, template, vault};
+use crate::cli::{bundle, instance, patch, template, vault, Cli, Commands};
 use crate::output::format_string_option;
 use crate::output::status::{Status, StatusOutput};
 use clap::Parser;

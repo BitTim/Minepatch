@@ -6,10 +6,9 @@
  *
  * File:       instance.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.03.25, 11:41
+ * Modified:   20.03.25, 11:17
  */
 use crate::output::format_bool;
-
 use mpcore::instance;
 use mpcore::instance::Instance;
 use mpcore::prelude::Event;

@@ -6,12 +6,11 @@
  *
  * File:       list.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.03.25, 11:39
+ * Modified:   20.03.25, 11:17
  */
 use crate::output::list_items::template::TemplateListItem;
 use crate::output::table::TableOutput;
 use mpcore::prelude::*;
-
 use mpcore::template;
 use rusqlite::Connection;
 use std::sync::mpsc::Sender;

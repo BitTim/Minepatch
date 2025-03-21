@@ -6,13 +6,12 @@
  *
  * File:       vault.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.03.25, 11:41
+ * Modified:   20.03.25, 11:26
  */
 use crate::output::detailed::{DetailedDisplayObject, Entry};
 use crate::output::{format_bool, format_string_option};
 use colored::Colorize;
 use mpcore::prelude::Event;
-
 use mpcore::vault;
 use mpcore::vault::Mod;
 use rusqlite::Connection;
