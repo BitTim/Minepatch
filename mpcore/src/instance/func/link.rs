@@ -6,7 +6,7 @@
  *
  * File:       link.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.03.25, 11:25
+ * Modified:   21.03.25, 11:30
  */
 use crate::common::event;
 use crate::common::event::Event;
@@ -44,7 +44,7 @@ pub fn link(
     let query = InstanceFilter::ByExactName {
         name: actual_name.to_owned(),
     };
-    if InstanceRepo::exists(conn, &query)? {
+    if InstanceRepo::exists_by_filter(conn, &query)? {
         return Err(Error::Instance(InstanceError::NameTaken {
             name: actual_name.to_owned(),
         }));

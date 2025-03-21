@@ -6,13 +6,13 @@
  *
  * File:       repo.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.03.25, 11:26
+ * Modified:   21.03.25, 11:30
  */
 use crate::common::db::SqlAction;
 use crate::common::db::{Entity, Filter, InsertableFilter};
 use crate::db::build_statement_sql;
 use crate::prelude::*;
-use rusqlite::{params_from_iter, Connection};
+use rusqlite::{Connection, params_from_iter};
 use std::collections::HashSet;
 
 pub(crate) trait Repo<F, T>
@@ -30,7 +30,7 @@ where
         Ok(statement.insert(params_from_iter(query.params()))?)
     }
 
-    fn exists(conn: &Connection, filter: &F) -> Result<bool> {
+    fn exists_by_filter(conn: &Connection, filter: &F) -> Result<bool> {
         let mut statement = conn.prepare(&build_statement_sql(
             SqlAction::Select,
             &T::table_name(),
@@ -39,7 +39,7 @@ where
         Ok(statement.exists(params_from_iter(filter.params()))?)
     }
 
-    fn query_single(conn: &Connection, filter: &F) -> Result<T> {
+    fn by_filter(conn: &Connection, filter: &F) -> Result<T> {
         let mut statement = conn.prepare(&build_statement_sql(
             SqlAction::Select,
             &T::table_name(),
@@ -58,7 +58,7 @@ where
         Ok(*result?)
     }
 
-    fn query_multiple(conn: &Connection, filter: &F) -> Result<HashSet<T>> {
+    fn by_filter_many(conn: &Connection, filter: &F) -> Result<HashSet<T>> {
         let mut statement = conn.prepare(&build_statement_sql(
             SqlAction::Select,
             &T::table_name(),

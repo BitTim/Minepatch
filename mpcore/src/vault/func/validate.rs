@@ -6,7 +6,7 @@
  *
  * File:       validate.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   11.03.25, 06:46
+ * Modified:   21.03.25, 11:30
  */
 use crate::common::event;
 use crate::db::Repo;
@@ -31,7 +31,7 @@ pub fn validate(conn: &Connection, tx: &Sender<Event>, hash: &str) -> Result<()>
     let query = ModFilter::QueryHashExact {
         hash: hash.to_owned(),
     };
-    let value = VaultRepo::query_single(conn, &query)?;
+    let value = VaultRepo::by_filter(conn, &query)?;
 
     if !fs::exists(&value.path)? {
         return Err(Error::Vault(VaultError::PathNotExist {

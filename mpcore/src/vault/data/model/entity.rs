@@ -6,7 +6,7 @@
  *
  * File:       entity.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.03.25, 11:09
+ * Modified:   21.03.25, 11:29
  */
 use crate::db::Entity;
 use crate::meta::data::Meta;
@@ -65,7 +65,7 @@ impl Entity for Mod {
         }))
     }
 
-    fn to_params(&self) -> Vec<Box<dyn ToSql>> {
+    fn to_values(&self) -> Vec<Box<dyn ToSql>> {
         let authors = &self.meta.authors;
         let authors = authors.clone().map(|value| value.join(","));
 

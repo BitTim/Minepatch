@@ -6,7 +6,7 @@
  *
  * File:       traits.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.03.25, 11:15
+ * Modified:   21.03.25, 11:29
  */
 use crate::error::Error;
 use crate::prelude::*;
@@ -19,10 +19,24 @@ use std::io::{Read, Write};
 use std::path::Path;
 use std::sync::mpsc::Sender;
 
+/// Database object trait.
+///
+/// This trait defines some functions needed for database operations.
 pub(crate) trait Entity: Eq + PartialEq + Hash {
+    /// Returns the table name for the object
+    ///
+    /// Each implementation must set a valid table name
     fn table_name() -> String;
+
+    /// Creates an object from a database row
+    ///
+    /// The created object is a struct that implements [Entity]
     fn from_row(row: &Row) -> Result<Box<Self>>;
-    fn to_params(&self) -> Vec<Box<dyn ToSql>>;
+
+    /// Converts an object to a list of [ToSql] values
+    ///
+    /// This is to be used with insertion
+    fn to_values(&self) -> Vec<Box<dyn ToSql>>;
 }
 
 pub(crate) trait Portable: Eq + PartialEq + Hash + Encode + Decode<()> {

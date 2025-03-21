@@ -6,7 +6,7 @@
  *
  * File:       query.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   12.03.25, 10:48
+ * Modified:   21.03.25, 11:30
  */
 use crate::db::Repo;
 use crate::patch::{Patch, PatchFilter, PatchRepo};
@@ -19,7 +19,7 @@ pub fn query_single(conn: &Connection, name: &str, bundle: &str) -> Result<Patch
         name: name.to_owned(),
         bundle: bundle.to_owned(),
     };
-    PatchRepo::query_single(conn, &query)
+    PatchRepo::by_filter(conn, &query)
 }
 
 pub fn query_multiple(
@@ -31,7 +31,7 @@ pub fn query_multiple(
         name: name.unwrap_or_default().to_owned(),
         bundle: bundle.unwrap_or_default().to_owned(),
     };
-    PatchRepo::query_multiple(conn, &query)
+    PatchRepo::by_filter_many(conn, &query)
 }
 
 pub fn query_by_dependency_single(
@@ -43,12 +43,12 @@ pub fn query_by_dependency_single(
         dependency: dependency.to_owned(),
         bundle: bundle.to_owned(),
     };
-    PatchRepo::query_single(conn, &query)
+    PatchRepo::by_filter(conn, &query)
 }
 
 pub fn query_by_pack_multiple(conn: &Connection, bundle: &str) -> Result<HashSet<Patch>> {
     let query = PatchFilter::ByBundleExact {
         bundle: bundle.to_owned(),
     };
-    PatchRepo::query_multiple(conn, &query)
+    PatchRepo::by_filter_many(conn, &query)
 }

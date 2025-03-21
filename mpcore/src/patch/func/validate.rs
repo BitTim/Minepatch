@@ -6,7 +6,7 @@
  *
  * File:       validate.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   12.03.25, 10:48
+ * Modified:   21.03.25, 11:30
  */
 use crate::common::event;
 use crate::db::Repo;
@@ -40,7 +40,7 @@ pub fn validate(
         name: name.to_owned(),
         bundle: bundle.to_owned(),
     };
-    let patch = PatchRepo::query_single(conn, &query)?;
+    let patch = PatchRepo::by_filter(conn, &query)?;
 
     if exist_only {
         event::end_progress(tx, Process::Patch(PatchProcess::Validate), None)?;
@@ -69,7 +69,7 @@ fn validate_mods(conn: &Connection, tx: &Sender<Event>, name: &str, bundle: &str
         bundle: bundle.to_owned(),
     };
 
-    PatchModRelRepo::query_multiple(conn, &query)?
+    PatchModRelRepo::by_filter_many(conn, &query)?
         .iter()
         .try_for_each(|value| vault::validate(conn, tx, &value.mod_hash))?;
 

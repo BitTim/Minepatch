@@ -6,7 +6,7 @@
  *
  * File:       filter.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   01.03.25, 00:53
+ * Modified:   21.03.25, 11:29
  */
 use crate::bundle::{Bundle, BundleError};
 use crate::common::db::{Entity, Filter, InsertableFilter};
@@ -31,7 +31,7 @@ impl Filter for BundleFilter {
 
     fn params(&self) -> Vec<Box<dyn ToSql>> {
         match self {
-            BundleFilter::Insert { bundle } => bundle.to_params(),
+            BundleFilter::Insert { bundle } => bundle.to_values(),
             BundleFilter::QueryExactName { name } => vec![Box::new(name.to_owned())],
             BundleFilter::QuerySimilarName { name } => vec![Box::new(name.to_owned())],
         }

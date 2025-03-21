@@ -6,7 +6,7 @@
  *
  * File:       filter.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   12.03.25, 10:40
+ * Modified:   21.03.25, 11:29
  */
 use crate::common::db::{Entity, Filter, InsertableFilter};
 use crate::instance::{Instance, InstanceError};
@@ -33,7 +33,7 @@ impl Filter for InstanceFilter {
 
     fn params(&self) -> Vec<Box<dyn ToSql>> {
         match self {
-            InstanceFilter::Insert { instance } => instance.to_params(),
+            InstanceFilter::Insert { instance } => instance.to_values(),
             InstanceFilter::BySimilarName { name } => vec![Box::new(name.to_owned())],
             InstanceFilter::ByExactName { name } => vec![Box::new(name.to_owned())],
             InstanceFilter::ByExactPatch { patch } => vec![Box::new(patch.to_owned())],

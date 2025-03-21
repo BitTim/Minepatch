@@ -6,7 +6,7 @@
  *
  * File:       simulate.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   12.03.25, 10:48
+ * Modified:   21.03.25, 11:30
  */
 use crate::common::event;
 use crate::common::event::Event;
@@ -45,7 +45,7 @@ pub fn simulate(
         name: name.to_owned(),
         bundle: bundle.to_owned(),
     };
-    let patch = PatchRepo::query_single(conn, &patch_filter)?;
+    let patch = PatchRepo::by_filter(conn, &patch_filter)?;
 
     let mut mod_hashes = HashSet::new();
     mod_hashes.extend(simulate(conn, tx, &patch.dependency, bundle)?);
@@ -54,7 +54,7 @@ pub fn simulate(
         patch: name.to_owned(),
         bundle: bundle.to_owned(),
     };
-    let mod_relations = PatchModRelRepo::query_multiple(conn, &rel_filter)?;
+    let mod_relations = PatchModRelRepo::by_filter_many(conn, &rel_filter)?;
     for relation in mod_relations {
         match relation.removed {
             true => mod_hashes.remove(&relation.mod_hash),

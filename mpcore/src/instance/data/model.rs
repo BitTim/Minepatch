@@ -6,7 +6,7 @@
  *
  * File:       model.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   01.03.25, 19:13
+ * Modified:   21.03.25, 11:29
  */
 
 use crate::common::db::Entity;
@@ -51,7 +51,7 @@ impl Entity for Instance {
         }))
     }
 
-    fn to_params(&self) -> Vec<Box<dyn ToSql>> {
+    fn to_values(&self) -> Vec<Box<dyn ToSql>> {
         vec![
             Box::new(self.name.to_owned()),
             Box::new(self.path.display().to_string()),

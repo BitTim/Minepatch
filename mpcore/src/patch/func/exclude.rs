@@ -6,7 +6,7 @@
  *
  * File:       exclude.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   10.03.25, 10:26
+ * Modified:   21.03.25, 11:30
  */
 use crate::common::event;
 use crate::common::event::Event;
@@ -32,7 +32,7 @@ pub fn exclude(
         bundle: bundle.to_owned(),
         mod_hash: mod_hash.to_owned(),
     };
-    let relation = PatchModRelRepo::query_single(conn, &query);
+    let relation = PatchModRelRepo::by_filter(conn, &query);
 
     let mods = patch::simulate(conn, tx, name, bundle)?;
     if !mods.contains(mod_hash) {

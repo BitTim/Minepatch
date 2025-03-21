@@ -6,9 +6,9 @@
  *
  * File:       create.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.03.25, 11:25
+ * Modified:   21.03.25, 07:32
  */
-use crate::bundle::data::{Bundle, BundleFilter, BundleRepo};
+use crate::bundle::data::{Bundle, BundleRepo};
 use crate::bundle::error::BundleError;
 use crate::bundle::msg::BundleMessage;
 use crate::bundle::BundleProcess;
@@ -16,7 +16,7 @@ use crate::common::event::Event;
 use crate::common::{event, file};
 use crate::db::Repo;
 use crate::prelude::*;
-use crate::{instance, patch, template, vault};
+use crate::{instance, patch, vault};
 use rusqlite::Connection;
 use std::collections::HashSet;
 use std::path::Path;
@@ -29,24 +29,16 @@ pub fn create(
     tx: &Sender<Event>,
     name: &str,
     description: Option<&str>,
-    template: Option<&str>,
     from: Option<&Path>,
     instance: Option<&str>,
 ) -> Result<()> {
     event::init_progress(tx, Process::Bundle(BundleProcess::Create), None)?;
-    let exists_query = BundleFilter::QueryExactName {
-        name: name.to_owned(),
-    };
 
-    if BundleRepo::exists(conn, &exists_query)? {
+    if BundleRepo::exists(conn, name)? {
         return Err(Error::Bundle(BundleError::NameTaken(name.to_owned())));
     }
 
-    if template.is_some() {
-        template::validate(conn, tx, template.as_ref().unwrap())?;
-    }
-
-    let bundle = Bundle::new(name, description, template);
+    let bundle = Bundle::new(name, description);
     BundleRepo::insert(conn, bundle.to_owned())?;
 
     if let Some(from) = from {

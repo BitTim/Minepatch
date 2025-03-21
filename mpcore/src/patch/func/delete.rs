@@ -6,7 +6,7 @@
  *
  * File:       delete.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   12.03.25, 14:28
+ * Modified:   21.03.25, 11:30
  */
 use crate::db::Repo;
 use crate::event::Event;
@@ -25,7 +25,7 @@ pub fn delete(conn: &Connection, tx: &Sender<Event>, name: &str, bundle: &str) -
         bundle: bundle.to_owned(),
     };
 
-    if !PatchRepo::exists(conn, &filter)? {
+    if !PatchRepo::exists_by_filter(conn, &filter)? {
         return Err(Error::Patch(PatchError::NotFound {
             name: name.to_owned(),
             bundle: bundle.to_owned(),

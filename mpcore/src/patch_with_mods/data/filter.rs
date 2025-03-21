@@ -6,7 +6,7 @@
  *
  * File:       filter.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   10.03.25, 10:26
+ * Modified:   21.03.25, 11:29
  */
 use crate::common::db::{Entity, Filter, InsertableFilter};
 use crate::error::Error;
@@ -52,7 +52,7 @@ impl Filter for PatchModRelFilter {
 
     fn params(&self) -> Vec<Box<dyn ToSql>> {
         match self {
-            PatchModRelFilter::Insert { relation } => relation.to_params(),
+            PatchModRelFilter::Insert { relation } => relation.to_values(),
             PatchModRelFilter::ByBundleExact { bundle } => vec![Box::new(bundle.to_owned())],
             PatchModRelFilter::ByPatchAndBundleExact { patch, bundle } => {
                 vec![Box::new(patch.to_owned()), Box::new(bundle.to_owned())]

@@ -6,7 +6,7 @@
  *
  * File:       clean.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   12.03.25, 14:26
+ * Modified:   21.03.25, 11:30
  */
 use crate::db::Repo;
 use crate::patch_with_mods::{PatchModRelFilter, PatchModRelRepo};
@@ -43,7 +43,7 @@ pub fn clean(conn: &Connection, tx: &Sender<Event>) -> Result<()> {
         let rel_filter = PatchModRelFilter::ByModHashExact {
             hash: hash.to_owned(),
         };
-        if !PatchModRelRepo::exists(conn, &rel_filter)? {
+        if !PatchModRelRepo::exists_by_filter(conn, &rel_filter)? {
             deleted.push((hash.to_owned(), id));
             vault::remove(conn, tx, Some(&hash), false, true)?
         }

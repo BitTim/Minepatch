@@ -6,7 +6,7 @@
  *
  * File:       filter.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.03.25, 11:25
+ * Modified:   21.03.25, 11:29
  */
 use crate::common::db::{Entity, Filter, InsertableFilter};
 use crate::error::Error;
@@ -44,7 +44,7 @@ impl Filter for ModFilter {
 
     fn params(&self) -> Vec<Box<dyn ToSql>> {
         match self {
-            ModFilter::Insert { entry } => entry.to_params(),
+            ModFilter::Insert { entry } => entry.to_values(),
             ModFilter::QueryAll => vec![],
             ModFilter::QueryHashExact { hash } => vec![Box::new(hash.to_owned())],
             ModFilter::QueryHashAndIDAndNameSimilar { hash, mod_id, name } => vec![

@@ -6,7 +6,7 @@
  *
  * File:       create.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   12.03.25, 10:48
+ * Modified:   21.03.25, 11:30
  */
 use crate::bundle;
 use crate::common::event;
@@ -36,7 +36,7 @@ pub fn create(
         name: name.to_owned(),
         bundle: bundle.to_owned(),
     };
-    if PatchRepo::exists(conn, &exists_query)? {
+    if PatchRepo::exists_by_filter(conn, &exists_query)? {
         return Err(Error::Patch(PatchError::NameExists {
             name: name.to_owned(),
             bundle: bundle.to_owned(),

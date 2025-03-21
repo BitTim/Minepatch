@@ -6,7 +6,7 @@
  *
  * File:       portable.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.03.25, 11:09
+ * Modified:   21.03.25, 07:35
  */
 use crate::bundle::data::BundleRepo;
 use crate::bundle::Bundle;
@@ -14,16 +14,14 @@ use crate::db::{Portable, Repo};
 use crate::patch::{Patch, PatchRepo};
 use crate::patch_with_mods::{PatchModRelRepo, PatchModRelation};
 use crate::prelude::*;
-use crate::template::{Template, TemplateFilter, TemplateRepo};
 use crate::vault::{ModFilter, PortableMod, VaultRepo};
-use crate::{bundle, patch, patch_with_mods, template, vault};
+use crate::{patch, patch_with_mods, vault};
 use bincode::{Decode, Encode};
 use rusqlite::Connection;
 
 #[derive(Eq, PartialEq, Hash, Debug, Clone, Encode, Decode)]
 pub struct PortableBundle {
     pub bundle: Bundle,
-    pub template: Option<Template>,
     pub patches: Vec<Patch>,
     pub relations: Vec<PatchModRelation>,
     pub mods: Vec<PortableMod>,
@@ -31,12 +29,7 @@ pub struct PortableBundle {
 
 impl PortableBundle {
     pub fn new(conn: &Connection, name: &str) -> Result<Self> {
-        let bundle = bundle::query_single(conn, name)?;
-        let template = bundle
-            .template
-            .to_owned()
-            .map(|template| template::query_single(conn, &template))
-            .transpose()?;
+        let bundle = BundleRepo::by_name(conn, name)?;
         let patches = patch::query_multiple(conn, None, Some(name))?;
         let relations = patch_with_mods::query_multiple_by_bundle(conn, name)?;
 
@@ -53,7 +46,6 @@ impl PortableBundle {
 
         Ok(Self {
             bundle,
-            template,
             patches: Vec::from_iter(patches),
             relations: Vec::from_iter(relations),
             mods,
@@ -73,15 +65,6 @@ impl PortableBundle {
 
         BundleRepo::insert(conn, self.bundle)?;
 
-        if let Some(template) = self.template {
-            let filter = TemplateFilter::QueryNameExact {
-                name: template.name.to_owned(),
-            };
-            if !TemplateRepo::exists(conn, &filter)? {
-                TemplateRepo::insert(conn, template)?;
-            }
-        }
-
         for patch in self.patches {
             PatchRepo::insert(conn, patch)?;
         }
@@ -90,7 +73,7 @@ impl PortableBundle {
             let filter = ModFilter::QueryHashExact {
                 hash: value.hash.to_owned(),
             };
-            if !VaultRepo::exists(conn, &filter)? {
+            if !VaultRepo::exists_by_filter(conn, &filter)? {
                 value.insert(conn)?;
             }
         }

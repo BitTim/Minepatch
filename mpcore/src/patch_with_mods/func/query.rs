@@ -6,7 +6,7 @@
  *
  * File:       query.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   10.03.25, 06:12
+ * Modified:   21.03.25, 11:30
  */
 use crate::db::Repo;
 use crate::patch_with_mods::{PatchModRelFilter, PatchModRelRepo, PatchModRelation};
@@ -25,7 +25,7 @@ pub fn query_single(
         bundle: bundle.to_owned(),
         mod_hash: mod_hash.to_owned(),
     };
-    PatchModRelRepo::query_single(conn, &query)
+    PatchModRelRepo::by_filter(conn, &query)
 }
 
 pub fn query_multiple(
@@ -37,7 +37,7 @@ pub fn query_multiple(
         patch: name.to_owned(),
         bundle: bundle.to_owned(),
     };
-    PatchModRelRepo::query_multiple(conn, &query)
+    PatchModRelRepo::by_filter_many(conn, &query)
 }
 
 pub fn query_multiple_by_bundle(
@@ -47,5 +47,5 @@ pub fn query_multiple_by_bundle(
     let query = PatchModRelFilter::ByBundleExact {
         bundle: bundle.to_owned(),
     };
-    PatchModRelRepo::query_multiple(conn, &query)
+    PatchModRelRepo::by_filter_many(conn, &query)
 }

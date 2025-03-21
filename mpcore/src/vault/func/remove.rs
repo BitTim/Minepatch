@@ -6,7 +6,7 @@
  *
  * File:       remove.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   11.03.25, 06:46
+ * Modified:   21.03.25, 11:30
  */
 use crate::common::event;
 use crate::common::event::EventError;
@@ -32,7 +32,7 @@ pub fn remove(
 ) -> Result<()> {
     let hashes: Vec<String> = if all {
         let query_all = ModFilter::QueryAll;
-        VaultRepo::query_multiple(conn, &query_all)?
+        VaultRepo::by_filter_many(conn, &query_all)?
             .iter()
             .map(|entry: &Mod| entry.hash.to_owned())
             .collect()
@@ -54,7 +54,7 @@ pub fn remove(
             mod_id: "".to_string(),
             name: "".to_string(),
         };
-        let matches = VaultRepo::query_multiple(conn, &query)?;
+        let matches = VaultRepo::by_filter_many(conn, &query)?;
         if matches.is_empty() {
             return Err(Error::Vault(VaultError::NotFound { hash }));
         }
@@ -89,7 +89,7 @@ pub fn remove(
         let rel_filter = PatchModRelFilter::ByModHashExact {
             hash: value.hash.to_owned(),
         };
-        let relations = PatchModRelRepo::query_multiple(conn, &rel_filter)?;
+        let relations = PatchModRelRepo::by_filter_many(conn, &rel_filter)?;
 
         if !relations.is_empty() {
             return Err(Error::Vault(VaultError::RelUsed {

@@ -6,7 +6,7 @@
  *
  * File:       model.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.03.25, 11:10
+ * Modified:   21.03.25, 11:29
  */
 use crate::common::db::Entity;
 use crate::prelude::*;
@@ -46,7 +46,7 @@ impl Entity for PatchModRelation {
         }))
     }
 
-    fn to_params(&self) -> Vec<Box<dyn ToSql>> {
+    fn to_values(&self) -> Vec<Box<dyn ToSql>> {
         vec![
             Box::new(self.patch.to_owned()),
             Box::new(self.bundle.to_owned()),

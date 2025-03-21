@@ -6,7 +6,7 @@
  *
  * File:       rename.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   12.03.25, 12:39
+ * Modified:   21.03.25, 11:30
  */
 use crate::db::Repo;
 use crate::event;
@@ -30,7 +30,7 @@ pub fn rename(
         name: name.to_owned(),
         bundle: bundle.to_owned(),
     };
-    let mut patch = PatchRepo::query_single(conn, &filter)?;
+    let mut patch = PatchRepo::by_filter(conn, &filter)?;
     patch.name = new_name.to_owned();
     PatchRepo::insert(conn, patch)?;
 
@@ -38,7 +38,7 @@ pub fn rename(
         patch: name.to_owned(),
         bundle: bundle.to_owned(),
     };
-    let relations = PatchModRelRepo::query_multiple(conn, &rel_filter)?;
+    let relations = PatchModRelRepo::by_filter_many(conn, &rel_filter)?;
     for mut rel in relations {
         rel.patch = new_name.to_owned();
         let filter = PatchModRelFilter::ByPatchAndBundleAndModHashExact {
@@ -55,7 +55,7 @@ pub fn rename(
         dependency: name.to_owned(),
         bundle: bundle.to_owned(),
     };
-    let dependants = PatchRepo::query_multiple(conn, &dep_filter)?;
+    let dependants = PatchRepo::by_filter_many(conn, &dep_filter)?;
     for mut dep in dependants {
         dep.dependency = new_name.to_owned();
         let filter = PatchFilter::ByNameAndBundleExact {

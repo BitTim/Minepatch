@@ -6,7 +6,7 @@
  *
  * File:       validate.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   11.03.25, 06:45
+ * Modified:   21.03.25, 11:30
  */
 use crate::common::event;
 use crate::common::event::Event;
@@ -32,7 +32,7 @@ pub fn validate(conn: &Connection, tx: &Sender<Event>, name: &str, exist_only: b
     let query = InstanceFilter::ByExactName {
         name: name.to_owned(),
     };
-    let instance = InstanceRepo::query_single(conn, &query)?;
+    let instance = InstanceRepo::by_filter(conn, &query)?;
 
     if exist_only {
         event::end_progress(tx, Process::Instance(InstanceProcess::Validate), None)?;

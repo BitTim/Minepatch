@@ -6,7 +6,7 @@
  *
  * File:       include.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   10.03.25, 10:26
+ * Modified:   21.03.25, 11:30
  */
 use crate::common::event::Event;
 use crate::db::Repo;
@@ -29,7 +29,7 @@ pub fn include(
         bundle: bundle.to_owned(),
         mod_hash: mod_hash.to_owned(),
     };
-    let relation = PatchModRelRepo::query_single(conn, &rel_filter);
+    let relation = PatchModRelRepo::by_filter(conn, &rel_filter);
 
     let mods = patch::simulate(conn, tx, name, bundle)?;
     if mods.contains(mod_hash) {

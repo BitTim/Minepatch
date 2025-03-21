@@ -6,7 +6,7 @@
  *
  * File:       add.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   01.03.25, 19:26
+ * Modified:   21.03.25, 11:30
  */
 
 use crate::common::event::Event;
@@ -32,7 +32,7 @@ pub fn add(conn: &Connection, tx: &Sender<Event>, path: &Path, overwrite: bool) 
         hash: hash.to_owned(),
     };
 
-    if VaultRepo::exists(conn, &exists_query)? && !overwrite {
+    if VaultRepo::exists_by_filter(conn, &exists_query)? && !overwrite {
         event::warning(
             tx,
             Box::new(Error::Vault(VaultError::AlreadyExists {
