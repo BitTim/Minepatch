@@ -6,18 +6,18 @@
  *
  * File:       clean.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   21.03.25, 11:30
+ * Modified:   21.03.25, 14:27
  */
 use crate::db::Repo;
 use crate::patch_with_mods::{PatchModRelFilter, PatchModRelRepo};
 use crate::prelude::*;
-use crate::vault::{ModMessage, ModProcess};
+use crate::vault::{ModMessage, ModProcess, VaultRepo};
 use crate::{event, vault};
 use rusqlite::Connection;
 use std::sync::mpsc::Sender;
 
 pub fn clean(conn: &Connection, tx: &Sender<Event>) -> Result<()> {
-    let hashes = vault::query_multiple(conn, None, None, None)?
+    let hashes = VaultRepo::by_hash_many(conn, None, false)?
         .iter()
         .map(|value| (value.hash.to_owned(), value.meta.id.to_owned()))
         .collect::<Vec<(String, String)>>();

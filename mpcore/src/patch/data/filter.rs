@@ -6,7 +6,7 @@
  *
  * File:       filter.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   12.03.25, 10:48
+ * Modified:   21.03.25, 14:54
  */
 use crate::common::db::{Filter, InsertableFilter};
 use crate::error::Error;
@@ -18,7 +18,9 @@ pub(crate) enum PatchFilter {
     ByNameAndBundleExact { name: String, bundle: String },
     ByNameAndBundleSimilar { name: String, bundle: String },
     ByDepAndBundleExact { dependency: String, bundle: String },
+    ByDepAndBundleSimilar { dependency: String, bundle: String },
     ByBundleExact { bundle: String },
+    ByBundleSimilar { bundle: String },
 }
 
 impl Filter for PatchFilter {
@@ -30,7 +32,11 @@ impl Filter for PatchFilter {
                 "WHERE name LIKE ?1||'%' AND bundle LIKE ?2||'%'"
             }
             PatchFilter::ByDepAndBundleExact { .. } => "WHERE dependency = ?1 AND bundle = ?2",
+            PatchFilter::ByDepAndBundleSimilar { .. } => {
+                "WHERE dependency LIKE ?1||'%' AND bundle LIKE ?2||'%'"
+            }
             PatchFilter::ByBundleExact { .. } => "WHERE bundle = ?1",
+            PatchFilter::ByBundleSimilar { .. } => "WHERE bundle LIKE ?1||'%",
         }
         .to_owned()
     }
@@ -46,10 +52,11 @@ impl Filter for PatchFilter {
             | PatchFilter::ByNameAndBundleSimilar { name, bundle } => {
                 vec![Box::new(name.to_owned()), Box::new(bundle.to_owned())]
             }
-            PatchFilter::ByDepAndBundleExact { dependency, bundle } => {
+            PatchFilter::ByDepAndBundleExact { dependency, bundle }
+            | PatchFilter::ByDepAndBundleSimilar { dependency, bundle } => {
                 vec![Box::new(dependency.to_owned()), Box::new(bundle.to_owned())]
             }
-            PatchFilter::ByBundleExact { bundle } => {
+            PatchFilter::ByBundleExact { bundle } | PatchFilter::ByBundleSimilar { bundle } => {
                 vec![Box::new(bundle.to_owned())]
             }
         }
@@ -68,15 +75,18 @@ impl Filter for PatchFilter {
                     bundle: bundle.to_owned(),
                 })
             }
-            PatchFilter::ByDepAndBundleExact { dependency, bundle } => {
+            PatchFilter::ByDepAndBundleExact { dependency, bundle }
+            | PatchFilter::ByDepAndBundleSimilar { dependency, bundle } => {
                 Error::Patch(PatchError::DepNotFound {
                     dependency: dependency.to_owned(),
                     bundle: bundle.to_owned(),
                 })
             }
-            PatchFilter::ByBundleExact { bundle } => Error::Patch(PatchError::BundleNotFound {
-                bundle: bundle.to_owned(),
-            }),
+            PatchFilter::ByBundleExact { bundle } | PatchFilter::ByBundleSimilar { bundle } => {
+                Error::Patch(PatchError::BundleNotFound {
+                    bundle: bundle.to_owned(),
+                })
+            }
         }
     }
 }
@@ -84,5 +94,44 @@ impl Filter for PatchFilter {
 impl InsertableFilter<Patch> for PatchFilter {
     fn insert(value: Patch) -> Self {
         Self::Insert { patch: value }
+    }
+}
+
+impl PatchFilter {
+    pub(crate) fn build_name_filter(
+        name: Option<&str>,
+        bundle: Option<&str>,
+        exact: bool,
+    ) -> PatchFilter {
+        let name = name.unwrap_or_default().to_owned();
+        let bundle = bundle.unwrap_or_default().to_owned();
+
+        match exact {
+            false => PatchFilter::ByNameAndBundleSimilar { name, bundle },
+            true => PatchFilter::ByNameAndBundleExact { name, bundle },
+        }
+    }
+
+    pub(crate) fn build_dependency_filter(
+        dependency: Option<&str>,
+        bundle: Option<&str>,
+        exact: bool,
+    ) -> PatchFilter {
+        let dependency = dependency.unwrap_or_default().to_owned();
+        let bundle = bundle.unwrap_or_default().to_owned();
+
+        match exact {
+            false => PatchFilter::ByDepAndBundleSimilar { dependency, bundle },
+            true => PatchFilter::ByDepAndBundleExact { dependency, bundle },
+        }
+    }
+
+    pub(crate) fn build_bundle_filter(bundle: Option<&str>, exact: bool) -> PatchFilter {
+        let bundle = bundle.unwrap_or_default().to_owned();
+
+        match exact {
+            false => PatchFilter::ByBundleSimilar { bundle },
+            true => PatchFilter::ByBundleExact { bundle },
+        }
     }
 }

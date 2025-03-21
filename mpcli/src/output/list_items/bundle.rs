@@ -6,7 +6,7 @@
  *
  * File:       bundle.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.03.25, 11:17
+ * Modified:   21.03.25, 12:28
  */
 use crate::output::{format_bool, format_string_option};
 use mpcore::bundle;
@@ -22,8 +22,6 @@ pub struct PackListItem {
     name: String,
     #[tabled(rename = "Description")]
     description: String,
-    #[tabled(rename = "Template")]
-    template: String,
     #[tabled(rename = "Valid")]
     valid: String,
 }
@@ -35,7 +33,6 @@ impl PackListItem {
         Ok(PackListItem {
             name: value.name.to_owned(),
             description: format_string_option(&value.description),
-            template: format_string_option(&value.template),
             valid: format_bool(&valid),
         })
     }

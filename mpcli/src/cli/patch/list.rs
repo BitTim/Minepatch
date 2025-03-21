@@ -6,11 +6,11 @@
  *
  * File:       list.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.03.25, 11:17
+ * Modified:   21.03.25, 14:36
  */
 use crate::output::list_items::patch::PatchListItem;
 use crate::output::table::TableOutput;
-use mpcore::patch::query_multiple;
+use mpcore::patch::PatchRepo;
 use mpcore::prelude::*;
 use rusqlite::Connection;
 use std::sync::mpsc::Sender;
@@ -21,10 +21,11 @@ pub(crate) fn list(
     name: &Option<String>,
     bundle: &Option<String>,
 ) -> Result<()> {
-    let results = query_multiple(
+    let results = PatchRepo::by_name_many(
         conn,
         name.to_owned().as_deref(),
         bundle.to_owned().as_deref(),
+        false,
     )?;
     let displays = results
         .iter()

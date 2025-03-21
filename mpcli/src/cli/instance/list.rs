@@ -6,17 +6,17 @@
  *
  * File:       list.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.03.25, 11:17
+ * Modified:   21.03.25, 14:35
  */
 use crate::output::list_items::instance::InstanceListItem;
 use crate::output::table::TableOutput;
-use mpcore::instance;
+use mpcore::instance::InstanceRepo;
 use mpcore::prelude::*;
 use rusqlite::Connection;
 use std::sync::mpsc::Sender;
 
 pub(crate) fn list(conn: &Connection, tx: &Sender<Event>, name: &Option<String>) -> Result<()> {
-    let instances = instance::query_multiple(conn, name.to_owned().as_deref())?
+    let instances = InstanceRepo::by_name_many(conn, name.to_owned().as_deref(), false)?
         .iter()
         .map(|instance| InstanceListItem::from(conn, tx, instance))
         .collect::<Vec<InstanceListItem>>();

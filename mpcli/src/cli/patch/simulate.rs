@@ -6,14 +6,14 @@
  *
  * File:       simulate.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.03.25, 11:26
+ * Modified:   21.03.25, 14:50
  */
 use crate::output::list_items::vault::ModListItem;
 use crate::output::table::TableOutput;
 use colored::Colorize;
+use mpcore::patch;
 use mpcore::prelude::*;
-use mpcore::vault::Mod;
-use mpcore::{patch, vault};
+use mpcore::vault::{Mod, VaultRepo};
 use rusqlite::Connection;
 use std::sync::mpsc::Sender;
 
@@ -44,11 +44,11 @@ pub(crate) fn simulate(
 
     let mods = patch::simulate(conn, tx, name, bundle)?
         .iter()
-        .map(|hash| vault::query_single(conn, hash))
+        .map(|hash| VaultRepo::by_hash(conn, hash, true))
         .collect::<Result<Vec<Mod>>>()?;
     let displays = mods
         .iter()
-        .map(|value| ModListItem::from(conn, tx, value))
+        .map(|value| ModListItem::from(conn, value))
         .collect::<Vec<ModListItem>>();
 
     let output = format!(

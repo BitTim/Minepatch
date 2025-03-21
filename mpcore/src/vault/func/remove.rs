@@ -6,7 +6,7 @@
  *
  * File:       remove.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   21.03.25, 11:30
+ * Modified:   21.03.25, 14:28
  */
 use crate::common::event;
 use crate::common::event::EventError;
@@ -16,7 +16,7 @@ use crate::file::get_base_vault_path;
 use crate::patch_with_mods::{PatchModRelFilter, PatchModRelRepo};
 use crate::prelude::*;
 use crate::vault::data::Mod;
-use crate::vault::data::{ModFilter, VaultRepo};
+use crate::vault::data::{VaultFilter, VaultRepo};
 use crate::vault::error::VaultError;
 use crate::vault::{ModMessage, ModProcess};
 use rusqlite::Connection;
@@ -31,8 +31,7 @@ pub fn remove(
     yes: bool,
 ) -> Result<()> {
     let hashes: Vec<String> = if all {
-        let query_all = ModFilter::QueryAll;
-        VaultRepo::by_filter_many(conn, &query_all)?
+        VaultRepo::by_hash_many(conn, None, false)?
             .iter()
             .map(|entry: &Mod| entry.hash.to_owned())
             .collect()
@@ -49,7 +48,7 @@ pub fn remove(
         Some(hashes.len() as u64),
     )?;
     for hash in hashes {
-        let query = ModFilter::QueryHashAndIDAndNameSimilar {
+        let query = VaultFilter::ByHashAndIDAndNameSimilar {
             hash: hash.to_owned(),
             mod_id: "".to_string(),
             name: "".to_string(),
@@ -97,7 +96,7 @@ pub fn remove(
             }));
         }
 
-        let remove_filter = ModFilter::QueryHashExact {
+        let remove_filter = VaultFilter::ByHashExact {
             hash: value.hash.to_owned(),
         };
         VaultRepo::remove(conn, &remove_filter)?;

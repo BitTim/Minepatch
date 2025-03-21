@@ -6,7 +6,7 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   10.03.25, 10:26
+ * Modified:   21.03.25, 12:30
  */
 mod create;
 mod export;
@@ -38,10 +38,6 @@ pub enum BundleCommands {
         /// The description for this bundle.
         #[arg(short, long)]
         description: Option<String>,
-
-        /// The template that is used for this bundle. An assigned template is purely informational and does not affect function.
-        #[arg(short, long)]
-        template: Option<String>,
 
         /// The path to a Minecraft instance. Using this option will generate a bundle from the contents of the instance.
         #[arg(short, long)]

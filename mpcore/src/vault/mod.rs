@@ -6,10 +6,10 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   01.03.25, 19:26
+ * Modified:   21.03.25, 14:34
  */
 
-pub(super) mod data;
+mod data;
 mod error;
 mod func;
 mod msg;

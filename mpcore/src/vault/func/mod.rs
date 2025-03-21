@@ -6,16 +6,14 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   12.03.25, 14:14
+ * Modified:   21.03.25, 13:57
  */
 mod add;
 mod clean;
-mod query;
 mod remove;
 mod validate;
 
 pub use add::*;
 pub use clean::*;
-pub use query::*;
 pub use remove::*;
 pub use validate::*;

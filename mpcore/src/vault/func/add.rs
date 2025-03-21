@@ -6,7 +6,7 @@
  *
  * File:       add.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   21.03.25, 11:30
+ * Modified:   21.03.25, 14:54
  */
 
 use crate::common::event::Event;
@@ -15,7 +15,7 @@ use crate::db::Repo;
 use crate::meta::{detect_loader, extract_meta};
 use crate::prelude::*;
 use crate::vault::data::Mod;
-use crate::vault::data::{ModFilter, VaultRepo};
+use crate::vault::data::{VaultFilter, VaultRepo};
 use crate::vault::{ModMessage, ModProcess, VaultError};
 use rusqlite::Connection;
 use std::fs;
@@ -28,7 +28,7 @@ pub fn add(conn: &Connection, tx: &Sender<Event>, path: &Path, overwrite: bool) 
     file::check_exists(path)?;
     let hash = hash::hash_file(path)?;
 
-    let exists_query = ModFilter::QueryHashExact {
+    let exists_query = VaultFilter::ByHashExact {
         hash: hash.to_owned(),
     };
 

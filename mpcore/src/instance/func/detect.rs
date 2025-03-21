@@ -6,11 +6,12 @@
  *
  * File:       detect.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   01.03.25, 00:53
+ * Modified:   21.03.25, 13:51
  */
 use crate::common::event;
 use crate::common::event::Event;
 use crate::instance::{InstanceError, InstanceMessage, InstanceProcess};
+use crate::patch::PatchRepo;
 use crate::prelude::*;
 use crate::{file, hash, patch};
 use rusqlite::Connection;
@@ -28,7 +29,8 @@ pub fn detect(
     let mod_paths = file::mod_paths_from_instance_path(path)?;
     let dir_hash = hash::hash_state_from_path(tx, &mod_paths)?;
 
-    let patches = patch::query_multiple(conn, None, bundle)?;
+    // TODO: Handle "exact" value
+    let patches = PatchRepo::by_name_many(conn, None, bundle, true)?;
     let mut patch_iter = patches.iter();
 
     let result = loop {

@@ -6,7 +6,7 @@
  *
  * File:       path_utils.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.03.25, 11:27
+ * Modified:   21.03.25, 14:54
  */
 use crate::db::Portable;
 use crate::file::error::FileError;
@@ -90,7 +90,7 @@ where
         Ok(canonicalized_parent)
     } else {
         let mut canonicalized_dir = path::absolute(path)?.canonicalize()?;
-        canonicalized_dir.push(format!("{}.{}", entity.object_name(), T::file_extension()));
+        canonicalized_dir.push(format!("{}.{}", entity.name(), T::file_extension()));
         Ok(canonicalized_dir)
     }
 }

@@ -6,11 +6,12 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   06.02.25, 02:18
+ * Modified:   21.03.25, 13:13
  */
-mod model;
-pub use model::*;
 mod filter;
-pub(crate) use filter::*;
+mod model;
 mod repo;
-pub(super) use repo::*;
+
+pub(crate) use filter::*;
+pub use model::*;
+pub use repo::*;

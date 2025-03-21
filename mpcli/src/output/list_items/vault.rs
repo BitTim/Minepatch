@@ -6,17 +6,15 @@
  *
  * File:       vault.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.03.25, 11:26
+ * Modified:   21.03.25, 14:50
  */
 use crate::output::detailed::{DetailedDisplayObject, Entry};
 use crate::output::{format_bool, format_string_option};
 use colored::Colorize;
-use mpcore::prelude::Event;
 use mpcore::vault;
 use mpcore::vault::Mod;
 use rusqlite::Connection;
 use std::fmt::{Display, Formatter};
-use std::sync::mpsc::Sender;
 use tabled::Tabled;
 
 #[derive(Debug, Tabled)]
@@ -48,11 +46,11 @@ impl Display for ModListItem {
 }
 
 impl ModListItem {
-    pub(crate) fn from(conn: &Connection, tx: &Sender<Event>, value: &Mod) -> Self {
+    pub(crate) fn from(conn: &Connection, value: &Mod) -> Self {
         let mut short_hash = value.hash.to_owned();
         short_hash.truncate(8);
 
-        let valid = vault::validate(conn, tx, &value.hash).is_ok();
+        let valid = vault::validate(conn, &value.hash).is_ok();
 
         ModListItem {
             short_hash,
@@ -67,9 +65,9 @@ impl ModListItem {
 }
 
 impl DetailedDisplayObject {
-    pub(crate) fn from_mod(conn: &Connection, tx: &Sender<Event>, value: &Mod) -> Self {
+    pub(crate) fn from_mod(conn: &Connection, value: &Mod) -> Self {
         let authors = value.meta.authors.as_deref().map(|value| value.join("\n"));
-        let valid = vault::validate(conn, tx, &value.hash).is_ok();
+        let valid = vault::validate(conn, &value.hash).is_ok();
 
         DetailedDisplayObject::new(
             vec![

@@ -6,29 +6,17 @@
  *
  * File:       validate.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   21.03.25, 11:30
+ * Modified:   21.03.25, 14:48
  */
-use crate::common::event;
 use crate::db::Repo;
 use crate::prelude::*;
-use crate::vault::data::{ModFilter, VaultRepo};
-use crate::vault::{ModMessage, ModProcess, VaultError};
+use crate::vault::VaultError;
+use crate::vault::data::{VaultFilter, VaultRepo};
 use rusqlite::Connection;
 use std::fs;
-use std::sync::mpsc::Sender;
 
-pub fn validate(conn: &Connection, tx: &Sender<Event>, hash: &str) -> Result<()> {
-    event::init_progress(tx, Process::Mod(ModProcess::Validate), None)?;
-    event::tick_progress(
-        tx,
-        Process::Mod(ModProcess::Validate),
-        Message::Mod(ModMessage::ValidateStatus {
-            hash: hash.to_owned(),
-        }),
-        1,
-    )?;
-
-    let query = ModFilter::QueryHashExact {
+pub fn validate(conn: &Connection, hash: &str) -> Result<()> {
+    let query = VaultFilter::ByHashExact {
         hash: hash.to_owned(),
     };
     let value = VaultRepo::by_filter(conn, &query)?;
@@ -40,6 +28,5 @@ pub fn validate(conn: &Connection, tx: &Sender<Event>, hash: &str) -> Result<()>
         }));
     }
 
-    event::end_progress(tx, Process::Mod(ModProcess::Validate), None)?;
     Ok(())
 }

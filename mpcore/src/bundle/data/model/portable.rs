@@ -6,19 +6,23 @@
  *
  * File:       portable.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   21.03.25, 07:35
+ * Modified:   21.03.25, 14:54
  */
-use crate::bundle::data::BundleRepo;
 use crate::bundle::Bundle;
+use crate::bundle::data::BundleRepo;
 use crate::db::{Portable, Repo};
+use crate::hash::Hash;
 use crate::patch::{Patch, PatchRepo};
+use crate::patch_with_mods;
 use crate::patch_with_mods::{PatchModRelRepo, PatchModRelation};
 use crate::prelude::*;
-use crate::vault::{ModFilter, PortableMod, VaultRepo};
-use crate::{patch, patch_with_mods, vault};
+use crate::vault::{PortableMod, VaultFilter, VaultRepo};
 use bincode::{Decode, Encode};
 use rusqlite::Connection;
 
+/// The portable variant of [Bundle]
+///
+/// A [Bundle] combined with all relations. Implements [Portable] for import / export functionality
 #[derive(Eq, PartialEq, Hash, Debug, Clone, Encode, Decode)]
 pub struct PortableBundle {
     pub bundle: Bundle,
@@ -28,20 +32,26 @@ pub struct PortableBundle {
 }
 
 impl PortableBundle {
+    /// Creates a new instance of [PortableBundle].
+    ///
+    /// Takes a database [Connection] and the name of a [Bundle] and creates a [PortableBundle] object. Fetches all relations by itself.
     pub fn new(conn: &Connection, name: &str) -> Result<Self> {
-        let bundle = BundleRepo::by_name(conn, name)?;
-        let patches = patch::query_multiple(conn, None, Some(name))?;
+        // TODO: Handle "exact" value
+        let bundle = BundleRepo::by_name(conn, name, true)?;
+        // TODO: Handle "exact" value
+        let patches = PatchRepo::by_name_many(conn, None, Some(name), true)?;
         let relations = patch_with_mods::query_multiple_by_bundle(conn, name)?;
 
         let mut mod_hashes = relations
             .iter()
             .map(|rel| rel.mod_hash.to_owned())
-            .collect::<Vec<String>>();
+            .collect::<Vec<Hash>>();
         mod_hashes.dedup();
 
         let mods = mod_hashes
             .iter()
-            .map(|hash| vault::query_single(conn, hash).map(PortableMod::new)?)
+            // TODO: Handle "exact" value
+            .map(|hash| VaultRepo::by_hash(conn, hash, true).map(PortableMod::new)?)
             .collect::<Result<Vec<PortableMod>>>()?;
 
         Ok(Self {
@@ -52,6 +62,9 @@ impl PortableBundle {
         })
     }
 
+    /// Inserts a [PortableBundle] instance into the database
+    ///
+    /// Takes a database [Connection] and inserts all relations and the [Bundle] itself into the database. Optionally takes a name that overrides the name set in the instance.
     pub fn insert(mut self, conn: &Connection, name: Option<&str>) -> Result<()> {
         if let Some(name) = name {
             self.bundle.name = name.to_owned();
@@ -70,7 +83,7 @@ impl PortableBundle {
         }
 
         for value in self.mods {
-            let filter = ModFilter::QueryHashExact {
+            let filter = VaultFilter::ByHashExact {
                 hash: value.hash.to_owned(),
             };
             if !VaultRepo::exists_by_filter(conn, &filter)? {
@@ -87,11 +100,30 @@ impl PortableBundle {
 }
 
 impl Portable for PortableBundle {
+    /// Returns the file extension to use for exported [PortableBundles].
     fn file_extension() -> String {
         "mpb".to_owned()
     }
 
-    fn object_name(&self) -> String {
+    /// Returns the name for the [PortableBundle] object.
+    fn name(&self) -> String {
         self.bundle.name.to_owned()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn file_extension() {
+        assert_eq!(PortableBundle::file_extension(), "mpb");
+    }
+
+    #[test]
+    fn name() {
+        //TODO: Needs Database Mock
+        //let pb = PortableBundle::new()
+        //assert_eq!(PortableBundle::file_extension(), "mpb");
     }
 }

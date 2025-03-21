@@ -6,14 +6,15 @@
  *
  * File:       delete.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   21.03.25, 11:30
+ * Modified:   21.03.25, 14:54
  */
 use crate::db::Repo;
+use crate::event;
 use crate::event::Event;
+use crate::instance::data::InstanceRepo;
 use crate::patch::{PatchError, PatchFilter, PatchMessage, PatchProcess, PatchRepo};
 use crate::patch_with_mods::{PatchModRelFilter, PatchModRelRepo};
 use crate::prelude::*;
-use crate::{event, instance, patch};
 use rusqlite::Connection;
 use std::sync::mpsc::Sender;
 
@@ -32,7 +33,8 @@ pub fn delete(conn: &Connection, tx: &Sender<Event>, name: &str, bundle: &str) -
         }));
     }
 
-    let dependant = patch::query_by_dependency_single(conn, name, bundle);
+    // TODO: Handle "exact" value
+    let dependant = PatchRepo::by_dependency(conn, name, bundle, true);
     if dependant.is_ok() {
         return Err(Error::Patch(PatchError::PatchInUseByPatch {
             name: name.to_owned(),
@@ -41,7 +43,7 @@ pub fn delete(conn: &Connection, tx: &Sender<Event>, name: &str, bundle: &str) -
         }));
     }
 
-    let instance = instance::query_single_by_patch(conn, name);
+    let instance = InstanceRepo::by_patch(conn, name, true);
     if instance.is_ok() {
         return Err(Error::Patch(PatchError::PatchInUseByInstance {
             name: name.to_owned(),

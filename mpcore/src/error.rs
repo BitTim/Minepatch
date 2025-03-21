@@ -6,7 +6,7 @@
  *
  * File:       error.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.03.25, 11:03
+ * Modified:   21.03.25, 12:27
  */
 use crate::bundle::BundleError;
 use crate::common::event::{Event, EventError};
@@ -14,7 +14,6 @@ use crate::common::file::error::FileError;
 use crate::common::meta::error::MetaError;
 use crate::instance::InstanceError;
 use crate::patch::PatchError;
-use crate::template::TemplateError;
 use crate::vault::VaultError;
 use std::sync::mpsc;
 
@@ -31,8 +30,6 @@ pub enum Error {
     Event(#[from] EventError),
     #[error(transparent)]
     Vault(#[from] VaultError),
-    #[error(transparent)]
-    Template(#[from] TemplateError),
     #[error(transparent)]
     Patch(#[from] PatchError),
     #[error(transparent)]

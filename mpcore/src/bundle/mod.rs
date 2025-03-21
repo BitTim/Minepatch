@@ -6,10 +6,10 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   01.03.25, 00:36
+ * Modified:   21.03.25, 12:29
  */
 pub(super) mod data;
-pub use data::Bundle;
+pub use data::*;
 mod error;
 pub use error::*;
 mod func;

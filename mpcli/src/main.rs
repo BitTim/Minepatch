@@ -6,13 +6,12 @@
  *
  * File:       main.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.03.25, 11:25
+ * Modified:   21.03.25, 12:30
  */
 use crate::cli::bundle::BundleCommands;
 use crate::cli::instance::InstanceCommands;
 use crate::cli::patch::PatchCommands;
-use crate::cli::template::TemplateCommands;
-use crate::cli::{bundle, instance, patch, template, vault, Cli, Commands};
+use crate::cli::{Cli, Commands, bundle, instance, patch, vault};
 use crate::output::format_string_option;
 use crate::output::status::{Status, StatusOutput};
 use clap::Parser;
@@ -30,7 +29,6 @@ use mpcore::instance::{InstanceMessage, InstanceProcess};
 use mpcore::msg::Process;
 use mpcore::patch::{PatchMessage, PatchProcess};
 use mpcore::prelude::*;
-use mpcore::template::{TemplateMessage, TemplateProcess};
 use mpcore::vault::{ModMessage, ModProcess};
 use rusqlite::Connection;
 use std::collections::HashMap;
@@ -74,17 +72,6 @@ fn match_command(command: &Commands, conn: &Connection, tx: &Sender<Event>) -> R
             }
             VaultCommands::Clean => vault::clean(conn, tx)?,
         },
-        Commands::Template {
-            template_commands: template_command,
-        } => match template_command {
-            TemplateCommands::Create {
-                name,
-                version,
-                loader,
-                download,
-            } => template::create(conn, tx, name, version, loader, download)?,
-            TemplateCommands::List { name } => template::list(conn, tx, name)?,
-        },
         Commands::Patch {
             patch_commands: patch_command,
         } => match patch_command {
@@ -127,18 +114,9 @@ fn match_command(command: &Commands, conn: &Connection, tx: &Sender<Event>) -> R
             BundleCommands::Create {
                 name,
                 description,
-                template,
                 from,
                 instance,
-            } => bundle::create(
-                conn,
-                tx,
-                name,
-                description,
-                template,
-                from.as_deref(),
-                instance,
-            )?,
+            } => bundle::create(conn, tx, name, description, from.as_deref(), instance)?,
             BundleCommands::Delete => {}
             BundleCommands::Export { name, path } => {
                 bundle::export(conn, tx, name, path.as_deref())?
@@ -188,12 +166,6 @@ fn match_process(process: &Process) -> String {
             ModProcess::Export => "Export mod",
             ModProcess::Import => "Import mod",
             ModProcess::Clean => "Cleaning vault",
-        },
-        Process::Template(process) => match process {
-            TemplateProcess::Create => "Create template",
-            TemplateProcess::Validate => "Validate template",
-            TemplateProcess::Export => "Export template",
-            TemplateProcess::Import => "Import template",
         },
         Process::Comp(process) => match process {
             CompProcess::Serialize => "Serialize",
@@ -355,21 +327,6 @@ fn match_message(message: &Message) -> String {
                 msg
             }
             ModMessage::CleanStatus { hash, id } => format!("'{}' [{}]", id.cyan(), hash.yellow()),
-        },
-        Message::Template(message) => match message {
-            TemplateMessage::CreateSuccess { template } => {
-                format!("Created template '{}'", template.name.cyan())
-            }
-            TemplateMessage::ValidateSuccess { name } => {
-                format!("Validated template '{}'", name.cyan())
-            }
-            TemplateMessage::ValidateStatus { name } => format!("{}", name.cyan()),
-            TemplateMessage::ExportSuccess { name, path } => {
-                format!("Exported template '{}' to file '{}'", name, path.display())
-            }
-            TemplateMessage::ImportSuccess { name, path } => {
-                format!("Imported template '{}' from file '{}", name, path.display())
-            }
         },
         Message::Comp(_message) => "".to_owned(),
     }

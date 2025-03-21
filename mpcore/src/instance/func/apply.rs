@@ -6,20 +6,23 @@
  *
  * File:       apply.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   01.03.25, 00:53
+ * Modified:   21.03.25, 14:29
  */
 use crate::common::event;
 use crate::common::event::Event;
+use crate::instance::data::InstanceRepo;
 use crate::instance::{InstanceMessage, InstanceProcess};
 use crate::prelude::*;
-use crate::{file, instance, patch, vault};
+use crate::vault::VaultRepo;
+use crate::{file, instance, patch};
 use rusqlite::Connection;
 use std::sync::mpsc::Sender;
 use std::{fs, process};
 
 pub fn apply(conn: &Connection, tx: &Sender<Event>, instance: &str, patch: &str) -> Result<()> {
     event::init_progress(tx, Process::Instance(InstanceProcess::Apply), None)?;
-    let instance = instance::query_single(conn, instance)?;
+    // TODO: Handle "exact" value
+    let instance = InstanceRepo::by_name(conn, instance, true)?;
 
     let mods_path = instance.path.join("mods");
     let tmp_mods_path = mods_path.with_extension(process::id().to_string());
@@ -36,7 +39,8 @@ pub fn apply(conn: &Connection, tx: &Sender<Event>, instance: &str, patch: &str)
     let hashes = patch::simulate(conn, tx, patch, &instance.bundle)?;
 
     for hash in hashes {
-        let mod_entry = vault::query_single(conn, &hash)?;
+        // TODO: Handle "exact" value
+        let mod_entry = VaultRepo::by_hash(conn, &hash, true)?;
         let filename = file::filename_from_path(&mod_entry.path)?;
         let path = mods_path.join(filename);
 

@@ -6,17 +6,17 @@
  *
  * File:       list.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.03.25, 11:17
+ * Modified:   21.03.25, 14:33
  */
 use crate::output::list_items::bundle::PackListItem;
 use crate::output::table::TableOutput;
-use mpcore::bundle;
+use mpcore::bundle::BundleRepo;
 use mpcore::prelude::*;
 use rusqlite::Connection;
 use std::sync::mpsc::Sender;
 
 pub(crate) fn list(conn: &Connection, tx: &Sender<Event>, name: &Option<String>) -> Result<()> {
-    let results = bundle::query_multiple(conn, name.to_owned().as_deref())?;
+    let results = BundleRepo::by_name_many(conn, name.to_owned().as_deref(), false)?;
     let list_items = results
         .iter()
         .map(|value| PackListItem::from(conn, tx, value))

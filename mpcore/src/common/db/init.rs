@@ -6,7 +6,7 @@
  *
  * File:       init.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   01.03.25, 00:53
+ * Modified:   21.03.25, 12:32
  */
 use crate::db::{get_schema_version, set_schema_version};
 use crate::{file, prelude};
@@ -40,19 +40,9 @@ fn create_tables(conn: &Connection) -> prelude::Result<()> {
             mc_version TEXT
         );
 
-        CREATE TABLE IF NOT EXISTS template (
-            name TEXT NOT NULL PRIMARY KEY,
-            version TEXT,
-            loader TEXT,
-            download TEXT
-        );
-
         CREATE TABLE IF NOT EXISTS bundle (
             name TEXT NOT NULL PRIMARY KEY,
-            description TEXT,
-            template TEXT,
-            
-            FOREIGN KEY (template) REFERENCES template(name)
+            description TEXT
         );
 
         CREATE TABLE IF NOT EXISTS patch (

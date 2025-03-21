@@ -6,7 +6,7 @@
  *
  * File:       traits.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   21.03.25, 11:29
+ * Modified:   21.03.25, 14:54
  */
 use crate::error::Error;
 use crate::prelude::*;
@@ -41,7 +41,7 @@ pub(crate) trait Entity: Eq + PartialEq + Hash {
 
 pub(crate) trait Portable: Eq + PartialEq + Hash + Encode + Decode<()> {
     fn file_extension() -> String;
-    fn object_name(&self) -> String;
+    fn name(&self) -> String;
     fn export(
         &self,
         tx: &Sender<Event>,

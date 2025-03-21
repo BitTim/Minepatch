@@ -6,10 +6,9 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   01.03.25, 00:58
+ * Modified:   21.03.25, 12:30
  */
 pub mod bundle;
 pub mod instance;
 pub mod patch;
-pub mod template;
 pub mod vault;

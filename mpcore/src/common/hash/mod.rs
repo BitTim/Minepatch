@@ -6,10 +6,12 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   11.02.25, 03:42
+ * Modified:   21.03.25, 12:16
  */
 mod func;
 mod msg;
 
 pub(crate) use func::*;
 pub use msg::*;
+
+pub type Hash = String;

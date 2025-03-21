@@ -6,7 +6,7 @@
  *
  * File:       filter.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   21.03.25, 11:29
+ * Modified:   21.03.25, 13:00
  */
 use crate::bundle::{Bundle, BundleError};
 use crate::common::db::{Entity, Filter, InsertableFilter};
@@ -15,16 +15,16 @@ use rusqlite::ToSql;
 
 pub(crate) enum BundleFilter {
     Insert { bundle: Bundle },
-    QueryExactName { name: String },
-    QuerySimilarName { name: String },
+    ByExactName { name: String },
+    BySimilarName { name: String },
 }
 
 impl Filter for BundleFilter {
     fn value(&self) -> String {
         match self {
             BundleFilter::Insert { .. } => "VALUES (?1, ?2, ?3)",
-            BundleFilter::QueryExactName { .. } => "WHERE name = ?1",
-            BundleFilter::QuerySimilarName { .. } => "WHERE name LIKE ?1||'%'",
+            BundleFilter::ByExactName { .. } => "WHERE name = ?1",
+            BundleFilter::BySimilarName { .. } => "WHERE name LIKE ?1||'%'",
         }
         .to_owned()
     }
@@ -32,8 +32,8 @@ impl Filter for BundleFilter {
     fn params(&self) -> Vec<Box<dyn ToSql>> {
         match self {
             BundleFilter::Insert { bundle } => bundle.to_values(),
-            BundleFilter::QueryExactName { name } => vec![Box::new(name.to_owned())],
-            BundleFilter::QuerySimilarName { name } => vec![Box::new(name.to_owned())],
+            BundleFilter::ByExactName { name } => vec![Box::new(name.to_owned())],
+            BundleFilter::BySimilarName { name } => vec![Box::new(name.to_owned())],
         }
     }
 
@@ -42,7 +42,7 @@ impl Filter for BundleFilter {
             BundleFilter::Insert { bundle } => {
                 Error::Bundle(BundleError::NameTaken(bundle.name.to_owned()))
             }
-            BundleFilter::QueryExactName { name } | BundleFilter::QuerySimilarName { name } => {
+            BundleFilter::ByExactName { name } | BundleFilter::BySimilarName { name } => {
                 Error::Bundle(BundleError::NotFound(name.to_owned()))
             }
         }
@@ -52,5 +52,16 @@ impl Filter for BundleFilter {
 impl InsertableFilter<Bundle> for BundleFilter {
     fn insert(value: Bundle) -> Self {
         Self::Insert { bundle: value }
+    }
+}
+
+impl BundleFilter {
+    pub(crate) fn build_name_filter(name: Option<&str>, exact: bool) -> Self {
+        let name = name.unwrap_or_default().to_owned();
+
+        match exact {
+            false => Self::BySimilarName { name },
+            true => Self::ByExactName { name },
+        }
     }
 }

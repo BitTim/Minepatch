@@ -6,7 +6,7 @@
  *
  * File:       portable.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   20.03.25, 11:26
+ * Modified:   21.03.25, 14:54
  */
 use crate::db::{Portable, Repo};
 use crate::file;
@@ -58,7 +58,7 @@ impl Portable for PortableMod {
         "mpm".to_owned()
     }
 
-    fn object_name(&self) -> String {
+    fn name(&self) -> String {
         self.meta.id.to_owned()
     }
 }

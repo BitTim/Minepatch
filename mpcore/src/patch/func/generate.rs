@@ -6,11 +6,12 @@
  *
  * File:       generate.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   11.03.25, 06:45
+ * Modified:   21.03.25, 13:23
  */
 use crate::common::event;
 use crate::common::event::Event;
 use crate::hash::hash_file;
+use crate::instance::data::InstanceRepo;
 use crate::patch::{PatchMessage, PatchProcess};
 use crate::prelude::*;
 use crate::{file, instance, patch, vault};
@@ -23,7 +24,8 @@ use std::sync::mpsc::Sender;
 pub fn generate(conn: &Connection, tx: &Sender<Event>, name: &str, instance: &str) -> Result<()> {
     event::init_progress(tx, Process::Patch(PatchProcess::Generate), None)?;
 
-    let instance = instance::query_single(conn, instance)?;
+    // TODO: Handle "exact" value
+    let instance = InstanceRepo::by_name(conn, instance, true)?;
     instance::validate(conn, tx, &instance.name, true)?;
 
     let sim_hashes = patch::simulate(conn, tx, &instance.patch, &instance.bundle)?;

@@ -6,12 +6,13 @@
  *
  * File:       simulate.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   21.03.25, 11:30
+ * Modified:   21.03.25, 14:29
  */
 use crate::common::event;
 use crate::common::event::Event;
 use crate::db::Repo;
 use crate::hash;
+use crate::hash::Hash;
 use crate::patch::data::{PatchFilter, PatchRepo};
 use crate::patch::{PatchMessage, PatchProcess};
 use crate::patch_with_mods::{PatchModRelFilter, PatchModRelRepo};
@@ -25,7 +26,7 @@ pub fn simulate(
     tx: &Sender<Event>,
     name: &str,
     bundle: &str,
-) -> Result<HashSet<String>> {
+) -> Result<HashSet<Hash>> {
     event::init_progress(tx, Process::Patch(PatchProcess::Simulate), None)?;
     event::tick_progress(
         tx,

@@ -6,7 +6,7 @@
  *
  * File:       entity.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   21.03.25, 11:29
+ * Modified:   21.03.25, 12:08
  */
 use crate::common::db::Entity;
 use crate::prelude::*;
@@ -54,5 +54,15 @@ impl Entity for Bundle {
             Box::new(self.name.to_owned()),
             Box::new(self.description.to_owned()),
         ]
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn table_name() {
+        assert_eq!(Bundle::table_name(), "bundle")
     }
 }
