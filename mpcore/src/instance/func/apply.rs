@@ -6,7 +6,7 @@
  *
  * File:       apply.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   21.03.25, 14:29
+ * Modified:   25.03.25, 18:04
  */
 use crate::common::event;
 use crate::common::event::Event;
@@ -21,8 +21,13 @@ use std::{fs, process};
 
 pub fn apply(conn: &Connection, tx: &Sender<Event>, instance: &str, patch: &str) -> Result<()> {
     event::init_progress(tx, Process::Instance(InstanceProcess::Apply), None)?;
-    // TODO: Handle "exact" value
-    let instance = InstanceRepo::by_name(conn, instance, true)?;
+    let instance_options = InstanceRepo::by_name_many(conn, Some(instance), false)?;
+    let instance = event::select(
+        tx,
+        instance_options,
+        Message::Instance(InstanceMessage::Select),
+        |instance| Message::Instance(InstanceMessage::Option { instance }),
+    )?;
 
     let mods_path = instance.path.join("mods");
     let tmp_mods_path = mods_path.with_extension(process::id().to_string());
@@ -39,8 +44,7 @@ pub fn apply(conn: &Connection, tx: &Sender<Event>, instance: &str, patch: &str)
     let hashes = patch::simulate(conn, tx, patch, &instance.bundle)?;
 
     for hash in hashes {
-        // TODO: Handle "exact" value
-        let mod_entry = VaultRepo::by_hash(conn, &hash, true)?;
+        let mod_entry = VaultRepo::by_hash(conn, &hash)?;
         let filename = file::filename_from_path(&mod_entry.path)?;
         let path = mods_path.join(filename);
 

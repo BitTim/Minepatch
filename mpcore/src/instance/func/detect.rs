@@ -6,7 +6,7 @@
  *
  * File:       detect.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   21.03.25, 13:51
+ * Modified:   25.03.25, 18:07
  */
 use crate::common::event;
 use crate::common::event::Event;
@@ -29,8 +29,7 @@ pub fn detect(
     let mod_paths = file::mod_paths_from_instance_path(path)?;
     let dir_hash = hash::hash_state_from_path(tx, &mod_paths)?;
 
-    // TODO: Handle "exact" value
-    let patches = PatchRepo::by_name_many(conn, None, bundle, true)?;
+    let patches = PatchRepo::by_name_many(conn, None, bundle, false)?;
     let mut patch_iter = patches.iter();
 
     let result = loop {

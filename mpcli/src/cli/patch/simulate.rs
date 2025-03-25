@@ -6,7 +6,7 @@
  *
  * File:       simulate.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   21.03.25, 14:50
+ * Modified:   25.03.25, 18:16
  */
 use crate::output::list_items::vault::ModListItem;
 use crate::output::table::TableOutput;
@@ -44,7 +44,7 @@ pub(crate) fn simulate(
 
     let mods = patch::simulate(conn, tx, name, bundle)?
         .iter()
-        .map(|hash| VaultRepo::by_hash(conn, hash, true))
+        .map(|hash| VaultRepo::by_hash(conn, hash))
         .collect::<Result<Vec<Mod>>>()?;
     let displays = mods
         .iter()

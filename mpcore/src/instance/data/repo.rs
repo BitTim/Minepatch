@@ -6,7 +6,7 @@
  *
  * File:       repo.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   21.03.25, 14:35
+ * Modified:   25.03.25, 17:54
  */
 use crate::db::Repo;
 use crate::instance::data::Instance;
@@ -23,8 +23,8 @@ impl InstanceRepo {
         InstanceRepo::exists_by_filter(conn, &InstanceFilter::build_name_filter(Some(name), true))
     }
 
-    pub fn by_name(conn: &Connection, name: &str, exact: bool) -> Result<Instance> {
-        InstanceRepo::by_filter(conn, &InstanceFilter::build_name_filter(Some(name), exact))
+    pub fn by_name(conn: &Connection, name: &str) -> Result<Instance> {
+        InstanceRepo::by_filter(conn, &InstanceFilter::build_name_filter(Some(name), true))
     }
 
     pub fn by_name_many(
@@ -35,11 +35,8 @@ impl InstanceRepo {
         InstanceRepo::by_filter_many(conn, &InstanceFilter::build_name_filter(name, exact))
     }
 
-    pub fn by_patch(conn: &Connection, patch: &str, exact: bool) -> Result<Instance> {
-        InstanceRepo::by_filter(
-            conn,
-            &InstanceFilter::build_patch_filter(Some(patch), exact),
-        )
+    pub fn by_patch(conn: &Connection, patch: &str) -> Result<Instance> {
+        InstanceRepo::by_filter(conn, &InstanceFilter::build_patch_filter(Some(patch), true))
     }
 
     pub fn by_patch_many(conn: &Connection, patch: &str, exact: bool) -> Result<HashSet<Instance>> {

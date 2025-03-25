@@ -6,7 +6,7 @@
  *
  * File:       view.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   21.03.25, 14:50
+ * Modified:   25.03.25, 18:16
  */
 use crate::output::list_items::vault::ModListItem;
 use crate::output::table::TableOutput;
@@ -21,10 +21,9 @@ use rusqlite::Connection;
 use std::sync::mpsc::Sender;
 
 pub(crate) fn view(conn: &Connection, tx: &Sender<Event>, name: &str, bundle: &str) -> Result<()> {
-    // TODO: Handle "exact" value
-    let patch = PatchRepo::by_name(conn, name, bundle, true)?;
+    let patch = PatchRepo::by_name(conn, name, bundle)?;
     let relations = patch_with_mods::query_multiple(conn, name, bundle)?;
-    let next_patch = PatchRepo::by_dependency(conn, name, bundle, true).ok();
+    let next_patch = PatchRepo::by_dependency(conn, name, bundle).ok();
 
     let (added_mod_relations, removed_mod_relations): (Vec<_>, Vec<_>) =
         relations.iter().partition(|rel| !rel.removed);
@@ -82,6 +81,6 @@ pub(crate) fn view(conn: &Connection, tx: &Sender<Event>, name: &str, bundle: &s
 fn query_mods(relations: &[&PatchModRelation], conn: &Connection) -> Result<Vec<Mod>> {
     relations
         .iter()
-        .map(|rel| VaultRepo::by_hash(conn, &rel.mod_hash, true))
+        .map(|rel| VaultRepo::by_hash(conn, &rel.mod_hash))
         .collect()
 }

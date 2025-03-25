@@ -6,7 +6,7 @@
  *
  * File:       error.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   21.03.25, 12:27
+ * Modified:   25.03.25, 18:27
  */
 use crate::bundle::BundleError;
 use crate::common::event::{Event, EventError};
@@ -44,7 +44,7 @@ pub enum Error {
     #[error(transparent)]
     SendBool(#[from] mpsc::SendError<bool>),
     #[error(transparent)]
-    SendVecUsize(#[from] mpsc::SendError<Vec<usize>>),
+    SendUsize(#[from] mpsc::SendError<usize>),
     #[error(transparent)]
     Recv(#[from] mpsc::RecvError),
     #[error(transparent)]

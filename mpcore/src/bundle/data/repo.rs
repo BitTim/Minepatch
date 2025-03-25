@@ -6,7 +6,7 @@
  *
  * File:       repo.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   21.03.25, 13:00
+ * Modified:   25.03.25, 17:55
  */
 use crate::bundle::Bundle;
 use crate::bundle::data::filter::BundleFilter;
@@ -24,8 +24,8 @@ impl BundleRepo {
         BundleRepo::exists_by_filter(conn, &BundleFilter::build_name_filter(Some(name), true))
     }
 
-    pub fn by_name(conn: &Connection, name: &str, exact: bool) -> Result<Bundle> {
-        BundleRepo::by_filter(conn, &BundleFilter::build_name_filter(Some(name), exact))
+    pub fn by_name(conn: &Connection, name: &str) -> Result<Bundle> {
+        BundleRepo::by_filter(conn, &BundleFilter::build_name_filter(Some(name), true))
     }
 
     pub fn by_name_many(

@@ -6,7 +6,7 @@
  *
  * File:       portable.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   21.03.25, 14:54
+ * Modified:   25.03.25, 18:05
  */
 use crate::bundle::Bundle;
 use crate::bundle::data::BundleRepo;
@@ -36,9 +36,7 @@ impl PortableBundle {
     ///
     /// Takes a database [Connection] and the name of a [Bundle] and creates a [PortableBundle] object. Fetches all relations by itself.
     pub fn new(conn: &Connection, name: &str) -> Result<Self> {
-        // TODO: Handle "exact" value
-        let bundle = BundleRepo::by_name(conn, name, true)?;
-        // TODO: Handle "exact" value
+        let bundle = BundleRepo::by_name(conn, name)?;
         let patches = PatchRepo::by_name_many(conn, None, Some(name), true)?;
         let relations = patch_with_mods::query_multiple_by_bundle(conn, name)?;
 
@@ -50,8 +48,7 @@ impl PortableBundle {
 
         let mods = mod_hashes
             .iter()
-            // TODO: Handle "exact" value
-            .map(|hash| VaultRepo::by_hash(conn, hash, true).map(PortableMod::new)?)
+            .map(|hash| VaultRepo::by_hash(conn, hash).map(PortableMod::new)?)
             .collect::<Result<Vec<PortableMod>>>()?;
 
         Ok(Self {

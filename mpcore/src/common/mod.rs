@@ -6,7 +6,7 @@
  *
  * File:       mod.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   11.03.25, 07:15
+ * Modified:   25.03.25, 18:04
  */
 pub mod comp;
 pub mod db;

@@ -6,7 +6,7 @@
  *
  * File:       func.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   11.03.25, 06:54
+ * Modified:   25.03.25, 18:26
  */
 use crate::common::event::{Event, EventError};
 use crate::prelude::*;
@@ -55,9 +55,8 @@ pub(crate) fn select<T, F>(
     tx: &Sender<Event>,
     options: HashSet<T>,
     message: Message,
-    multiselect: bool,
-    option_to_message: F,
-) -> Result<HashSet<T>>
+    msg_generator: F,
+) -> Result<T>
 where
     T: Clone + Hash + Eq + PartialEq,
     F: Fn(T) -> Message,
@@ -67,29 +66,30 @@ where
     }
 
     if options.len() < 2 {
-        return Ok(options);
+        return options
+            .into_iter()
+            .next()
+            .ok_or(Error::Event(EventError::InvalidSelection));
     }
 
     let options = options.into_iter().collect::<Vec<T>>();
     let option_messages = options
         .clone()
         .into_iter()
-        .map(option_to_message)
+        .map(msg_generator)
         .collect::<Vec<Message>>();
 
     let (tx2, rx) = mpsc::channel();
     tx.send(Event::Select {
         tx: tx2,
         options: option_messages,
-        multiselect,
         message,
     })?;
 
     let response = rx.recv()?;
-    response
-        .into_iter()
-        .map(|index| options.get(index).map(ToOwned::to_owned))
-        .collect::<Option<HashSet<T>>>()
+    options
+        .get(response)
+        .map(ToOwned::to_owned)
         .ok_or(Error::Event(EventError::InvalidSelection))
 }
 

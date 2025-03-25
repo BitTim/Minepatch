@@ -6,7 +6,7 @@
  *
  * File:       main.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   21.03.25, 12:30
+ * Modified:   25.03.25, 18:24
  */
 use crate::cli::bundle::BundleCommands;
 use crate::cli::instance::InstanceCommands;
@@ -19,7 +19,7 @@ use cli::update::func;
 use cli::vault::VaultCommands;
 use colored::Colorize;
 use indicatif::{MultiProgress, ProgressBar, ProgressStyle};
-use inquire::{Confirm, MultiSelect, Select};
+use inquire::{Confirm, Select};
 use mpcore::bundle::{BundleMessage, BundleProcess};
 use mpcore::comp::CompProcess;
 use mpcore::db;
@@ -210,6 +210,15 @@ fn match_message(message: &Message) -> String {
             InstanceMessage::ValidateStatus { name } => {
                 format!("{}", name.cyan())
             }
+            InstanceMessage::Select => "Please select an instance".to_owned(),
+            InstanceMessage::Option { instance } => {
+                format!(
+                    "{} [{}, {}]",
+                    instance.name.cyan(),
+                    instance.bundle.cyan(),
+                    instance.path.display().to_string().cyan()
+                )
+            }
         },
         Message::Bundle(message) => match message {
             BundleMessage::AddModFileStatus { path, hash } => {
@@ -228,6 +237,14 @@ fn match_message(message: &Message) -> String {
             BundleMessage::ValidateStatus { name } => format!("{}", name.cyan()),
             BundleMessage::ExportSuccess { bundle, path } => {
                 format!("Exported bundle '{}' to file '{}'", bundle, path.display())
+            }
+            BundleMessage::Select => "Please select a bundle".to_owned(),
+            BundleMessage::Option { bundle } => {
+                format!(
+                    "{} ({})",
+                    bundle.name.cyan(),
+                    format_string_option(&bundle.description)
+                )
             }
         },
         Message::Patch(message) => match message {
@@ -416,29 +433,19 @@ fn match_event(rx: Receiver<Event>, processes: &mut HashMap<Process, ProgressBar
                 tx,
                 message,
                 options,
-                multiselect,
             } => {
-                let indices = multi_progress.suspend(|| {
+                let index = multi_progress.suspend(|| {
                     let option_strings = options.iter().map(match_message).collect::<Vec<String>>();
-                    let result = match multiselect {
-                        true => MultiSelect::new(&match_message(&message), option_strings.clone())
-                            .prompt()?,
-                        false => {
-                            vec![
-                                Select::new(&match_message(&message), option_strings.clone())
-                                    .prompt()?,
-                            ]
-                        }
-                    };
+                    let result =
+                        Select::new(&match_message(&message), option_strings.clone()).prompt()?;
 
-                    result
+                    option_strings
                         .iter()
-                        .map(|result| option_strings.iter().position(|msg| result == msg))
-                        .collect::<Option<Vec<usize>>>()
+                        .position(|msg| &result == msg)
                         .ok_or(Error::Event(EventError::InvalidSelection))
                 })?;
 
-                tx.send(indices)?;
+                tx.send(index)?;
             }
             Event::Warning { warning } => {
                 multi_progress

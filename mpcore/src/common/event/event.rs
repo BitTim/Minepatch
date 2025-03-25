@@ -6,7 +6,7 @@
  *
  * File:       event.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   11.03.25, 06:43
+ * Modified:   25.03.25, 18:25
  */
 use crate::prelude::*;
 use std::sync::mpsc;
@@ -33,10 +33,9 @@ pub enum Event {
     },
 
     Select {
-        tx: mpsc::Sender<Vec<usize>>,
+        tx: mpsc::Sender<usize>,
         message: Message,
         options: Vec<Message>,
-        multiselect: bool,
     },
 
     Warning {

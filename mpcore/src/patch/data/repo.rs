@@ -6,7 +6,7 @@
  *
  * File:       repo.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   21.03.25, 13:49
+ * Modified:   25.03.25, 17:56
  */
 use crate::db::Repo;
 use crate::patch::data::filter::PatchFilter;
@@ -26,10 +26,10 @@ impl PatchRepo {
         )
     }
 
-    pub fn by_name(conn: &Connection, name: &str, bundle: &str, exact: bool) -> Result<Patch> {
+    pub fn by_name(conn: &Connection, name: &str, bundle: &str) -> Result<Patch> {
         PatchRepo::by_filter(
             conn,
-            &PatchFilter::build_name_filter(Some(name), Some(bundle), exact),
+            &PatchFilter::build_name_filter(Some(name), Some(bundle), true),
         )
     }
 
@@ -42,15 +42,10 @@ impl PatchRepo {
         PatchRepo::by_filter_many(conn, &PatchFilter::build_name_filter(name, bundle, exact))
     }
 
-    pub fn by_dependency(
-        conn: &Connection,
-        dependency: &str,
-        bundle: &str,
-        exact: bool,
-    ) -> Result<Patch> {
+    pub fn by_dependency(conn: &Connection, dependency: &str, bundle: &str) -> Result<Patch> {
         PatchRepo::by_filter(
             conn,
-            &PatchFilter::build_dependency_filter(Some(dependency), Some(bundle), exact),
+            &PatchFilter::build_dependency_filter(Some(dependency), Some(bundle), true),
         )
     }
 
@@ -66,8 +61,8 @@ impl PatchRepo {
         )
     }
 
-    pub fn by_pack(conn: &Connection, bundle: &str, exact: bool) -> Result<Patch> {
-        PatchRepo::by_filter(conn, &PatchFilter::build_bundle_filter(Some(bundle), exact))
+    pub fn by_pack(conn: &Connection, bundle: &str) -> Result<Patch> {
+        PatchRepo::by_filter(conn, &PatchFilter::build_bundle_filter(Some(bundle), true))
     }
 
     pub fn by_pack_many(

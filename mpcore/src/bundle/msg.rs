@@ -6,7 +6,7 @@
  *
  * File:       msg.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   11.03.25, 05:59
+ * Modified:   25.03.25, 17:39
  */
 use crate::bundle::Bundle;
 use std::path::PathBuf;
@@ -27,4 +27,6 @@ pub enum BundleMessage {
     ValidateSuccess { name: String },
     ValidateStatus { name: String },
     ExportSuccess { bundle: String, path: PathBuf },
+    Select,
+    Option { bundle: Bundle },
 }

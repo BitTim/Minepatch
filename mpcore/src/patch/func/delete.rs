@@ -6,7 +6,7 @@
  *
  * File:       delete.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   21.03.25, 14:54
+ * Modified:   25.03.25, 18:29
  */
 use crate::db::Repo;
 use crate::event;
@@ -33,8 +33,7 @@ pub fn delete(conn: &Connection, tx: &Sender<Event>, name: &str, bundle: &str) -
         }));
     }
 
-    // TODO: Handle "exact" value
-    let dependant = PatchRepo::by_dependency(conn, name, bundle, true);
+    let dependant = PatchRepo::by_dependency(conn, name, bundle);
     if dependant.is_ok() {
         return Err(Error::Patch(PatchError::PatchInUseByPatch {
             name: name.to_owned(),
@@ -43,7 +42,7 @@ pub fn delete(conn: &Connection, tx: &Sender<Event>, name: &str, bundle: &str) -
         }));
     }
 
-    let instance = InstanceRepo::by_patch(conn, name, true);
+    let instance = InstanceRepo::by_patch(conn, name);
     if instance.is_ok() {
         return Err(Error::Patch(PatchError::PatchInUseByInstance {
             name: name.to_owned(),

@@ -6,10 +6,9 @@
  *
  * File:       remove.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   21.03.25, 14:28
+ * Modified:   25.03.25, 17:51
  */
 use crate::common::event;
-use crate::common::event::EventError;
 use crate::db::Repo;
 use crate::file;
 use crate::file::get_base_vault_path;
@@ -58,21 +57,16 @@ pub fn remove(
             return Err(Error::Vault(VaultError::NotFound { hash }));
         }
 
-        let values = event::select(
+        let value = event::select(
             tx,
             matches.into_iter().collect(),
             Message::Mod(ModMessage::RemoveSelect),
-            false,
             |option| {
                 Message::Mod(ModMessage::RemoveOption {
                     value: Box::new(option),
                 })
             },
         )?;
-        let value = values
-            .into_iter()
-            .next()
-            .ok_or(Error::Event(EventError::InvalidSelection))?;
 
         if !yes
             && !event::confirm(

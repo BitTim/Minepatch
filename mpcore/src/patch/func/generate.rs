@@ -6,7 +6,7 @@
  *
  * File:       generate.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   21.03.25, 13:23
+ * Modified:   25.03.25, 17:58
  */
 use crate::common::event;
 use crate::common::event::Event;
@@ -25,7 +25,7 @@ pub fn generate(conn: &Connection, tx: &Sender<Event>, name: &str, instance: &st
     event::init_progress(tx, Process::Patch(PatchProcess::Generate), None)?;
 
     // TODO: Handle "exact" value
-    let instance = InstanceRepo::by_name(conn, instance, true)?;
+    let instance = InstanceRepo::by_name(conn, instance)?;
     instance::validate(conn, tx, &instance.name, true)?;
 
     let sim_hashes = patch::simulate(conn, tx, &instance.patch, &instance.bundle)?;

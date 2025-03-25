@@ -6,7 +6,7 @@
  *
  * File:       repo.rs
  * Author:     Tim Anhalt (BitTim)
- * Modified:   21.03.25, 14:33
+ * Modified:   25.03.25, 17:58
  */
 use crate::db::Repo;
 use crate::hash::Hash;
@@ -24,8 +24,8 @@ impl VaultRepo {
         VaultRepo::exists_by_filter(conn, &VaultFilter::build_hash_filter(Some(hash), true))
     }
 
-    pub fn by_hash(conn: &Connection, hash: &Hash, exact: bool) -> Result<Mod> {
-        VaultRepo::by_filter(conn, &VaultFilter::build_hash_filter(Some(hash), exact))
+    pub fn by_hash(conn: &Connection, hash: &Hash) -> Result<Mod> {
+        VaultRepo::by_filter(conn, &VaultFilter::build_hash_filter(Some(hash), true))
     }
 
     pub fn by_hash_many(
@@ -41,16 +41,10 @@ impl VaultRepo {
         hash: &Hash,
         id: &str,
         name: &str,
-        exact: bool,
     ) -> Result<Mod> {
         VaultRepo::by_filter(
             conn,
-            &VaultFilter::build_hash_and_id_and_name_filter(
-                Some(hash),
-                Some(id),
-                Some(name),
-                exact,
-            ),
+            &VaultFilter::build_hash_and_id_and_name_filter(Some(hash), Some(id), Some(name), true),
         )
     }
 
